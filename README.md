@@ -23,7 +23,7 @@ Para vendas reais: integrar backend com estoque transacional e autorização no 
 Referência de identidade: https://www.instagram.com/zmexclusiva.store/ — terracota, dourado, creme, tipografia Poppins solicitada. Fotos convertidas para WebP, originais preservados localmente. Mapeamento em `docs/photo-manifest.json` e `docs/catalog-analysis.md`.
 
 ## Modelo 3D do vestido
-Prévia: http://localhost:4173/vestido-3d.html. A hero inclui o link “Ver vestido em 360°”.
+Prévia: http://localhost:4173/vestido-3d.html. A hero exibe o GLB interativo diretamente e oferece “Ampliar visualização 3D”.
 Arquivo: assets/models/vestido-aurora-aproximado.glb.
 
 É uma modelagem aproximada, não fotogrametria: frente e textura vêm da foto; volume, costas e conector são estimados. Não serve para medidas ou caimento. Modelo com superfícies curvas reais, aberto em visualizador com controles de ângulo, arraste e zoom.
