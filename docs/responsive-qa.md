@@ -12,7 +12,9 @@ Implementação: responsive.css após hero.css; hero-motion.js inicia animação
 | 768 px | 753 px | Hero e navegação de tablet sem largura excedente |
 | 844 × 390 px | 829 px | Cabeçalho e hero na horizontal sem largura excedente; página rola verticalmente |
 
-O carrossel de categorias tem rolagem horizontal própria. A elipse decorativa da hero ultrapassa sua caixa transformada e é recortada pelo próprio componente; isso não amplia a página.
+No mobile, as categorias quebram em linhas para manter todas as opções visíveis. A elipse decorativa da hero ultrapassa sua caixa transformada e é recortada pelo próprio componente; isso não amplia a página.
+
+Revisão após relato de corte lateral: uma aba aberta ainda exibia HTML anterior, sem responsive.css. Após recarregar, também foram verificadas molduras de 240 e 280 px (áreas úteis 225 e 265 px). Antes do ajuste, o cabeçalho aumentava a página para 268 e 270 px; após o ajuste, scrollWidth = clientWidth, com deslocamento horizontal zero. Em até 320 px, a marca fica compacta e a hero empilha texto e CTA; abaixo de 280 px, fotos e produtos usam uma coluna. Em 320/390/430 px, catálogo, filtros e títulos ficam inteiros, sem elementos fora da largura. Filtro Vestidos em 320 px confirmou 4 peças. O harness agora mede também elementos à esquerda e scrollLeft.
 
 Em 320 px: menu com favoritos acessível quando o atalho é recolhido do cabeçalho; admin renderiza as linhas como cartões; formulário de produto usa uma coluna; imagem dos detalhes usa contain; sacola e checkout mantêm campos e ações dentro da largura. A sacola de teste foi esvaziada ao fim; nenhum pedido foi criado nesta revisão.
 

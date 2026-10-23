@@ -70,7 +70,7 @@
   .collection-card h3{font-size:clamp(19px,5.4vw,26px)}
   .collection-card div>span{font-size:8px}
   .collection-card>div{left:15px;right:15px}
-  .category-pills{max-width:100%;min-width:0;gap:7px;padding:3px 1px 8px}
+  .category-pills{max-width:100%;min-width:0;gap:7px;padding:3px 1px 8px;flex-wrap:wrap;overflow:visible}
   .pill{font-size:11px;padding:10px 13px;min-height:44px;flex-shrink:0}
   .catalog-toolbar>.text-button{font-size:11px}
   .filter-row{gap:10px;flex-wrap:wrap}
@@ -219,4 +219,32 @@
   dialog{max-height:calc(100dvh - 16px)}
   .drawer{max-height:100dvh}
   #detail-image{height:70svh}
+}
+
+/* Also support narrow browser panels and zoomed mobile layouts. */
+@media(max-width:320px){
+  .announcement{height:auto;min-height:35px;padding:7px 5%;gap:4px 10px;flex-wrap:wrap;text-align:center;font-size:8px}
+  .announcement span{gap:5px}
+  .site-header .brand-name{display:none}
+  .hero-topline{flex-wrap:wrap;justify-content:flex-start}
+  .hero.hero-editorial{grid-template-areas:'top top' 'title title' 'garment garment' 'copy copy' 'shopping shopping' 'bottom bottom'}
+  .hero-editorial-copy{margin-bottom:24px}
+  .hero-shopping{width:100%;max-width:250px;justify-self:center}
+  .hero-bottomline{flex-wrap:wrap}
+  .hero-collection-card strong{font-size:26px}
+  .hero-cta{font-size:12px}
+  .catalog-toolbar,.filter-row,.section-heading{width:100%;min-width:0}
+  .section-heading h2{overflow-wrap:anywhere}
+  .category-pills .pill{padding:9px 10px}
+  .footer-top{grid-template-columns:minmax(0,1fr)}
+  .footer-top>div:first-child{align-items:flex-start}
+}
+
+@media(max-width:280px){
+  .collection-grid,.product-grid{grid-template-columns:minmax(0,1fr)}
+  .collection-card{height:280px}
+  .collection-card h3{font-size:24px}
+  .product-tag{font-size:6px}
+  .quick-view{font-size:12px}
+  .hero-bottomline{font-size:6px}
 }
