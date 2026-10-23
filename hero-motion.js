@@ -5,8 +5,6 @@ export function mountHeroMotion(hero) {
   const { signal } = controller;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const hover = matchMedia('(hover: hover) and (pointer: fine)');
-  const toggle = hero.querySelector('.hero-motion-toggle');
-  let paused = reduced.matches;
   let frame = 0;
   let point = null;
 
@@ -22,12 +20,8 @@ export function mountHeroMotion(hero) {
   }
 
   function sync() {
-    const active = !paused;
-    hero.classList.toggle('has-depth-motion', active);
-    toggle.setAttribute('aria-label', paused ? 'Ativar movimento do vestido' : 'Pausar movimento do vestido');
-    toggle.setAttribute('title', paused ? 'Ativar movimento' : 'Pausar movimento');
-    toggle.setAttribute('aria-pressed', String(paused));
-    if (!active) reset();
+    hero.classList.add('has-depth-motion');
+    reset();
   }
 
   function paint() {
@@ -43,18 +37,14 @@ export function mountHeroMotion(hero) {
   }
 
   hero.addEventListener('pointermove', event => {
-    if (paused || !hover.matches || event.pointerType !== 'mouse') return;
+    if (reduced.matches || !hover.matches || event.pointerType !== 'mouse') return;
     point = { x: event.clientX, y: event.clientY };
     hero.classList.add('is-tracking');
     if (!frame) frame = requestAnimationFrame(paint);
   }, { signal, passive: true });
   hero.addEventListener('pointerleave', reset, { signal });
   window.addEventListener('blur', reset, { signal });
-  toggle.addEventListener('click', () => { paused = !paused; sync(); }, { signal });
-  reduced.addEventListener('change', () => {
-    if (reduced.matches) paused = true;
-    sync();
-  }, { signal });
+  reduced.addEventListener('change', sync, { signal });
   hover.addEventListener('change', reset, { signal });
   sync();
 
