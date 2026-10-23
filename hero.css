@@ -36,24 +36,18 @@
 @media(max-width:580px){.hero.hero-editorial{height:740px;min-height:740px}.hero-product{height:345px}.hero-product-caption{bottom:-10px}.hero-orbit{top:210px;height:205px}.hero-editorial-copy{top:510px}.hero-shopping{top:508px}.hero-bottomline{bottom:16px}}
 @media(max-width:360px){.hero.hero-editorial{height:735px;min-height:735px}.hero-editorial-copy{width:42%}.hero-editorial-copy h2{font-size:20px}.hero-editorial-copy>p{font-size:9px}.hero-cta{font-size:8px;padding:8px}.hero-collection-card strong{font-size:20px}.hero-shopping{width:40%}.hero-product{top:135px;height:335px}}
 
-/* The garment is now an interactive GLB, rendered directly in the hero. */
-.hero-product.hero-product-3d{top:148px;bottom:98px;pointer-events:auto;perspective:none}
-.hero-product-3d model-viewer{display:block;position:relative;width:100%;height:100%;background:transparent;--poster-color:transparent;touch-action:pan-y}
-.hero-product-3d model-viewer:focus-visible{outline:2px solid var(--rust);outline-offset:-6px;border-radius:20px}
-.hero-3d-poster{position:absolute;inset:0;pointer-events:none}
-.hero-3d-poster img{width:100%;height:100%;object-fit:contain;transform:rotate(-9deg);filter:drop-shadow(15px 22px 14px #34352d20)}
-.hero-3d-controls{position:absolute;top:calc(100% + 3px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;white-space:nowrap}
-.hero-3d-controls>button{display:grid;place-items:center;width:44px;height:44px;border:1px solid #d5d8c4;background:#fffefaeb;border-radius:50%;color:#6c7353;box-shadow:0 4px 12px #34352d05}
-.hero-3d-controls>button:hover:not(:disabled){background:#e8ebd9;border-color:#a6af89}
-.hero-3d-controls>button svg{width:17px;height:17px}
-.hero-3d-controls>div{min-width:142px;display:flex;flex-direction:column;align-items:center;gap:3px}
-.hero-3d-status{font-size:9px;color:#66704f;line-height:1.5}
-.hero-3d-controls [data-hero-reset]{font-size:8px;text-decoration:underline;text-underline-offset:3px;min-height:22px;padding:2px 8px;color:var(--muted)}
-.hero-3d-accuracy{position:absolute;top:calc(100% + 53px);left:50%;transform:translateX(-50%);white-space:nowrap;font-size:7px;color:var(--muted);letter-spacing:.1px}
-.is-3d-unavailable .hero-3d-controls>div{min-width:170px}
-@media(min-width:1450px){.hero-product.hero-product-3d{top:165px;bottom:105px}}
-@media(max-width:1050px){.hero-product.hero-product-3d{top:155px;bottom:95px}.hero-3d-controls{gap:7px}.hero-3d-controls>div{min-width:128px}.hero-3d-status{font-size:8px}.hero-3d-accuracy{font-size:6px}}
-@media(max-width:800px) and (min-width:581px){.hero.hero-editorial{height:760px;min-height:760px}.hero-product.hero-product-3d{top:150px;bottom:250px}.hero-editorial-copy{top:555px}.hero-shopping{top:530px}.hero-3d-controls{gap:8px}}
-@media(max-width:580px){.hero.hero-editorial{height:800px;min-height:800px}.hero-product.hero-product-3d{top:134px;bottom:auto;height:335px}.hero-3d-controls{top:calc(100% + 4px);gap:8px}.hero-3d-status{font-size:9px}.hero-3d-controls>div{min-width:138px}.hero-3d-accuracy{font-size:7px;top:calc(100% + 54px)}.hero-editorial-copy{top:570px}.hero-shopping{top:568px}}
-@media(max-width:360px){.hero.hero-editorial{height:800px;min-height:800px}.hero-product.hero-product-3d{top:126px;height:335px}.hero-3d-controls{gap:5px}.hero-3d-controls>div{min-width:126px}.hero-3d-status{font-size:8px}.hero-3d-accuracy{font-size:6px}.hero-editorial-copy{top:565px}.hero-shopping{top:563px}}
-
+/* Gentle perspective on the original transparent photograph. */
+.hero-product{perspective:1000px;perspective-origin:50% 45%}
+.hero-garment{position:relative;width:100%;height:100%;transform-style:preserve-3d;transform:translate3d(var(--dress-x,0px),var(--dress-y,0px),30px) rotateX(var(--dress-lean,0deg)) rotateY(var(--dress-turn,0deg));transition:transform 500ms cubic-bezier(.2,.65,.25,1)}
+.hero-garment>img{position:relative;z-index:1}
+.hero-garment:before{content:'';position:absolute;bottom:2%;left:27%;width:48%;height:5%;background:#4e514a;opacity:.13;filter:blur(15px);border-radius:50%;transform:translateZ(-40px) rotate(-8deg);transition:opacity .4s}
+.has-depth-motion .hero-garment>img{animation:dress-float 6s ease-in-out infinite}
+.hero-motion-toggle{position:absolute;bottom:10%;right:4%;z-index:4;pointer-events:auto;width:40px;height:40px;display:grid;place-items:center;background:#fffefaeb;color:#726c58;border:1px solid #dedecf;border-radius:50%;box-shadow:0 5px 12px #34352d0a}
+.hero-motion-toggle:hover{background:var(--paper);color:var(--rust)}
+.hero-motion-toggle svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;grid-area:1/1}
+.hero-motion-toggle .motion-play{display:none}
+.hero-motion-toggle[aria-pressed=true] .motion-pause{display:none}
+.hero-motion-toggle[aria-pressed=true] .motion-play{display:block}
+@keyframes dress-float{0%,100%{transform:translateY(0) rotate(-9deg)}50%{transform:translateY(-9px) rotate(-7deg)}}
+@media(max-width:580px){.hero-motion-toggle{right:1%;width:40px;height:40px}.hero-garment:before{filter:blur(10px)}}
+@media(prefers-reduced-motion:reduce){.hero-garment{transform:none;transition:none}.hero-garment:before{display:none}.has-depth-motion .hero-garment{transform:translate3d(var(--dress-x,0px),var(--dress-y,0px),30px) rotateX(var(--dress-lean,0deg)) rotateY(var(--dress-turn,0deg));transition:transform 500ms cubic-bezier(.2,.65,.25,1)!important}.has-depth-motion .hero-garment>img{animation:dress-float 6s ease-in-out infinite!important}}

@@ -1,7 +1,7 @@
 # Vestido Aurora — GLB aproximado
 
 Arquivo: `assets/models/vestido-aurora-aproximado.glb`.
-Prévia: `/vestido-3d.html`. A hero renderiza o GLB diretamente com giro pelo mouse/toque, setas e retorno à frente. A foto é usada apenas durante o carregamento. Um link permite ampliar nessa prévia dedicada.
+Prévia: `/vestido-3d.html`. A hero inclui um link para essa prévia, mantendo sua foto editorial.
 
 ## Referências e método
 Somente a vista frontal deste vestido está disponível: `assets/look-01.webp`, originalmente enviada pela loja. O recorte transparente derivado dessa foto, `assets/hero-aurora-cutout.png`, orienta a silhueta e fornece a textura.

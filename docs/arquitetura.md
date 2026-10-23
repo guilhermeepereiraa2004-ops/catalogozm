@@ -16,5 +16,3 @@ Acessibilidade: lang pt-BR, link para conteúdo, HTML semântico, dialogs nativo
 UI adicional: hero-motion.js gerencia perspectiva sobre foto recortada, eventos e movimento reduzido; app.js importa e encerra seu ciclo de vida ao navegar. Não é malha 3D nem visualizador 360°.
 
 Prévia 3D: vestido-3d.html e viewer-3d.js (UI) importam apenas vendor/model-viewer.min.js (terceiro Apache-2.0). Viewer externo ao catálogo; nenhuma regra de pedido foi alterada. O build distribui vendor/ e o GLB. scripts/validate-glb.mjs é uma verificação de desenvolvimento incluída no gate.
-
-Hero atual: app.js importa hero-3d.js para montar/desmontar eventos do viewer. O bundle model-viewer é carregado por script module em index.html. hero-motion.js é histórico e não está mais no build/imports ativos. Controles manuais; sem autorrotação. Toque vertical permanece disponível para rolagem da página, e zoom da hero foi desativado para preservar a navegação.
