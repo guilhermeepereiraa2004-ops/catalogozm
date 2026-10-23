@@ -1,0 +1,13 @@
+{
+  "file": "vestido-aurora-aproximado.glb",
+  "bytes": 4405780,
+  "vertices": 43458,
+  "triangles": 84709,
+  "frontAndBackDepth": 0.23213016986846924,
+  "approximation": {
+    "accuracy": "Approximate, illustrative. Depth and back inferred from one frontal photo.",
+    "source": "assets/look-01.webp, via hero-aurora-cutout.png",
+    "dimensions": "Normalized display proportions; not measured garment dimensions.",
+    "method": "Curved silhouette surfaces, embedded photographic texture, inferred connector."
+  }
+}

@@ -14,3 +14,5 @@ Persistência: um documento JSON em localStorage por origem, com produtos e pedi
 Acessibilidade: lang pt-BR, link para conteúdo, HTML semântico, dialogs nativos, Escape, labels, foco visível, estados aria-pressed, anúncios de resultados e mensagens de erro, preferências de movimento reduzido, botões e filtros operáveis pelo teclado. Não foi realizada auditoria completa de conformidade WCAG.
 
 UI adicional: hero-motion.js gerencia perspectiva sobre foto recortada, eventos e movimento reduzido; app.js importa e encerra seu ciclo de vida ao navegar. Não é malha 3D nem visualizador 360°.
+
+Prévia 3D: vestido-3d.html e viewer-3d.js (UI) importam apenas vendor/model-viewer.min.js (terceiro Apache-2.0). Viewer externo ao catálogo; nenhuma regra de pedido foi alterada. O build distribui vendor/ e o GLB. scripts/validate-glb.mjs é uma verificação de desenvolvimento incluída no gate.
