@@ -2,7 +2,7 @@
 
 | Prioridade | Lacuna | Estado |
 |---|---|---|
-| Alta | Backend e banco compartilhado com estoque transacional | Próxima fase; protótipo atual persiste apenas no navegador |
+| Alta | Backend e banco compartilhado com estoque transacional | Próxima fase; protótipo atual persiste catálogo, pedidos e fluxo de caixa apenas no navegador |
 | Alta | Autenticação e autorização do admin no servidor | Próxima fase; demo privada sem login próprio |
 | Alta | Quantidades físicas, variantes, medidas e tamanhos reais | Loja deve cadastrar antes de operação real |
 | Média | Pagamento, frete, envio de notificações | Não integrados; combinar detalhes pelo contato público |

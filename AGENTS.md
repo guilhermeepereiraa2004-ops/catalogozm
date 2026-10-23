@@ -17,6 +17,8 @@ Comece por `plan/STATUS.md`, `plan/execution-plan.md`, `ROADMAP.md` e `log/devlo
 
 Ações estáveis em `store.js`: `order.create(cart, customer)`, `order.status(id,status)`, `product.save(product)`, `product.toggle(id)`. Validação reutilizável em `domain.js`. Permissões: demonstração local, sem autenticação; backend e autorização devem preceder operação real.
 
+Fluxo de caixa: `expense.save(expense)` cria/edita despesas. Receitas são derivadas de pedidos Confirmado/Em separação/Concluído, uma vez por pedido, pela primeira confirmação. Cancelados não compõem receita. Preservar expenses nas ações e migrar armazenamento antigo sem perda. UI em cash-flow.js importa store.js; app.js importa cash-flow.js. Gate inclui 14 testes, com regras em tests/cash-flow.test.mjs.
+
 ## Executar e verificar
 `npm run dev`: servidor em http://localhost:4173. `npm run build`: saída dist. `npm run gate`: sintaxe, camadas, testes de domínio e build. Lint e TypeScript não configurados (JavaScript ESM sem dependências). Testes de comportamento: `npm test`.
 

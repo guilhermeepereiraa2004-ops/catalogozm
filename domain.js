@@ -1,3 +1,43 @@
+export const orderStatuses=['Novo','Confirmado','Em separação','Concluído','Cancelado'];
+export const expenseCategories=['Fornecedores','Aluguel','Embalagens','Marketing','Transporte','Outras'];
+const confirmedStatuses=['Confirmado','Em separação','Concluído'];
+export function localDate(value=new Date()){
+ const d=new Date(value);
+ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function validDate(value){
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))return false;
+ const [y,m,d]=value.split('-').map(Number),date=new Date(y,m-1,d);
+ return y>=1900&&date.getFullYear()===y&&date.getMonth()===m-1&&date.getDate()===d;
+}
+export function parseAmount(value){
+ const text=String(value).trim();
+ if(!/^\d+(?:[.,]\d{1,2})?$/.test(text))throw new Error('Informe um valor válido com até duas casas decimais. Ex.: 99,90.');
+ const [whole,fraction='']=text.split(/[.,]/),amount=Number(whole)*100+Number(fraction.padEnd(2,'0'));
+ if(!Number.isSafeInteger(amount)||amount<=0)throw new Error('Informe um valor maior que zero.');
+ return amount;
+}
+export function saveExpense(state,expense){
+ const expenses=state.expenses||[];
+ if(!expense.description?.trim()||expense.description.trim().length>120)throw new Error('Informe uma descrição de até 120 caracteres.');
+ if(!Number.isSafeInteger(expense.amount)||expense.amount<=0)throw new Error('Informe um valor maior que zero em centavos inteiros.');
+ if(!validDate(expense.date))throw new Error('Informe uma data válida para a despesa.');
+ if(!expenseCategories.includes(expense.category))throw new Error('Escolha uma categoria para a despesa.');
+ const previous=expenses.find(e=>e.id===expense.id);
+ if(expense.id&&!previous)throw new Error('Despesa não encontrada.');
+ const next={id:previous?.id||`expense-${crypto.randomUUID()}`,description:expense.description.trim(),amount:expense.amount,date:expense.date,category:expense.category,createdAt:previous?.createdAt||new Date().toISOString()};
+ return {...state,expenses:previous?expenses.map(e=>e.id===next.id?next:e):[next,...expenses]};
+}
+export function getCashFlow(state,{from='',to='',type='all',query=''}={}){
+ const revenues=state.orders.filter(o=>confirmedStatuses.includes(o.status)).map(o=>({id:`order-${o.id}`,orderId:o.id,type:'income',description:`Pedido ${o.id}`,detail:o.customer.name,category:'Vendas',date:localDate(o.confirmedAt||o.createdAt),amount:o.total}));
+ const expenses=(state.expenses||[]).map(e=>({...e,type:'expense',detail:e.category}));
+ const inPeriod=[...revenues,...expenses].filter(e=>(!from||e.date>=from)&&(!to||e.date<=to));
+ const income=inPeriod.filter(e=>e.type==='income').reduce((sum,e)=>sum+e.amount,0);
+ const expense=inPeriod.filter(e=>e.type==='expense').reduce((sum,e)=>sum+e.amount,0);
+ const normalize=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ const entries=inPeriod.filter(e=>(type==='all'||e.type===type)&&normalize(`${e.description} ${e.detail}`).includes(normalize(query))).sort((a,b)=>b.date.localeCompare(a.date)||a.id.localeCompare(b.id));
+ return {income,expense,balance:income-expense,entries,totalCount:inPeriod.length};
+}
 export function validateProduct(p){
  if(!p.name?.trim() || !p.description?.trim()) throw new Error('Preencha o nome e a descrição.');
  if(!Number.isSafeInteger(p.price)||p.price<=0) throw new Error('Informe um preço maior que zero.');
@@ -18,12 +58,14 @@ export function placeOrder(state, cart, customer){
  });
  for(const [id,qty] of grouped){const p=state.products.find(x=>x.id===id);if(qty>p.stock) throw new Error(`Estoque insuficiente para ${p.name}.`);}
  const order={id:`ZM-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2,5).toUpperCase()}`,createdAt:new Date().toISOString(),customer:{name:customer.name.trim(),phone:customer.phone.trim(),note:(customer.note||'').trim()},items,total:items.reduce((s,x)=>s+x.price*x.qty,0),status:'Novo'};
- return {products:state.products.map(p=>({...p,stock:p.stock-(grouped.get(p.id)||0)})),orders:[order,...state.orders]};
+ return {...state,products:state.products.map(p=>({...p,stock:p.stock-(grouped.get(p.id)||0)})),orders:[order,...state.orders]};
 }
 export function changeOrderStatus(state,id,status){
- if(!['Novo','Em separação','Concluído','Cancelado'].includes(status)) throw new Error('Status inválido.');
+ if(!orderStatuses.includes(status)) throw new Error('Status inválido.');
  const order=state.orders.find(x=>x.id===id);if(!order) throw new Error('Pedido não encontrado.');
  if(order.status==='Cancelado'&&status!=='Cancelado') throw new Error('Pedidos cancelados não podem ser reabertos.');
+ if(confirmedStatuses.includes(order.status)&&status==='Novo')throw new Error('Um pedido confirmado não pode voltar para Novo. Para desfazer a venda, cancele o pedido.');
  const restore=order.status!=='Cancelado'&&status==='Cancelado';
- return {products:state.products.map(p=>({...p,stock:p.stock+(restore?order.items.filter(x=>x.id===p.id).reduce((s,x)=>s+x.qty,0):0)})),orders:state.orders.map(o=>o.id===id?{...o,status}:o)};
+ const confirmedAt=order.confirmedAt||(confirmedStatuses.includes(order.status)?order.createdAt:confirmedStatuses.includes(status)?new Date().toISOString():undefined);
+ return {...state,products:state.products.map(p=>({...p,stock:p.stock+(restore?order.items.filter(x=>x.id===p.id).reduce((s,x)=>s+x.qty,0):0)})),orders:state.orders.map(o=>o.id===id?{...o,status,...(confirmedAt?{confirmedAt}:{})}:o)};
 }

@@ -10,6 +10,8 @@ npm run build
 
 Loja: http://localhost:4173/ · Admin: http://localhost:4173/#admin
 
+Fluxo de caixa: http://localhost:4173/#admin/cash-flow. Confirmar um pedido no admin registra sua receita automaticamente; cancelamentos retiram o valor do saldo. Cadastre e edite despesas com data, categoria e valor; acompanhe receitas, despesas e saldo por período. Os lançamentos seguem a persistência local desta demonstração. Regras e QA em docs/cash-flow.md.
+
 O catálogo aproveita as 42 fotos fornecidas, distribuídas em 39 cadastros: vestidos, moda praia, fitness, lingerie e acessórios. Preço inicial de todos: R$ 99,90. Três pares do mesmo modelo estão agrupados em carrosséis. Alguns arquivos mostram mais de um modelo/cor; nesses casos a descrição pede confirmação com a loja.
 
 Busca, categorias, ordenação, favoritos, sacola, checkout demonstrativo, criação/edição com fotos e status dos pedidos funcionam no navegador. Quantidade inicial demonstrativa: 1 por cadastro. O pedido baixa o estoque imediatamente e cancelá-lo devolve as unidades. Produtos esgotados ou ocultos não aparecem na vitrine.

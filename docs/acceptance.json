@@ -46,5 +46,11 @@
     "criterion": "Vestido inicia animação contínua sem play/pausa",
     "done": true,
     "evidence": "Navegador: playButtons=0, animation=dress-float-gentle, iterations=infinite, state=running"
+  },
+  {
+    "id": "cash-flow",
+    "criterion": "Fluxo de caixa com receitas de pedidos confirmados, despesas editáveis e saldo por período",
+    "done": true,
+    "evidence": "tests/cash-flow.test.mjs; docs/cash-flow.md; checkout → confirmação → receita e cancelamento no navegador, QA 320/390/768 px"
   }
 ]
