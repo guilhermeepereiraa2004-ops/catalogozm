@@ -1,0 +1,3 @@
+import {readFile,writeFile} from 'node:fs/promises';
+const items=JSON.parse(await readFile('docs/acceptance.json','utf8'));if(items.length<7)throw new Error('Catálogo de aceite não pode diminuir sem revisão.');
+const done=items.filter(x=>x.done).length;await writeFile('docs/checklist-paridade.md',`# Aceitação da etapa de front-end\nGerado por node scripts/report.mjs.\n\nTotal: ${items.length} | Verificados: ${done}\n\n| ID | Critério | Estado | Evidência |\n|---|---|---|---|\n${items.map(x=>`| ${x.id} | ${x.criterion} | ${x.done?'Verificado':'Pendente'} | ${x.evidence} |`).join('\n')}\n\nEsta medição cobre a demonstração de front-end. Requisitos de produção permanecem em docs/gaps.md.\n`);console.log(`Relatório: ${done}/${items.length} critérios verificados.`);

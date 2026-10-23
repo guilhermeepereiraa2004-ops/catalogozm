@@ -1,0 +1,7 @@
+node_modules/
+dist/
+artifacts/
+assets/originals/
+plan/
+log/
+*.tar.gz

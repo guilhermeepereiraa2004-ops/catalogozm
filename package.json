@@ -1,0 +1,1 @@
+{"name":"zm-exclusiva","version":"1.0.0","private":true,"type":"module","scripts":{"dev":"node scripts/serve.mjs","build":"node scripts/build.mjs","test":"node --test tests/*.test.mjs","check:layers":"node scripts/check-layers.mjs","gate":"node scripts/gate.mjs"}}

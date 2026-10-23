@@ -1,0 +1,9 @@
+[
+ {"id":"catalog-photos","criterion":"42 fotos preservadas, 39 cadastros e preço inicial autorizado","done":true,"evidence":"tests/domain.test.mjs; docs/photo-manifest.json"},
+ {"id":"categories","criterion":"Categorias definidas pela análise das peças","done":true,"evidence":"catalog.js; docs/catalog-analysis.md"},
+ {"id":"identity","criterion":"Poppins, hero grande e paleta do perfil","done":true,"evidence":"index.html; styles.css; screenshot inspecionado no navegador"},
+ {"id":"order-stock","criterion":"Pedido reserva estoque, esgotados saem da vitrine e cancelamento repõe","done":true,"evidence":"6 testes de domínio e fluxo manual no navegador"},
+ {"id":"admin-edit","criterion":"Cadastro e edição de produtos com fotos, preço e estoque","done":true,"evidence":"app.js; edição salva e inspecionada no navegador"},
+ {"id":"mobile","criterion":"Layout de celular inspecionado","done":true,"evidence":"Iframe de 390 × 844 inspecionado no navegador; hero e catálogo"},
+ {"id":"publication","criterion":"Versão privada publicada com sucesso","done":false,"evidence":"Pendente"}
+]
