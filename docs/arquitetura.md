@@ -12,3 +12,5 @@ Verificador: `node scripts/check-layers.mjs`. Cobertura: imports e reexports ESM
 Persistência: um documento JSON em localStorage por origem, com produtos e pedidos. Uploads redimensionados a 1000 px e convertidos em WebP para reduzir uso de espaço; falhas de quota são mostradas sem anunciar salvamento. Não há garantias de transação entre abas simultâneas: implementar estoque no servidor antes da operação real.
 
 Acessibilidade: lang pt-BR, link para conteúdo, HTML semântico, dialogs nativos, Escape, labels, foco visível, estados aria-pressed, anúncios de resultados e mensagens de erro, preferências de movimento reduzido, botões e filtros operáveis pelo teclado. Não foi realizada auditoria completa de conformidade WCAG.
+
+UI adicional: hero-motion.js gerencia perspectiva sobre foto recortada, eventos e movimento reduzido; app.js importa e encerra seu ciclo de vida ao navegar. Não é malha 3D nem visualizador 360°.
