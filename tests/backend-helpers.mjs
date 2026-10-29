@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import {mutate} from '../server/api.js';
+import {getCashFlow} from '../domain.js';
+export const product={id:'test-dress',name:'Vestido teste',description:'Peça para teste',category:'Vestidos',price:9990,stock:1,images:['/assets/look-01.webp'],sizes:['A confirmar'],color:'Rosa',active:true};
+export function memoryDB(){let revision=0,state={products:[structuredClone(product)],orders:[],expenses:[],requests:[]};return {async read(){return structuredClone({revision,state});},async commit(expected,next){if(expected!==revision)return false;state=structuredClone(next);revision++;return true;}};}
+export async function exerciseDB(db){
+ const customer={name:'Teste integração',phone:'71999999999',note:'Dados fictícios para validação'};
+ const cart=[{id:product.id,size:'A confirmar',qty:1,price:1}];
+ const attempts=await Promise.allSettled([mutate(db,'order.create',[cart,customer],'test-order-request-0001'),mutate(db,'order.create',[cart,customer],'test-order-request-0002')]);
+ assert.equal(attempts.filter(a=>a.status==='fulfilled').length,1,'Somente um pedido pode reservar a última unidade');
+ const winner=attempts.find(a=>a.status==='fulfilled').value.order;
+ assert.equal(winner.total,9990,'Preço vem do banco, não do navegador');
+ const winnerKey=attempts[0].status==='fulfilled'?'test-order-request-0001':'test-order-request-0002';
+ const duplicate=await mutate(db,'order.create',[cart,customer],winnerKey);assert.equal(duplicate.order.id,winner.id);
+ assert.equal(duplicate.state.orders.length,1);assert.equal(duplicate.state.products[0].stock,0);
+ const confirmed=await mutate(db,'order.status',[winner.id,'Confirmado']);
+ const first=confirmed.state.orders[0].confirmedAt;assert.equal(getCashFlow(confirmed.state).income,9990);
+ const again=await mutate(db,'order.status',[winner.id,'Em separação']);assert.equal(again.state.orders[0].confirmedAt,first);assert.equal(getCashFlow(again.state).income,9990);
+ const expense=await mutate(db,'expense.save',[{description:'Embalagens teste',category:'Embalagens',date:'2026-10-29',amount:1900}]);assert.equal(getCashFlow(expense.state).balance,8090);
+ await Promise.all([mutate(db,'order.status',[winner.id,'Cancelado']),mutate(db,'order.status',[winner.id,'Cancelado'])]);
+ const final=(await db.read()).state;assert.equal(final.products[0].stock,1);assert.equal(getCashFlow(final).income,0);assert.equal(getCashFlow(final).expense,1900);
+ await assert.rejects(()=>mutate(db,'order.status',[winner.id,'Novo']),/reabertos/);
+}

@@ -1,4 +1,19 @@
-import http from 'node:http';import {readFile,stat} from 'node:fs/promises';import path from 'node:path';
+import http from 'node:http';import {readFile} from 'node:fs/promises';import path from 'node:path';import {handleApi} from '../server/api.js';
+try{process.loadEnvFile('.env.local');}catch{}
 const root=process.cwd(),port=Number(process.env.PORT||4173);
-const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.glb':'model/gltf-binary','.txt':'text/plain; charset=utf-8','.webp':'image/webp','.jpg':'image/jpeg','.png':'image/png','.json':'application/json'};
-http.createServer(async(req,res)=>{try{const file=path.resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://localhost').pathname));if(!file.startsWith(root+path.sep)&&file!==root){res.writeHead(403);res.end();return;}const target=(await stat(file)).isDirectory()?path.join(file,'index.html'):file;res.writeHead(200,{'Content-Type':types[path.extname(target)]||'application/octet-stream','Cache-Control':'no-cache'});res.end(await readFile(target));}catch{res.writeHead(404);res.end('Não encontrado');}}).listen(port,'127.0.0.1',()=>console.log(`Local: http://localhost:${port}`));
+const files=new Set(['index.html','vestido-3d.html','viewer-3d.js','viewer-3d.css','styles.css','hero.css','responsive.css','hero-motion.js','cash-flow.js','cash-flow.css','branding.css','mobile.css','app.js','catalog.js','domain.js','store.js']);
+const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.glb':'model/gltf-binary','.webp':'image/webp','.jpg':'image/jpeg','.png':'image/png'};
+http.createServer(async(req,res)=>{try{
+ const host=req.headers.host;
+ if(![`localhost:${port}`,`127.0.0.1:${port}`].includes(host)){res.writeHead(403);res.end();return;}
+ const url=new URL(req.url,`http://${host}`);
+ if(url.pathname.startsWith('/api/')){
+  const headers=new Headers(req.headers);for(const k of [...headers.keys()])if(k.startsWith('oai-authenticated-'))headers.delete(k);
+  const request=new Request(url,{method:req.method,headers,...(!['GET','HEAD'].includes(req.method)?{body:req,duplex:'half'}:{})});
+  const response=await handleApi(request,process.env,{admin:true});res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));return;
+ }
+ const name=decodeURIComponent(url.pathname).replace(/^\//,'')||'index.html';
+ if(!['GET','HEAD'].includes(req.method)||(!files.has(name)&&!/^assets\/(?:models\/)?[\w.-]+\.(webp|png|jpg|glb)$/.test(name)&&!/^vendor\/[\w.-]+\.js$/.test(name))){res.writeHead(404);res.end('Não encontrado');return;}
+ const data=await readFile(path.join(root,name));res.writeHead(200,{'Content-Type':types[path.extname(name)]||'application/octet-stream','Cache-Control':'no-cache','X-Content-Type-Options':'nosniff'});res.end(req.method==='HEAD'?undefined:data);
+ }catch{res.writeHead(404);res.end('Não encontrado');}
+}).listen(port,'127.0.0.1',()=>console.log(`Local: http://localhost:${port}`));

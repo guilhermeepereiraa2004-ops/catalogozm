@@ -1,6 +1,8 @@
 # ZM Exclusiva Store
 
-Vitrine e administração de demonstração em HTML, CSS e JavaScript ESM, com runtime estático. O validador GLB é uma dependência apenas de desenvolvimento.
+Catálogo de moda, painel de pedidos/produtos e Fluxo de caixa. Frontend HTML/CSS/JavaScript ESM, API de servidor e PostgreSQL Neon. A hospedagem privada atual usa Sites/Cloudflare Worker, com Vinext para roteamento.
+
+Instale Node >=22.13 e execute npm install. Configure DATABASE_URL em .env.local, seguindo .env.example. A credencial não pode ir para o frontend ou para o Git.
 
 ```sh
 npm run dev
@@ -8,26 +10,15 @@ npm run gate
 npm run build
 ```
 
-Loja: http://localhost:4173/ · Admin: http://localhost:4173/#admin
+Loja: http://localhost:4173/ · Admin: http://localhost:4173/#admin · Fluxo de caixa: http://localhost:4173/#admin/cash-flow.
 
-Fluxo de caixa: http://localhost:4173/#admin/cash-flow. Confirmar um pedido no admin registra sua receita automaticamente; cancelamentos retiram o valor do saldo. Cadastre e edite despesas com data, categoria e valor; acompanhe receitas, despesas e saldo por período. Os lançamentos seguem a persistência local desta demonstração. Regras e QA em docs/cash-flow.md.
+Produtos, pedidos, despesas e estoque ficam no Neon. Sacola e favoritos permanecem no navegador. Pedidos reservam estoque atomicamente; confirmar registra receita uma vez; cancelar retira a receita e devolve o estoque uma vez. Não há cobrança integrada.
 
 O catálogo aproveita as 42 fotos fornecidas, distribuídas em 39 cadastros: vestidos, moda praia, fitness, lingerie e acessórios. Preço inicial de todos: R$ 99,90. Três pares do mesmo modelo estão agrupados em carrosséis. Alguns arquivos mostram mais de um modelo/cor; nesses casos a descrição pede confirmação com a loja.
 
-Busca, categorias, ordenação, favoritos, sacola, checkout demonstrativo, criação/edição com fotos e status dos pedidos funcionam no navegador. Quantidade inicial demonstrativa: 1 por cadastro. O pedido baixa o estoque imediatamente e cancelá-lo devolve as unidades. Produtos esgotados ou ocultos não aparecem na vitrine.
 
-## Limite desta etapa de front-end
+Estoque inicial de uma unidade por cadastro é demonstrativo. Cadastre quantidades físicas, tamanhos e variantes reais antes de operar. O Site está privado para o proprietário; antes de abrir ao público, configurar autorização administrativa específica.
 
-Dados ficam no localStorage do mesmo navegador e origem, incluindo pedidos e fotos adicionadas. A prévia local e a versão hospedada têm armazenamentos independentes. Não há login, banco compartilhado, cobrança ou envio automático de pedidos ao WhatsApp. O link de WhatsApp abre o contato público fornecido no Instagram. Os dados não sincronizam com outros dispositivos e podem desaparecer se o armazenamento do navegador for apagado.
+Configuração, migrações, segurança, testes e limites em [docs/database.md](docs/database.md). Dados antigos de demonstração em localStorage são preservados e não são importados automaticamente para o novo banco.
 
-Para vendas reais: integrar backend com estoque transacional e autorização no servidor, banco persistente, uploads, autenticação do admin, política de entrega e provedor de pagamento (se desejado). A publicação inicial é privada para revisão visual do proprietário.
-
-Identidade atual: logo fornecida pela loja e paleta branca, rosa e dourada do arquivo Rodapé.jpeg; tipografia Poppins. Tokens e referência em `docs/branding.md` e `branding.css`. O Instagram forneceu a referência inicial. Fotos convertidas para WebP, originais preservados localmente. Mapeamento em `docs/photo-manifest.json` e `docs/catalog-analysis.md`.
-
-## Modelo 3D do vestido
-Prévia: http://localhost:4173/vestido-3d.html. A hero mantém somente a imagem editorial, sem link para o estudo 3D.
-Arquivo: assets/models/vestido-aurora-aproximado.glb.
-
-É uma modelagem aproximada, não fotogrametria: frente e textura vêm da foto; volume, costas e conector são estimados. Não serve para medidas ou caimento. Modelo com superfícies curvas reais, aberto em visualizador com controles de ângulo, arraste e zoom.
-
-Após clonar, use npm install para instalar a dependência de validação antes do gate. npm run validate:glb executa o glTF Validator oficial da Khronos. O arquivo pode ser recriado pelo Python empacotado com NumPy/Pillow usando scripts/create-dress-glb.py. Ver docs/dress-3d.md para método e limites.
+Identidade: logo da loja e branco/rosa/dourado do Rodapé.jpeg; Poppins. Hero com medalhão da logo e animação suave. As 42 fotos originais foram preservadas. Ver docs/branding.md, docs/hero-logo.md e docs/catalog-analysis.md. O estudo GLB separado continua em vestido-3d.html; não aparece na hero.

@@ -12,19 +12,19 @@ Comece por `plan/STATUS.md`, `plan/execution-plan.md`, `ROADMAP.md` e `log/devlo
 - Valores monetários em centavos inteiros; o catálogo inicial contém 39 cadastros, 42 fotos e preço de 9990 centavos.
 - Não inventar tamanhos, composição dos tecidos, prazo/frete ou estoque real. Inicialmente: tamanho a confirmar e estoque demonstrativo de uma unidade por cadastro.
 - Pedidos validam estoque agregado; esgotados somem da vitrine. Cancelamento repõe estoque uma única vez.
-- Esta fase usa localStorage: não prometer sincronização entre aparelhos, autenticação administrativa ou cobrança real.
+- Dados da loja persistem no Neon via API. Sacola e favoritos permanecem locais. Hospedagem owner-private no Sites; não abrir o acesso público sem autorização administrativa própria. Não há cobrança integrada.
 - Preservar todas as fotos fornecidas. Direitos de uso são de responsabilidade da loja que forneceu o material. Nenhum asset de terceiros foi copiado do Instagram; apenas referência visual e links públicos.
 - Não expor segredos. Antes de entrega ou commit, execute `npm run gate`.
 
 ## Arquitetura e ações
-`catalog.js` e `domain.js` não importam camadas superiores. `store.js` importa catálogo e domínio. `app.js` importa catálogo e store. `node scripts/check-layers.mjs` verifica imports ESM relativos literais e exercita fixture permitida/proibida. Imports dinâmicos e aliases não são usados nem verificados.
+`catalog.js` e `domain.js` não importam camadas superiores. `store.js` é cliente assíncrono da API e reexporta utilitários de domínio. `server/api.js` valida ações no servidor e `server/database.js` persiste no Neon. `app.js` importa catálogo e store. `node scripts/check-layers.mjs` verifica imports ESM relativos literais e exercita fixture permitida/proibida. Imports dinâmicos e aliases não são usados nem verificados.
 
-Ações estáveis em `store.js`: `order.create(cart, customer)`, `order.status(id,status)`, `product.save(product)`, `product.toggle(id)`. Validação reutilizável em `domain.js`. Permissões: demonstração local, sem autenticação; backend e autorização devem preceder operação real.
+Ações estáveis em `store.js`: `order.create(cart, customer)`, `order.status(id,status)`, `product.save(product)`, `product.toggle(id)`. Validação reutilizável em `domain.js`. Permissões: local restrito a loopback; hospedagem privada usa identidade confiável do Sites para admin. Não confiar em headers do cliente fora do dispatch do Sites. Ver docs/database.md.
 
 Fluxo de caixa: `expense.save(expense)` cria/edita despesas. Receitas são derivadas de pedidos Confirmado/Em separação/Concluído, uma vez por pedido, pela primeira confirmação. Cancelados não compõem receita. Preservar expenses nas ações e migrar armazenamento antigo sem perda. UI em cash-flow.js importa store.js; app.js importa cash-flow.js. Gate inclui 14 testes, com regras em tests/cash-flow.test.mjs.
 
 ## Executar e verificar
-`npm run dev`: servidor em http://localhost:4173. `npm run build`: saída dist. `npm run gate`: sintaxe, camadas, testes de domínio e build. Lint e TypeScript não configurados (JavaScript ESM sem dependências). Testes de comportamento: `npm test`.
+`npm run dev`: servidor em http://localhost:4173. `npm run build`: saída dist. `npm run gate`: sintaxe, camadas, testes de domínio e build. Lint e TypeScript não configurados (JavaScript ESM). Testes de comportamento: `npm test`.
 
 Inspeção visual e interações pelo navegador com cua_repl. `scripts/mobile-preview.html` fornece iframe de 390 × 844 para QA local, não é distribuído. Mudanças de UI exigem inspeção visual. Catálogo de aceite: `docs/acceptance.json`; relatório gerado por `node scripts/report.mjs`.
 

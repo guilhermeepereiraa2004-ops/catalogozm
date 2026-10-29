@@ -9,3 +9,5 @@
 | M3 Operação real | Planejado | Backend, autenticação, variantes e pagamento a definir |
 
 Aceitação em docs/acceptance.json; relatório gerado por scripts/report.mjs. Próxima fase: definir com a loja integração do backend.
+
+2026-10-29 · Neon criado na nova conta (São Paulo, Free), API e persistência compartilhada implementadas. Gate com 17 testes e verificação real de concorrência/financeiro aprovados. Administração permanece protegida pela prévia owner-private; operação pública exige autorização específica e estoque físico revisado.

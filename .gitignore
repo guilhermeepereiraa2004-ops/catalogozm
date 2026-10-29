@@ -5,3 +5,16 @@ assets/originals/
 plan/
 log/
 *.tar.gz
+
+.env*
+!.env.example
+.bootstrap*
+.dev.vars*
+.wrangler/
+public/
+.openai/local.env
+
+
+.next/
+.sites-runtime/
+

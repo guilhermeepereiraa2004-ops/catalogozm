@@ -2,7 +2,9 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {initialProducts} from '../catalog.js';
 import {placeOrder,changeOrderStatus,saveExpense,getCashFlow,parseAmount,localDate} from '../domain.js';
-import {getState,actions} from '../store.js';
+import {getState,refreshState,actions} from '../store.js';
+import {handleApi} from '../server/api.js';
+import {memoryDB} from './backend-helpers.mjs';
 
 const seed=()=>({products:structuredClone(initialProducts),orders:[],expenses:[]});
 const order=state=>placeOrder(state,[{id:'zm-1',size:'A confirmar',qty:1}],{name:'Cliente Teste',phone:'71999999999'});
@@ -70,15 +72,18 @@ test('período filtra receitas pela confirmação e despesas pela data, com resu
  assert.equal(getCashFlow(seed()).balance,0);
 });
 
-test('migra armazenamento antigo e persiste despesa e confirmação sem perder dados',()=>{
- const map=new Map();const previousStorage=globalThis.localStorage;
- globalThis.localStorage={getItem:key=>map.get(key)||null,setItem:(key,value)=>map.set(key,value)};
+test('cliente consulta a API e mantém dados confirmados quando uma gravação falha',async()=>{
+ const previousFetch=globalThis.fetch,db=memoryDB();
+ globalThis.fetch=(url,options)=>handleApi(new Request(new URL(url,'https://loja.test'),options),{},{admin:true,db});
  try{
-  const legacy=seed();delete legacy.expenses;map.set('zm-exclusiva-v2',JSON.stringify(legacy));
-  assert.deepEqual(getState().expenses,[]);
-  actions['expense.save'](expense());
-  const next=actions['order.create']([{id:'zm-1',size:'A confirmar',qty:1}],{name:'Teste',phone:'71999999999'});
-  actions['order.status'](next.orders[0].id,'Confirmado');
-  assert.equal(getState().expenses.length,1);assert.equal(getCashFlow(getState()).balance,7400);
- }finally{if(previousStorage===undefined)delete globalThis.localStorage;else globalThis.localStorage=previousStorage;}
+  await refreshState(true);assert.equal(getState().products.length,1);
+  await actions['expense.save'](expense());
+  const next=await actions['order.create']([{id:'test-dress',size:'A confirmar',qty:1}],{name:'Teste',phone:'71999999999'});
+  await actions['order.status'](next.orders[0].id,'Confirmado');
+  assert.equal(getCashFlow(getState()).balance,7400);
+  await refreshState(true);assert.equal(getState().expenses.length,1);
+  globalThis.fetch=async()=>{throw new Error('offline');};
+  await assert.rejects(()=>actions['expense.save'](expense({amount:999})),/Sem conexão/);
+  assert.equal(getState().expenses.length,1);
+ }finally{globalThis.fetch=previousFetch;}
 });
