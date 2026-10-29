@@ -25,4 +25,6 @@ Identidade: logo da loja e branco/rosa/dourado do Rodapé.jpeg; Poppins. Hero co
 
 Vercel: projeto vinculado à equipe de Guilherme Pereira. Build específico com npm run build:vercel, funções Node para Neon e prévia protegida por Vercel Authentication. Configuração e limites em docs/vercel.md.
 
-Admin com e-mail/senha: https://zm-exclusiva-tau.vercel.app/admin. Primeiro acesso escolhido pelo proprietário em http://localhost:4173/admin/setup. Ver docs/admin-auth.md. Nenhuma senha padrão é criada.
+Admin com e-mail/senha: https://zm-exclusiva-tau.vercel.app/admin. Primeiro acesso escolhido pelo proprietário por ativação HTTPS temporária de uso único. Ver docs/admin-auth.md. Nenhuma senha padrão é criada.
+
+Primeiro acesso atualizado: usar a ativação HTTPS temporária aberta pelo responsável na aba da loja. Não usar o localhost do navegador embutido. Operador emite via npm run auth:activation; nenhum cadastro público aberto.

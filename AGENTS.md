@@ -34,4 +34,4 @@ Vercel: usar somente a equipe de Guilherme Pereira, team_NseDl6bHKTOowzX904mmIj0
 
 Publicação autorizada em 2026-10-29: produção https://zm-exclusiva-tau.vercel.app sem login; admin https://zm-exclusiva-tau.vercel.app/admin com e-mail e senha da loja. Standard Protection deve manter todas as previews privadas. Nunca autorizar admin sem sessão e vínculo por usuário, nunca remover a proteção global com ssoProtection=null. /api/state e mutações administrativas no domínio público devem retornar 401 sem sessão e vínculo administrativo.
 
-Autenticação atual: Better Auth em server/auth.js; bootstrap inicial apenas no servidor local, /admin/setup, fechado depois do primeiro usuário. Signup remoto bloqueado. AUTH_DATABASE_URL e BETTER_AUTH_SECRET só no servidor. Vercel não autentica administradores da loja. Ver docs/admin-auth.md.
+Autenticação atual: Better Auth em server/auth.js; primeiro acesso por ativação HTTPS temporária e de uso único, fechada depois do primeiro usuário. Signup sem ativação bloqueado. AUTH_DATABASE_URL e BETTER_AUTH_SECRET só no servidor. Vercel não autentica administradores da loja. Ver docs/admin-auth.md.

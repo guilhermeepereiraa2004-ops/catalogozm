@@ -79,7 +79,7 @@ document.addEventListener('submit',async e=>{e.preventDefault();const form=e.tar
   if(form.dataset.saving==='true')return;form.dataset.saving='true';const button=form.querySelector('button[type=submit]');button.disabled=true;
   try{const data=Object.fromEntries(f);if(form.id!=='admin-login-form'&&data.password!==data.confirmation)throw new Error('As senhas precisam ser iguais.');
    if(form.id==='admin-login-form'){await signIn(data);await loadRoute();}
-   if(form.id==='admin-setup-form'){await setupAdmin(data);toast('Seu acesso foi criado. Entre com seu e-mail e senha.');location.hash='#admin';}
+   if(form.id==='admin-setup-form'){await setupAdmin(data,initialSetupToken);initialSetupToken='';toast('Seu acesso foi criado. Entre com seu e-mail e senha.');location.hash='#admin';}
    if(form.id==='admin-password-form'){await changePassword(data);$('#info-dialog').close();toast('Senha atualizada.');}
   }catch(err){form.querySelector('.form-error').textContent=err.message;form.querySelector('input[type=password]')?.focus();}finally{form.dataset.saving='false';button.disabled=false;}
   return;
@@ -90,16 +90,17 @@ if(form.dataset.saving==='true')return;if(['checkout-form','product-form','expen
 });
 document.querySelectorAll('dialog').forEach(dialog=>dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}}));
 window.addEventListener('hashchange',()=>{if(location.hash.startsWith('#admin')||!$('#product-grid'))loadRoute();});
-let routeRequest=0;
+let routeRequest=0,initialSetupToken='';
 async function loadRoute(){
  const request=++routeRequest;disposeHeroMotion();
- if(location.hash==='#admin/setup'){const status=await getAuthStatus().catch(()=>({setupAvailable:false}));if(request!==routeRequest)return;$('#app').innerHTML=authView({setup:true,...status});return;}
+ const setupRoute=location.hash.match(/^#admin\/setup(?:\?token=([A-Za-z0-9_-]{43}))?$/);
+ if(setupRoute){if(setupRoute[1]){initialSetupToken=setupRoute[1];history.replaceState(null,'',location.pathname+'#admin/setup');}document.title='Criar acesso — ZM Exclusiva';const status=await getAuthStatus(initialSetupToken).catch(()=>({setupAvailable:false}));if(request!==routeRequest)return;$('#app').innerHTML=authView({setup:true,...status});return;}
 
  $('#app').innerHTML='<main class="empty-state" id="main" aria-busy="true"><h1>Preparando sua loja…</h1><p role="status">Buscando os dados da coleção.</p></main>';
  try{const next=await refreshState(location.hash.startsWith('#admin'));if(request!==routeRequest)return;state=next;if(location.hash.startsWith('#admin')){admin();focusAdminHeading();}else{storefront();if(location.hash==='#catalogo')$('#catalogo')?.scrollIntoView();}}
  catch(err){if(request!==routeRequest)return;if(err.status===401&&location.hash.startsWith('#admin')){clearState();const status=await getAuthStatus().catch(()=>({setupAvailable:false}));if(request!==routeRequest)return;document.title='Entrar na loja — ZM Exclusiva';$('#app').innerHTML=authView(status);$('#auth-title')?.setAttribute('tabindex','-1');$('#auth-title')?.focus();return;}$('#app').innerHTML=`<main class="empty-state" id="main"><h1>A loja está indisponível por um instante.</h1><p role="alert">${esc(err.message)}</p><button class="button primary" data-action="retry-connection">Tentar novamente</button></main>`;}
 }
-document.addEventListener('visibilitychange',async()=>{if(document.hidden)return;try{state=await refreshState(location.hash.startsWith('#admin'));if(!document.querySelector('dialog[open]')){if(location.hash.startsWith('#admin'))renderAdminPanel();else if($('#product-grid'))renderProducts();}}catch{toast('Não foi possível atualizar os dados. Tente novamente.');}});
+document.addEventListener('visibilitychange',async()=>{if(document.hidden||(location.hash.startsWith('#admin')&&!$('#admin-panel')))return;try{state=await refreshState(location.hash.startsWith('#admin'));if(!document.querySelector('dialog[open]')){if(location.hash.startsWith('#admin'))renderAdminPanel();else if($('#product-grid'))renderProducts();}}catch{toast('Não foi possível atualizar os dados. Tente novamente.');}});
 loadRoute();
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.querySelector('dialog[open]'))closeMobileMenu(true);});

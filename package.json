@@ -14,7 +14,8 @@
     "db:verify": "node --env-file=.env.local scripts/verify-neon.mjs",
     "build:vercel": "node scripts/prepare-public.mjs",
     "auth:migrate": "node scripts/migrate-auth.mjs",
-    "auth:verify": "node scripts/verify-auth.mjs"
+    "auth:verify": "node scripts/verify-auth.mjs",
+    "auth:activation": "node scripts/mint-admin-activation.mjs"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.37.1",

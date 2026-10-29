@@ -1,5 +1,5 @@
 import {Pool} from 'pg';
-import {randomBytes} from 'node:crypto';
+import {randomBytes,createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import {getMigrations} from 'better-auth/db/migration';
 import {authOptions,createAuthService} from '../server/auth.js';
@@ -14,6 +14,7 @@ const options=authOptions(env,pool,{prefix});let service;
 try{
  const migration=await getMigrations(options);await migration.runMigrations();
  await pool.query(`CREATE TABLE "${prefix}admin" (user_id text PRIMARY KEY REFERENCES "${prefix}user"(id) ON DELETE CASCADE)`);
+ await pool.query(`CREATE TABLE "${prefix}bootstrap" (id integer PRIMARY KEY CHECK(id=1),token_hash text NOT NULL,expires_at timestamptz NOT NULL,consumed_at timestamptz)`);
  service=createAuthService(env,{pool,prefix,localSetup:true});
  const email='qa-'+randomBytes(6).toString('hex')+'@example.test',password=randomBytes(24).toString('base64url');
  const req=(path,body,cookie)=>new Request('http://localhost:4173/api/auth/'+path,{method:body?'POST':'GET',headers:{Origin:'http://localhost:4173','x-real-ip':'127.0.0.1',...(body?{'Content-Type':'application/json'}:{}),...(cookie?{cookie}:{})},...(body?{body:JSON.stringify(body)}:{})});
@@ -37,6 +38,23 @@ try{
  await pool.query(`DELETE FROM "${prefix}admin"`);assert.equal(await service.isAdmin(new Request('http://localhost:4173/api/state',{headers:{cookie:secondCookie}})),false);
  // Rate limit persiste no banco e vale entre instâncias do servidor.
  let limited=false;for(let i=0;i<8;i++){const response=await service.handle(req('sign-in/email',{email,password:'incorreta'}));if(response.status===429){limited=true;break;}}assert.equal(limited,true);
+ const remote=createAuthService(env,{pool,prefix,localSetup:false});
+ const setupRequest=(path,token,body)=>{const r=req(path,body);if(token)r.headers.set('X-ZM-Setup-Token',token);return r;};
+ assert.equal((await remote.handle(setupRequest('setup',undefined,{}))).status,403);
+ const activation=randomBytes(32).toString('base64url'),hash=createHash('sha256').update(activation).digest('hex');
+ await pool.query(`INSERT INTO "${prefix}bootstrap"(id,token_hash,expires_at) VALUES(1,$1,now()-interval '1 minute')`,[hash]);
+ assert.equal((await remote.handle(setupRequest('setup',activation,{}))).status,403);
+ await pool.query(`UPDATE "${prefix}bootstrap" SET expires_at=now()+interval '5 minutes'`);
+ assert.equal((await (await remote.handle(setupRequest('status',undefined))).json()).setupAvailable,false);
+ assert.equal((await (await remote.handle(setupRequest('status',activation))).json()).setupAvailable,true);
+ const body={name:'Ativação QA',email:'activation-'+randomBytes(6).toString('hex')+'@example.test',password:randomBytes(24).toString('base64url')};
+ const attempts=await Promise.all([remote.handle(setupRequest('setup',activation,body)),remote.handle(setupRequest('setup',activation,body))]);
+ assert.equal(attempts.filter(r=>r.status===200).length,1);
+ assert.ok(attempts.some(r=>r.status===403||r.status===409));
+ assert.equal((await remote.handle(setupRequest('setup',activation,body))).status,403);
+ assert.equal((await (await remote.handle(setupRequest('status',activation))).json()).setupAvailable,false);
+ assert.equal((await pool.query(`SELECT 1 FROM "${prefix}admin"`)).rowCount,1);
+ console.log('Ativação HTTPS: token obrigatório, expiração, uso único e concorrência aprovados no Neon real.');
  console.log('Better Auth + Neon real: cadastro local único, signup público bloqueado, hash de senha, login, sessão HttpOnly, autorização por usuário, troca de senha, logout revogado, CSRF e rate limit aprovados.');
 }catch(error){console.error('Falha na verificação auth:',error.code||error.name,String(error.message).replace(/postgres(?:ql)?:\/\/\S+/g,'[protegido]').slice(0,450));process.exitCode=1;}
 finally{

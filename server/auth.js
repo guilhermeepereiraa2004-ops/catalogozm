@@ -1,3 +1,4 @@
+import {createHash} from 'node:crypto';
 import {betterAuth} from 'better-auth';
 import {Pool} from 'pg';
 const PREFIX='zm_auth_';
@@ -24,6 +25,14 @@ export function createAuthService(env,{pool:providedPool,prefix=PREFIX,localSetu
  const pool=providedPool||new Pool({connectionString:env.AUTH_DATABASE_URL,max:4,idleTimeoutMillis:10000,connectionTimeoutMillis:10000});
  const options=authOptions(env,pool,{prefix}),auth=betterAuth(options);
  const adminTable=`"${prefix}admin"`;
+ const bootstrapTable=`"${prefix}bootstrap"`;
+ function setupHash(request){const token=request.headers.get('x-zm-setup-token')||'';return /^[A-Za-z0-9_-]{43}$/.test(token)?createHash('sha256').update(token).digest('hex'):null;}
+ async function validSetup(request,connection=pool){
+  if(localSetup)return true;
+  const hash=setupHash(request);if(!hash)return false;
+  const result=await connection.query(`SELECT 1 FROM ${bootstrapTable} WHERE id=1 AND token_hash=$1 AND consumed_at IS NULL AND expires_at>now()`,[hash]);
+  return result.rowCount===1;
+ }
  async function isAdmin(request){
   if(!request.headers.get('cookie'))return false;
   const session=await auth.api.getSession({headers:request.headers});
@@ -31,7 +40,7 @@ export function createAuthService(env,{pool:providedPool,prefix=PREFIX,localSetu
   const row=await pool.query(`SELECT 1 FROM ${adminTable} WHERE user_id=$1`,[session.user.id]);return row.rowCount===1;
  }
  async function setup(request){
-  if(!localSetup)return json({error:'Cadastro inicial disponível somente neste computador.'},403);
+  if(!await validSetup(request))return json({error:'Link de ativação inválido ou expirado. Solicite um novo link ao responsável.'},403);
   if(request.method!=='POST')return json({error:'Método inválido.'},405);
   if(!request.headers.get('content-type')?.startsWith('application/json'))return json({error:'Envie JSON.'},415);
   const body=await request.json();
@@ -39,6 +48,7 @@ export function createAuthService(env,{pool:providedPool,prefix=PREFIX,localSetu
   const client=await pool.connect();
   try{
    await client.query('BEGIN');await client.query("SELECT pg_advisory_xact_lock(hashtext('zm-initial-admin'))");
+   if(!await validSetup(request,client)){await client.query('ROLLBACK');return json({error:'Link de ativação inválido ou expirado.'},403);}
    const existing=await client.query(`SELECT 1 FROM ${adminTable} LIMIT 1`);
    if(existing.rowCount){await client.query('ROLLBACK');return json({error:'O primeiro administrador já foi cadastrado.'},409);}
    const bootstrap=betterAuth(authOptions(env,pool,{prefix,signup:true}));
@@ -48,6 +58,7 @@ export function createAuthService(env,{pool:providedPool,prefix=PREFIX,localSetu
    if(!signed.user?.id)throw new Error('Não foi possível verificar o cadastro');
    await client.query(`INSERT INTO ${adminTable}(user_id) VALUES($1)`,[signed.user.id]);
    await client.query(`DELETE FROM "${prefix}session" WHERE "userId"=$1`,[signed.user.id]);
+   await client.query(`UPDATE ${bootstrapTable} SET consumed_at=now() WHERE id=1 AND consumed_at IS NULL`);
    await client.query('COMMIT');return json({ok:true});
   }catch{await client.query('ROLLBACK');return json({error:'Não foi possível criar o acesso. Confira o e-mail e a senha e tente novamente.'},422);}
   finally{client.release();}
@@ -61,7 +72,7 @@ export function createAuthService(env,{pool:providedPool,prefix=PREFIX,localSetu
    if(Number(request.headers.get('content-length')||0)>20000)return json({error:'Requisição muito grande.'},413);
    if(path==='/setup')return await setup(request);
    if(path==='/status'&&request.method==='GET'){
-    const setupAvailable=localSetup&&(await pool.query(`SELECT 1 FROM ${adminTable} LIMIT 1`)).rowCount===0;
+    const setupAvailable=await validSetup(request)&&(await pool.query(`SELECT 1 FROM ${adminTable} LIMIT 1`)).rowCount===0;
     return json({setupAvailable});
    }
    if(!['/sign-in/email','/sign-out','/get-session','/change-password','/ok'].includes(path))return json({error:'Cadastro público indisponível.'},403);

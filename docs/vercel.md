@@ -6,7 +6,7 @@ Loja pública: https://zm-exclusiva-tau.vercel.app. Admin: https://zm-exclusiva-
 
 O adaptador server/vercel.js valida sessão Better Auth e vínculo de usuário no Neon para qualquer API administrativa. Sem sessão, /api/state e as mutações administrativas retornam 401. VERCEL_PRIVATE_ADMIN e headers oai-* não concedem acesso em nenhum ambiente.
 
-O endpoint api/auth.js recebe /api/auth/:path* por rewrite com auth_path, normalizado no servidor. Signup público e setup remoto são recusados. O primeiro cadastro é escolhido pelo responsável no servidor local http://localhost:4173/admin/setup. Instruções em docs/admin-auth.md.
+O endpoint api/auth.js recebe /api/auth/:path* por rewrite com auth_path, normalizado no servidor. Signup público e setup remoto são recusados. O primeiro cadastro é escolhido pelo responsável por uma ativação HTTPS temporária de uso único. Instruções em docs/admin-auth.md.
 
 Secrets de runtime em production/preview: DATABASE_URL para catálogo, AUTH_DATABASE_URL para autenticação, BETTER_AUTH_SECRET para cookies. BETTER_AUTH_URL em production aponta para a URL pública principal. Nada vai ao frontend. .vercelignore exclui .env*, Git, arquivos locais, originais, dependências e outputs.
 
@@ -15,3 +15,5 @@ Build Vercel: npm run build:vercel prepara public; funções Node 24 em gru1 reu
 Publicar production com --skip-domain, validar a versão protegida por vercel curl e só então promover. Verificar também o acesso anônimo ao domínio principal e a recusa do admin sem sessão. Não definir ssoProtection=null: isso exporia previews antigas. Atualizar ou redirecionar o alias administrativo legado ao login novo.
 
 GitHub origin ainda não foi sincronizado por este fluxo; deploys sobem a fonte local revisada pela CLI.
+
+Correção de primeiro acesso: usar ativação HTTPS temporária no domínio real em vez de entregar localhost. Endpoint /api/auth/setup continua negado sem token válido; o link exige hash/expiração/consumo no Neon e trava depois do primeiro administrador. Ver docs/admin-auth.md.

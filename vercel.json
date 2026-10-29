@@ -20,6 +20,15 @@
           "value": "nosniff"
         }
       ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        }
+      ]
     }
   ],
   "redirects": [
@@ -32,6 +41,11 @@
         }
       ],
       "destination": "https://zm-exclusiva-tau.vercel.app/admin",
+      "permanent": false
+    },
+    {
+      "source": "/admin/setup",
+      "destination": "/#admin/setup",
       "permanent": false
     },
     {
