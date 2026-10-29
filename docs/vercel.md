@@ -14,6 +14,6 @@ Build Vercel: npm run build:vercel prepara public; funções Node 24 em gru1 reu
 
 Publicar production com --skip-domain, validar a versão protegida por vercel curl e só então promover. Verificar também o acesso anônimo ao domínio principal e a recusa do admin sem sessão. Não definir ssoProtection=null: isso exporia previews antigas. Atualizar ou redirecionar o alias administrativo legado ao login novo.
 
-GitHub origin ainda não foi sincronizado por este fluxo; deploys sobem a fonte local revisada pela CLI.
+Repositório oficial: https://github.com/guilhermeepereiraa2004-ops/catalogozm, branch main. Origin aponta para esse destino, conectado ao mesmo projeto Vercel de Guilherme por vercel git connect. Commits enviados a main podem gerar deploys de produção pela integração Git; validar o resultado e o domínio após cada envio. O repositório anterior andrelopees04-source/catalogo não é mais o destino de trabalho. CLI continua disponível para publicação controlada sem modificar banco ou autenticação.
 
 Correção de primeiro acesso: usar ativação HTTPS temporária no domínio real em vez de entregar localhost. Endpoint /api/auth/setup continua negado sem token válido; o link exige hash/expiração/consumo no Neon e trava depois do primeiro administrador. Ver docs/admin-auth.md.

@@ -2,6 +2,8 @@
 
 Catálogo de moda feminina, com vitrine e admin de demonstração. Pedido original: site bonito e acessível, Poppins, hero com título grande, identidade inspirada no Instagram da loja, fotos locais e preço inicial de R$ 99,90.
 
+Repositório oficial definido em 2026-10-29: https://github.com/guilhermeepereiraa2004-ops/catalogozm.git, branch main, conectado ao projeto Vercel de Guilherme. Não enviar novas alterações ao repositório antigo andrelopees04-source/catalogo. Usar autenticação Git do responsável, sem copiar tokens para arquivos ou chat.
+
 Identidade atual aprovada pelo usuário: usar a logo fornecida (assets/logo-zm-exclusiva.jpg) e branco com rosa/dourado do card Rodapé.jpeg. Tokens centralizados em branding.css; mobile.css deve ser carregado depois, como última camada responsiva. Preservar cores das roupas; não retornar à paleta verde/creme anterior. Referência em docs/branding.md e docs/mobile-refresh.md.
 
 Hero atual: pedido de 2026-10-29 substituiu o vestido por adaptação da logo (assets/hero-logo-medallion.png), com flutuação suave. Preservar a logo original no cabeçalho/rodapé. Não recolocar vestido, GLB ou link 360 na hero sem novo pedido. Arte e prompt em docs/hero-logo.md.
