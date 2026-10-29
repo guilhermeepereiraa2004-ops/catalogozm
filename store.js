@@ -18,7 +18,9 @@ async function run(action,args){
   pendingOrder={fingerprint,key:saved?.digest===digest?saved.key:crypto.randomUUID()};
   try{sessionStorage.setItem('zm-order-attempt',JSON.stringify({digest,key:pendingOrder.key}));}catch{}
  }
- const data=await call('/api/actions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,args,...(action==='order.create'?{requestKey:pendingOrder.key}:{})})});
+ const body=JSON.stringify({action,args,...(action==='order.create'?{requestKey:pendingOrder.key}:{})});
+ if(new TextEncoder().encode(body).length>4000000)throw new Error('As fotos ultrapassam o limite do cadastro. Use imagens menores ou menos fotos.');
+ const data=await call('/api/actions',{method:'POST',headers:{'Content-Type':'application/json'},body});
  cached={products:data.products,orders:data.orders,expenses:data.expenses};
  if(data.order){cached.orders=[data.order,...cached.orders.filter(o=>o.id!==data.order.id)];pendingOrder=undefined;try{sessionStorage.removeItem('zm-order-attempt');}catch{}}
  return cached;

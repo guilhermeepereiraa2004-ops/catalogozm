@@ -18,3 +18,5 @@ public/
 .next/
 .sites-runtime/
 
+.vercel
+.env*

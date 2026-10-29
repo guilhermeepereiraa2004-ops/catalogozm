@@ -19,7 +19,7 @@ Comece por `plan/STATUS.md`, `plan/execution-plan.md`, `ROADMAP.md` e `log/devlo
 ## Arquitetura e ações
 `catalog.js` e `domain.js` não importam camadas superiores. `store.js` é cliente assíncrono da API e reexporta utilitários de domínio. `server/api.js` valida ações no servidor e `server/database.js` persiste no Neon. `app.js` importa catálogo e store. `node scripts/check-layers.mjs` verifica imports ESM relativos literais e exercita fixture permitida/proibida. Imports dinâmicos e aliases não são usados nem verificados.
 
-Ações estáveis em `store.js`: `order.create(cart, customer)`, `order.status(id,status)`, `product.save(product)`, `product.toggle(id)`. Validação reutilizável em `domain.js`. Permissões: local restrito a loopback; hospedagem privada usa identidade confiável do Sites para admin. Não confiar em headers do cliente fora do dispatch do Sites. Ver docs/database.md.
+Ações estáveis em `store.js`: `order.create(cart, customer)`, `order.status(id,status)`, `product.save(product)`, `product.toggle(id)`. Validação reutilizável em `domain.js`. Permissões: local restrito a loopback; hospedagem privada usa identidade confiável do Sites para admin. Não confiar em headers do cliente fora do dispatch do Sites. Ver docs/database.md e docs/vercel.md.
 
 Fluxo de caixa: `expense.save(expense)` cria/edita despesas. Receitas são derivadas de pedidos Confirmado/Em separação/Concluído, uma vez por pedido, pela primeira confirmação. Cancelados não compõem receita. Preservar expenses nas ações e migrar armazenamento antigo sem perda. UI em cash-flow.js importa store.js; app.js importa cash-flow.js. Gate inclui 14 testes, com regras em tests/cash-flow.test.mjs.
 
@@ -29,3 +29,5 @@ Fluxo de caixa: `expense.save(expense)` cria/edita despesas. Receitas são deriv
 Inspeção visual e interações pelo navegador com cua_repl. `scripts/mobile-preview.html` fornece iframe de 390 × 844 para QA local, não é distribuído. Mudanças de UI exigem inspeção visual. Catálogo de aceite: `docs/acceptance.json`; relatório gerado por `node scripts/report.mjs`.
 
 Memória operacional em plan/ e log/ permanece local via .gitignore; decisões e arquitetura em docs/ são versionadas. Ao concluir, atualize status, gaps, devlog e libere a raia. CI não existe neste projeto; o gate local é obrigatório.
+
+Vercel: usar somente a equipe de Guilherme Pereira, team_NseDl6bHKTOowzX904mmIj0U / guilherme-pereiras-projects-5a38e3ba. Projeto prj_hYAN6ILZ6N9eE4uQGQqswn0H0AHd. Adaptador server/vercel.js, build:vercel e public para esta plataforma; preservar o build Worker do Sites. Admin Vercel somente em preview protegido, com VERCEL_PRIVATE_ADMIN=1. Nunca confiar em oai-* fora do Sites. Ver docs/vercel.md.

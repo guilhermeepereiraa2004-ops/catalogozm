@@ -11,7 +11,8 @@
     "gate": "node scripts/gate.mjs",
     "validate:glb": "node scripts/validate-glb.mjs",
     "db:migrate": "node --env-file=.env.local scripts/migrate.mjs",
-    "db:verify": "node --env-file=.env.local scripts/verify-neon.mjs"
+    "db:verify": "node --env-file=.env.local scripts/verify-neon.mjs",
+    "build:vercel": "node scripts/prepare-public.mjs"
   },
   "devDependencies": {
     "gltf-validator": "^2.0.0-dev.3.10",

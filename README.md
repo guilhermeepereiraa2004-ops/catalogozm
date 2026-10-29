@@ -22,3 +22,5 @@ Estoque inicial de uma unidade por cadastro é demonstrativo. Cadastre quantidad
 Configuração, migrações, segurança, testes e limites em [docs/database.md](docs/database.md). Dados antigos de demonstração em localStorage são preservados e não são importados automaticamente para o novo banco.
 
 Identidade: logo da loja e branco/rosa/dourado do Rodapé.jpeg; Poppins. Hero com medalhão da logo e animação suave. As 42 fotos originais foram preservadas. Ver docs/branding.md, docs/hero-logo.md e docs/catalog-analysis.md. O estudo GLB separado continua em vestido-3d.html; não aparece na hero.
+
+Vercel: projeto vinculado à equipe de Guilherme Pereira. Build específico com npm run build:vercel, funções Node para Neon e prévia protegida por Vercel Authentication. Configuração e limites em docs/vercel.md.

@@ -66,7 +66,7 @@ export async function handleApi(request,env,{admin=false,db}={}){
    // Limite aplicado durante leitura; não depender apenas de Content-Length.
    const reader=request.body?.getReader();let bytes=0,chunks=[];
    if(!reader)return json({error:'Requisição vazia.'},400);
-   while(true){const {done,value}=await reader.read();if(done)break;bytes+=value.byteLength;if(bytes>9500000){await reader.cancel();return json({error:'Fotos muito grandes. Reduza o tamanho.'},413);}chunks.push(value);}
+   while(true){const {done,value}=await reader.read();if(done)break;bytes+=value.byteLength;if(bytes>4000000){await reader.cancel();return json({error:'Fotos muito grandes. Reduza o tamanho.'},413);}chunks.push(value);}
    let body;try{const data=new Uint8Array(bytes);let offset=0;for(const c of chunks){data.set(c,offset);offset+=c.length;}body=JSON.parse(new TextDecoder().decode(data));}catch{return json({error:'JSON inválido.'},400);}
    if(!admin&&body.action!=='order.create')return json({error:'Acesso administrativo restrito.'},401);
    const result=await mutate(db||createDatabase(env.DATABASE_URL),body.action,body.args,body.requestKey);
