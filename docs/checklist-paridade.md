@@ -1,13 +1,13 @@
 # Aceitação da etapa de front-end
 Gerado por node scripts/report.mjs.
 
-Total: 9 | Verificados: 9
+Total: 9 | Verificados: 8
 
 | ID | Critério | Estado | Evidência |
 |---|---|---|---|
 | catalog-photos | 42 fotos preservadas, 39 cadastros e preço inicial autorizado | Verificado | tests/domain.test.mjs; docs/photo-manifest.json |
 | categories | Categorias definidas pela análise das peças | Verificado | catalog.js; docs/catalog-analysis.md |
-| identity | Poppins, hero grande e paleta do perfil | Verificado | index.html; styles.css; screenshot inspecionado no navegador |
+| identity | Poppins, hero grande, logo fornecida e paleta branca, rosa e dourada do card | Pendente | assets/logo-zm-exclusiva.jpg; branding.css; docs/branding.md. Implementação e build verificados, revisão visual desta atualização pendente por interrupção do Computer Use. |
 | order-stock | Pedido reserva estoque, esgotados saem da vitrine e cancelamento repõe | Verificado | 6 testes de domínio e fluxo manual no navegador |
 | admin-edit | Cadastro e edição de produtos com fotos, preço e estoque | Verificado | app.js; edição salva e inspecionada no navegador |
 | mobile | Fluxos responsivos inspecionados em celular, tablet e horizontal | Verificado | docs/responsive-qa.md; QA 320/390/430/768/844 px e diálogos em 320 px |

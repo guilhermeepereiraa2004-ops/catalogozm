@@ -22,7 +22,7 @@ Dados ficam no localStorage do mesmo navegador e origem, incluindo pedidos e fot
 
 Para vendas reais: integrar backend com estoque transacional e autorização no servidor, banco persistente, uploads, autenticação do admin, política de entrega e provedor de pagamento (se desejado). A publicação inicial é privada para revisão visual do proprietário.
 
-Referência de identidade: https://www.instagram.com/zmexclusiva.store/ — terracota, dourado, creme, tipografia Poppins solicitada. Fotos convertidas para WebP, originais preservados localmente. Mapeamento em `docs/photo-manifest.json` e `docs/catalog-analysis.md`.
+Identidade atual: logo fornecida pela loja e paleta branca, rosa e dourada do arquivo Rodapé.jpeg; tipografia Poppins. Tokens e referência em `docs/branding.md` e `branding.css`. O Instagram forneceu a referência inicial. Fotos convertidas para WebP, originais preservados localmente. Mapeamento em `docs/photo-manifest.json` e `docs/catalog-analysis.md`.
 
 ## Modelo 3D do vestido
 Prévia: http://localhost:4173/vestido-3d.html. A hero mantém somente a imagem editorial, sem link para o estudo 3D.

@@ -13,9 +13,9 @@
   },
   {
     "id": "identity",
-    "criterion": "Poppins, hero grande e paleta do perfil",
-    "done": true,
-    "evidence": "index.html; styles.css; screenshot inspecionado no navegador"
+    "criterion": "Poppins, hero grande, logo fornecida e paleta branca, rosa e dourada do card",
+    "done": false,
+    "evidence": "assets/logo-zm-exclusiva.jpg; branding.css; docs/branding.md. Implementação e build verificados, revisão visual desta atualização pendente por interrupção do Computer Use."
   },
   {
     "id": "order-stock",

@@ -8,3 +8,5 @@
 | Média | Pagamento, frete, envio de notificações | Não integrados; combinar detalhes pelo contato público |
 | Média | Auditoria completa de acessibilidade e teste em aparelhos reais | Padrões implementados; revisão completa pendente |
 | Baixa | CI | Sem CI existente; gate local implementado |
+
+Revisão 2026-10-29: QA visual da nova logo e paleta pendente por indisponibilidade do acesso à prévia correta e interrupção do Computer Use. Fonte e build passaram; ver docs/branding.md.
