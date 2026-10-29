@@ -276,6 +276,10 @@
 .pix-key{font-variant-numeric:tabular-nums}
 .pix-copy-actions{display:grid;gap:10px;margin-bottom:16px}
 .pix-copy-actions .button{height:auto;min-height:50px;padding:12px;gap:8px;line-height:1.6;white-space:normal}
+.pix-copy-status{min-height:1.8em;color:var(--brand-rose-dark);font-weight:500}
+.pix-code-details{text-align:left;font-size:12px;margin:18px 0}
+.pix-code-details summary{cursor:pointer;min-height:44px;display:flex;align-items:center;text-decoration:underline;text-underline-offset:4px}
+.pix-code-details textarea{width:100%;max-width:100%;font-size:12px;overflow-wrap:anywhere;resize:vertical;background:var(--brand-blush-light)}
 #outside-delivery[hidden],#local-checkout[hidden],#checkout-payment-note[hidden]{display:none!important}
 @media(max-width:760px){
  .floating-actions{right:calc(16px + env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));gap:12px}

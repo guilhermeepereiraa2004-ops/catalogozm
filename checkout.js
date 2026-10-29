@@ -1,5 +1,5 @@
 import {paymentMethods} from './store.js';
-import {pixDetails} from './pix.js';
+import {pixDetails,pixPayload} from './pix.js';
 const whatsapp='https://wa.me/message/CA6Q36RLFHG2E1';
 
 export function checkoutForm({icon}){
@@ -23,7 +23,7 @@ export function orderDeliveryDetails(order,{esc}){
 }
 
 export function pixCard({esc,icon}){
- return `<section class="pix-card" aria-labelledby="pix-title"><span class="eyebrow">PIX DA LOJA</span><h3 id="pix-title">QR Code ou Copia e Cola</h3><p>Aguarde a confirmação da loja sobre o total com a entrega antes de pagar.</p><img src="/assets/pix-zm-exclusiva.png" width="320" height="320" alt="QR Code Pix da ZM Exclusiva. Você também pode usar os botões para copiar a chave ou o código Pix."><p><b>${esc(pixDetails.name)}</b><br>Chave CPF: <span class="pix-key">043.017.235-44</span></p><div class="pix-copy-actions"><button type="button" class="button primary full" data-action="copy-pix" data-copy="payload">${icon('box')} Copiar Pix Copia e Cola</button><button type="button" class="button outline full" data-action="copy-pix" data-copy="key">Copiar chave Pix</button></div><p class="small muted">No aplicativo do banco, confira o recebedor e informe o valor combinado. O pagamento será conferido pela loja.</p></section>`;
+ return `<section class="pix-card" aria-label="Pix da loja"><span class="eyebrow">PIX DA LOJA</span><h3 >QR Code ou Copia e Cola</h3><p>Aguarde a confirmação da loja sobre o total com a entrega antes de pagar.</p><img src="/assets/pix-zm-exclusiva.png" width="320" height="320" alt="QR Code Pix da ZM Exclusiva. Você também pode usar os botões para copiar a chave ou o código Pix."><p><b>${esc(pixDetails.name)}</b><br>Chave CPF: <span class="pix-key">043.017.235-44</span></p><div class="pix-copy-actions"><button type="button" class="button primary full" data-action="copy-pix" data-copy="payload">${icon('box')} Copiar Pix Copia e Cola</button><button type="button" class="button outline full" data-action="copy-pix" data-copy="key">Copiar chave Pix</button></div><p class="pix-copy-status small" role="status" aria-live="polite"></p><details class="pix-code-details"><summary>Ver código para copiar manualmente</summary><label>Pix Copia e Cola<textarea readonly rows="4">${esc(pixPayload)}</textarea></label></details><p class="small muted">No aplicativo do banco, confira o recebedor e informe o valor combinado. O pagamento será conferido pela loja.</p></section>`;
 }
 
 export function checkoutConfirmation(order,helpers){

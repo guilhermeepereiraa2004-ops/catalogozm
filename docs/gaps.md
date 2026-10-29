@@ -5,7 +5,7 @@
 | Alta | Backend e banco compartilhado com estoque transacional | Implementado no Neon; API, revisão atômica e concorrência verificados |
 | Alta | Autenticação e autorização do admin no servidor | Better Auth com e-mail/senha e vínculo administrativo no Neon; vitrine pública e APIs administrativas exigem sessão própria |
 | Alta | Quantidades físicas, variantes, medidas e tamanhos reais | Loja deve cadastrar antes de operação real |
-| Média | Pagamento, frete, envio de notificações | Não integrados; combinar detalhes pelo contato público |
+| Média | Confirmação bancária, cálculo de frete e notificações | Checkout escolhe Pix/a combinar; QR estático com chave/titular fornecidos; Ubaitaba finaliza no site e outras localidades combinam frete pelo WhatsApp. Sem gateway/webhook ou cálculo automático |
 | Média | Auditoria completa de acessibilidade e teste em aparelhos reais | Padrões implementados; revisão completa pendente |
 | Baixa | CI | Sem CI existente; gate local implementado |
 
