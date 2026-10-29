@@ -1,7 +1,7 @@
 # Aceitação da etapa de front-end
 Gerado por node scripts/report.mjs.
 
-Total: 9 | Verificados: 8
+Total: 9 | Verificados: 7
 
 | ID | Critério | Estado | Evidência |
 |---|---|---|---|
@@ -12,7 +12,7 @@ Total: 9 | Verificados: 8
 | admin-edit | Cadastro e edição de produtos com fotos, preço e estoque | Verificado | app.js; edição salva e inspecionada no navegador |
 | mobile | Fluxos responsivos inspecionados em celular, tablet e horizontal | Verificado | docs/responsive-qa.md; QA 320/390/430/768/844 px e diálogos em 320 px |
 | publication | Versão privada publicada com sucesso | Verificado | Sites: deployment appgdep_6adaaba5ea248191bdb0122ce4118555 succeeded; versão privada publicada |
-| hero-autoplay | Vestido inicia animação contínua sem play/pausa | Verificado | Navegador: playButtons=0, animation=dress-float-gentle, iterations=infinite, state=running |
+| hero-autoplay | Logo da hero com animação suave sem play/pausa | Pendente | hero-brand, branding.css e hero-motion.js implementados; revisão visual da nova composição pendente. docs/hero-logo.md |
 | cash-flow | Fluxo de caixa com receitas de pedidos confirmados, despesas editáveis e saldo por período | Verificado | tests/cash-flow.test.mjs; docs/cash-flow.md; checkout → confirmação → receita e cancelamento no navegador, QA 320/390/768 px |
 
 Esta medição cobre a demonstração de front-end. Requisitos de produção permanecem em docs/gaps.md.

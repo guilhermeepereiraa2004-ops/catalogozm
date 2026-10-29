@@ -1,10 +1,11 @@
-/** Photo-based perspective effect; no hidden surfaces or 360° geometry. */
+/** Gentle artwork perspective; no hidden surfaces or 360° geometry. */
 export function mountHeroMotion(hero) {
   if (!hero) return () => {};
   const controller = new AbortController();
   const { signal } = controller;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const hover = matchMedia('(hover: hover) and (pointer: fine)');
+  const intensity = hero.classList.contains('hero-brand') ? .35 : 1;
   let frame = 0;
   let point = null;
 
@@ -30,10 +31,10 @@ export function mountHeroMotion(hero) {
     const rect = hero.getBoundingClientRect();
     const x = Math.max(-1, Math.min(1, ((point.x - rect.left) / rect.width - .5) * 2));
     const y = Math.max(-1, Math.min(1, ((point.y - rect.top) / rect.height - .5) * 2));
-    hero.style.setProperty('--dress-turn', `${(x * 13).toFixed(2)}deg`);
-    hero.style.setProperty('--dress-lean', `${(-y * 7).toFixed(2)}deg`);
-    hero.style.setProperty('--dress-x', `${(x * 10).toFixed(2)}px`);
-    hero.style.setProperty('--dress-y', `${(y * 5).toFixed(2)}px`);
+    hero.style.setProperty('--dress-turn', `${(x * 13 * intensity).toFixed(2)}deg`);
+    hero.style.setProperty('--dress-lean', `${(-y * 7 * intensity).toFixed(2)}deg`);
+    hero.style.setProperty('--dress-x', `${(x * 10 * intensity).toFixed(2)}px`);
+    hero.style.setProperty('--dress-y', `${(y * 5 * intensity).toFixed(2)}px`);
   }
 
   hero.addEventListener('pointermove', event => {

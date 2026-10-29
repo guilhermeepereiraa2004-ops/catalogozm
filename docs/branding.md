@@ -23,3 +23,6 @@ branding.css, carregado após os estilos existentes, centraliza os tokens e as a
 - Logo e página responderam HTTP 200 na prévia local; o título retornado pelo servidor é ZM Exclusiva. Cópia da imagem verificada por hash.
 - Contraste calculado entre cores sólidas: rosé/branco 5,52:1; rosé escuro/branco 7,88:1; texto secundário/branco 6,19:1; dourado escuro/rosa 4,54:1. Dourado mais claro fica em detalhes decorativos.
 - Inspeção visual desta revisão ficou pendente: a prévia automatizada de localhost abriu outro projeto, enquanto o servidor local retornava a loja correta. A tentativa de inspeção no navegador do computador foi interrompida pela ferramenta por não conseguir validar sua URL. Não foram feitas novas ações de Computer Use após a interrupção. Não afirmar que esta revisão passou por QA visual ou teste em celular.
+
+## Hero com adaptação da logo
+Pedido posterior de 2026-10-29 substitui o vestido pelo medalhão da marca. Header e rodapé continuam com a logo original sem edição. Método, arquivo e prompt em docs/hero-logo.md.

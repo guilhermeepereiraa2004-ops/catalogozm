@@ -43,9 +43,9 @@
   },
   {
     "id": "hero-autoplay",
-    "criterion": "Vestido inicia animação contínua sem play/pausa",
-    "done": true,
-    "evidence": "Navegador: playButtons=0, animation=dress-float-gentle, iterations=infinite, state=running"
+    "criterion": "Logo da hero com animação suave sem play/pausa",
+    "done": false,
+    "evidence": "hero-brand, branding.css e hero-motion.js implementados; revisão visual da nova composição pendente. docs/hero-logo.md"
   },
   {
     "id": "cash-flow",

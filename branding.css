@@ -108,3 +108,40 @@ th{background:#fff7f4}
   .site-header .brand-logo{width:50px;height:50px;flex-basis:50px}
   .admin-sidebar .brand-name{display:none}
 }
+
+/* The brand medallion takes the place of the dress in the editorial hero. */
+.hero.hero-brand .hero-product{top:218px;bottom:51px;left:50%;width:40%;transform:translateX(-50%);height:auto}
+.hero.hero-brand .hero-garment>img{object-fit:contain;transform:none;filter:drop-shadow(0 22px 20px #79414929)}
+.hero.hero-brand .hero-garment:before{background:var(--brand-rose-dark);opacity:.1;width:56%;left:22%;bottom:2%;filter:blur(18px)}
+.hero.hero-brand .hero-orbit{top:300px;height:225px;background:radial-gradient(ellipse,#fbd8d48c,#fff4f2);box-shadow:0 30px 65px #bd884c0c}
+.hero.hero-brand .hero-product-caption{bottom:-12px;letter-spacing:1.5px;color:var(--brand-gold-dark)}
+.hero-logo-sparkle{position:absolute;z-index:3;color:var(--brand-gold);font-size:32px;line-height:1;pointer-events:none}
+.sparkle-one{right:3%;top:12%}
+.sparkle-two{left:4%;bottom:16%;font-size:25px}
+.hero-brand.has-depth-motion .hero-garment>img{animation:brand-emblem-float 8s ease-in-out infinite!important}
+@keyframes brand-emblem-float{0%,100%{transform:translateY(0) rotate(-.4deg)}50%{transform:translateY(-7px) rotate(.4deg)}}
+@keyframes brand-emblem-gentle{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@media(min-width:1450px){
+  .hero.hero-brand .hero-product{top:245px;bottom:51px}
+  .hero.hero-brand .hero-orbit{top:340px;height:250px}
+}
+@media(max-width:1050px){
+  .hero.hero-brand .hero-product{top:235px;bottom:55px;width:40%}
+  .hero.hero-brand .hero-orbit{top:305px;height:215px}
+}
+@media(max-width:800px){
+  .hero.hero-brand .hero-product{top:212px;bottom:215px;width:46%}
+  .hero.hero-brand .hero-orbit{top:267px;height:175px}
+  .hero-logo-sparkle{font-size:25px}
+}
+@media(max-width:600px){
+  .hero.hero-brand .hero-product{inset:auto;transform:none;grid-area:garment;justify-self:center;width:min(82vw,360px);height:clamp(255px,78vw,350px);margin:17px 0 35px}
+  .hero.hero-brand .hero-orbit{top:clamp(172px,47vw,235px);height:clamp(180px,46vw,235px)}
+  .hero.hero-brand .hero-product-caption{bottom:-13px;font-size:6px;letter-spacing:1.1px}
+  .hero.hero-brand .hero-garment>img{filter:drop-shadow(0 15px 14px #79414926)}
+  .sparkle-one{right:0;top:9%}
+  .sparkle-two{left:0;bottom:14%;font-size:22px}
+}
+@media(prefers-reduced-motion:reduce){
+  .hero-brand.has-depth-motion .hero-garment>img{animation:brand-emblem-gentle 9s ease-in-out infinite!important}
+}
