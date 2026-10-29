@@ -5,7 +5,7 @@ export function getState(){return cached;}
 async function call(url,options){
  let response;try{response=await fetch(url,{credentials:'same-origin',cache:'no-store',...options});}catch{throw new Error('Sem conexão com a loja. Verifique sua internet e tente novamente.');}
  let data;try{data=await response.json();}catch{throw new Error('O servidor da loja não respondeu. Tente novamente.');}
- if(!response.ok)throw new Error(data.error||'Não foi possível salvar. Tente novamente.');
+ if(!response.ok){const error=new Error(data.error||'Não foi possível salvar. Tente novamente.');error.status=response.status;error.adminUrl=data.adminUrl;throw error;}
  return data;
 }
 export async function refreshState(admin=false){cached=await call(admin?'/api/state':'/api/catalog');return cached;}

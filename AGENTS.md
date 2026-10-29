@@ -12,7 +12,7 @@ Comece por `plan/STATUS.md`, `plan/execution-plan.md`, `ROADMAP.md` e `log/devlo
 - Valores monetários em centavos inteiros; o catálogo inicial contém 39 cadastros, 42 fotos e preço de 9990 centavos.
 - Não inventar tamanhos, composição dos tecidos, prazo/frete ou estoque real. Inicialmente: tamanho a confirmar e estoque demonstrativo de uma unidade por cadastro.
 - Pedidos validam estoque agregado; esgotados somem da vitrine. Cancelamento repõe estoque uma única vez.
-- Dados da loja persistem no Neon via API. Sacola e favoritos permanecem locais. Hospedagem owner-private no Sites; não abrir o acesso público sem autorização administrativa própria. Não há cobrança integrada.
+- Dados da loja persistem no Neon via API. Sacola e favoritos permanecem locais. Sites permanece privado. Vercel tem vitrine pública em production e admin privado numa preview protegida. Não há cobrança integrada.
 - Preservar todas as fotos fornecidas. Direitos de uso são de responsabilidade da loja que forneceu o material. Nenhum asset de terceiros foi copiado do Instagram; apenas referência visual e links públicos.
 - Não expor segredos. Antes de entrega ou commit, execute `npm run gate`.
 
@@ -31,3 +31,5 @@ Inspeção visual e interações pelo navegador com cua_repl. `scripts/mobile-pr
 Memória operacional em plan/ e log/ permanece local via .gitignore; decisões e arquitetura em docs/ são versionadas. Ao concluir, atualize status, gaps, devlog e libere a raia. CI não existe neste projeto; o gate local é obrigatório.
 
 Vercel: usar somente a equipe de Guilherme Pereira, team_NseDl6bHKTOowzX904mmIj0U / guilherme-pereiras-projects-5a38e3ba. Projeto prj_hYAN6ILZ6N9eE4uQGQqswn0H0AHd. Adaptador server/vercel.js, build:vercel e public para esta plataforma; preservar o build Worker do Sites. Admin Vercel somente em preview protegido, com VERCEL_PRIVATE_ADMIN=1. Nunca confiar em oai-* fora do Sites. Ver docs/vercel.md.
+
+Publicação autorizada em 2026-10-29: produção https://zm-exclusiva-tau.vercel.app sem login; admin https://zm-exclusiva-admin-guilherme.vercel.app/#admin com login Vercel. Standard Protection deve manter todas as previews privadas. Nunca habilitar admin em production, nunca remover a proteção global com ssoProtection=null. /api/state e mutações administrativas no domínio público devem retornar 401.

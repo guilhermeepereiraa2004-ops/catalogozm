@@ -6,9 +6,13 @@ O build Vercel é npm run build:vercel: prepara somente a lista de assets e arqu
 
 DATABASE_URL está configurado como Secret na Vercel para preview e production. Nenhum prefixo público, valor em config ou segredo no código. .vercelignore exclui .env*, Git, arquivos locais, originais, node_modules e outputs. O upload foi inspecionado antes da publicação. Limite de corpo do cadastro: 4 MB, verificado no cliente e servidor, abaixo do limite das Vercel Functions.
 
-Nesta entrega usar apenas preview protegido por Vercel Authentication. Configuração confirmada do projeto: ssoProtection.deploymentType=all_except_custom_domains, que cobre as URLs de preview. VERCEL_PRIVATE_ADMIN=1 existe somente no ambiente preview. Admin na Vercel confia na barreira privada da plataforma; qualquer pessoa que receber acesso à prévia poderá usar o painel. Não criar links compartilháveis para clientes. Não desativar proteção da prévia. Headers oai-* do navegador são ignorados por este adaptador. Production não habilita admin por esta flag.
+Vitrine pública: https://zm-exclusiva-tau.vercel.app. Produção não tem autorização administrativa: /api/state e as alterações de produtos, despesas e status retornam 401. O checkout anônimo usa somente order.create; o servidor calcula valores, reserva estoque e responde apenas com o pedido recém-criado. Catálogo não inclui clientes, pedidos, despesas ou chaves de tentativa.
 
-Antes de publicar a loja para clientes, implementar login/autorização administrativa específicos. Não promover esta prévia presumindo que o login do Sites existe na Vercel. A hospedagem Sites atual permanece privada e funcionando.
+Admin privado: https://zm-exclusiva-admin-guilherme.vercel.app/#admin. Alias aponta para um deployment de preview, protegido por Vercel Authentication. A proteção do projeto deve permanecer em prod_deployment_urls_and_all_previews (Standard Protection): libera somente os domínios de produção e mantém todas as previews privadas. Nunca definir ssoProtection=null. VERCEL_PRIVATE_ADMIN=1 continua SOMENTE em preview. Qualquer pessoa que receba acesso à preview poderá administrar; não compartilhar acesso de revisão com clientes.
+
+O /admin público e o hash #admin encaminham para o alias privado; a autenticação é feita pela Vercel. Esconder a interface não é o controle de acesso: as APIs públicas sempre negam administração, mesmo com headers oai-* forjados. A produção ignora a flag privada ainda que configurada por engano.
+
+O alias privado mantém o deployment administrativo retido. Quando atualizar código de admin, publicar uma preview e mover esse alias; nunca apontar esse alias para production. Ao atualizar a vitrine, publicar production sem mover o alias do admin. Os dois compartilham o mesmo Neon. A hospedagem Sites antiga permanece privada.
 
 Execução: npm run dev para localhost; npm run gate antes de deploy; vercel project inspect --scope guilherme-pereiras-projects-5a38e3ba --non-interactive para confirmar destino; vercel deploy --target preview --scope guilherme-pereiras-projects-5a38e3ba para publicar. Usar vercel curl nas verificações da prévia protegida; não desligar proteção.
 

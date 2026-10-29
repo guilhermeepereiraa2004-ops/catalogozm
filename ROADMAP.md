@@ -13,3 +13,5 @@ Aceitação em docs/acceptance.json; relatório gerado por scripts/report.mjs. P
 2026-10-29 · Neon criado na nova conta (São Paulo, Free), API e persistência compartilhada implementadas. Gate com 17 testes e verificação real de concorrência/financeiro aprovados. Administração permanece protegida pela prévia owner-private; operação pública exige autorização específica e estoque físico revisado.
 
 2026-10-29 · Destino Vercel definido pelo usuário: equipe de Guilherme Pereira. Adaptador e build independentes preparados; prévia protegida antes de lançamento público.
+
+2026-10-29 · Usuário autorizou vitrine pública sem login, com admin separado e protegido na Vercel. Checkout anônimo e isolamento das APIs administrativas em verificação.

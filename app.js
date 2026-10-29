@@ -84,7 +84,7 @@ async function loadRoute(){
  const request=++routeRequest;disposeHeroMotion();
  $('#app').innerHTML='<main class="empty-state" id="main" aria-busy="true"><h1>Preparando sua loja…</h1><p role="status">Buscando os dados da coleção.</p></main>';
  try{const next=await refreshState(location.hash.startsWith('#admin'));if(request!==routeRequest)return;state=next;if(location.hash.startsWith('#admin')){admin();focusAdminHeading();}else{storefront();if(location.hash==='#catalogo')$('#catalogo')?.scrollIntoView();}}
- catch(err){if(request!==routeRequest)return;$('#app').innerHTML=`<main class="empty-state" id="main"><h1>A loja está indisponível por um instante.</h1><p role="alert">${esc(err.message)}</p><button class="button primary" data-action="retry-connection">Tentar novamente</button></main>`;}
+ catch(err){if(request!==routeRequest)return;if(err.status===401&&location.hash.startsWith('#admin')&&err.adminUrl==='https://zm-exclusiva-admin-guilherme.vercel.app'){const hash=/^#admin(?:\/(?:orders|products|cash-flow))?$/.test(location.hash)?location.hash:'#admin';location.assign(err.adminUrl+'/'+hash);return;}$('#app').innerHTML=`<main class="empty-state" id="main"><h1>A loja está indisponível por um instante.</h1><p role="alert">${esc(err.message)}</p><button class="button primary" data-action="retry-connection">Tentar novamente</button></main>`;}
 }
 document.addEventListener('visibilitychange',async()=>{if(document.hidden)return;try{state=await refreshState(location.hash.startsWith('#admin'));if(!document.querySelector('dialog[open]')){if(location.hash.startsWith('#admin'))renderAdminPanel();else if($('#product-grid'))renderProducts();}}catch{toast('Não foi possível atualizar os dados. Tente novamente.');}});
 loadRoute();
