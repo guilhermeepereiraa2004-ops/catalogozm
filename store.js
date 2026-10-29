@@ -2,6 +2,7 @@ export {getCashFlow,expenseCategories,orderStatuses,localDate,parseAmount} from 
 let cached={products:[],orders:[],expenses:[]};
 let pendingOrder;
 export function getState(){return cached;}
+export function clearState(){cached={products:[],orders:[],expenses:[]};}
 async function call(url,options){
  let response;try{response=await fetch(url,{credentials:'same-origin',cache:'no-store',...options});}catch{throw new Error('Sem conexão com a loja. Verifique sua internet e tente novamente.');}
  let data;try{data=await response.json();}catch{throw new Error('O servidor da loja não respondeu. Tente novamente.');}

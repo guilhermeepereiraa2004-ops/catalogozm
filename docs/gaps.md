@@ -12,3 +12,5 @@
 Revisão 2026-10-29: QA visual da nova logo e paleta pendente por indisponibilidade do acesso à prévia correta e interrupção do Computer Use. Fonte e build passaram; ver docs/branding.md.
 
 2026-10-29: produção pública em zm-exclusiva-tau.vercel.app, admin no alias privado zm-exclusiva-admin-guilherme.vercel.app. Standard Protection preservado para previews. 20 testes e HTTP anônimo aprovados; navegação até o checkout e acesso do proprietário ao admin conferidos no navegador.
+
+2026-10-29: autenticação própria de e-mail/senha implementada com Better Auth/Neon. Cadastro inicial fica a cargo do proprietário na tela local, sem signup público. Recuperação de senha por e-mail não integrada. QA local de UI limitado pelo navegador embutido apontando para outro localhost; validar login na URL pública após deploy.

@@ -15,3 +15,5 @@ Aceitação em docs/acceptance.json; relatório gerado por scripts/report.mjs. P
 2026-10-29 · Destino Vercel definido pelo usuário: equipe de Guilherme Pereira. Adaptador e build independentes preparados; prévia protegida antes de lançamento público.
 
 2026-10-29 · Usuário autorizou vitrine pública sem login, com admin separado e protegido na Vercel. Checkout anônimo e isolamento das APIs administrativas em verificação.
+
+2026-10-29 · Implementado login próprio Better Auth/Neon com autorização por usuário, cadastro inicial apenas local e nenhum signup público. Aguardando primeiro cadastro pelo proprietário na tela local.

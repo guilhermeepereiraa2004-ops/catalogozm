@@ -3,7 +3,7 @@ import path from 'node:path';
 const root=path.resolve('public');
 if(root!==path.join(process.cwd(),'public'))throw new Error('Diretório inválido');
 await rm(root,{recursive:true,force:true});await mkdir('public/assets',{recursive:true});
-export const files=['index.html','vestido-3d.html','viewer-3d.js','viewer-3d.css','styles.css','hero.css','responsive.css','hero-motion.js','cash-flow.js','cash-flow.css','branding.css','mobile.css','app.js','catalog.js','domain.js','store.js'];
+export const files=['index.html','vestido-3d.html','viewer-3d.js','viewer-3d.css','styles.css','hero.css','responsive.css','hero-motion.js','cash-flow.js','cash-flow.css','branding.css','mobile.css','app.js','admin-auth.js','admin-auth.css','catalog.js','domain.js','store.js'];
 for(const file of files)await copyFile(file,`public/${file}`);
 await cp('assets','public/assets',{recursive:true,filter:s=>!s.includes('originals')});
 await cp('vendor','public/vendor',{recursive:true});

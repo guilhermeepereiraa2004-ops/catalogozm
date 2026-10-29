@@ -12,22 +12,26 @@
     "validate:glb": "node scripts/validate-glb.mjs",
     "db:migrate": "node --env-file=.env.local scripts/migrate.mjs",
     "db:verify": "node --env-file=.env.local scripts/verify-neon.mjs",
-    "build:vercel": "node scripts/prepare-public.mjs"
+    "build:vercel": "node scripts/prepare-public.mjs",
+    "auth:migrate": "node scripts/migrate-auth.mjs",
+    "auth:verify": "node scripts/verify-auth.mjs"
   },
   "devDependencies": {
-    "gltf-validator": "^2.0.0-dev.3.10",
     "@cloudflare/vite-plugin": "1.37.1",
-    "vite": "8.0.13",
-    "wrangler": "4.92.0",
-    "@vitejs/plugin-rsc": "0.5.26",
     "@vitejs/plugin-react": "6.0.2",
-    "react-server-dom-webpack": "19.2.6"
+    "@vitejs/plugin-rsc": "0.5.26",
+    "gltf-validator": "^2.0.0-dev.3.10",
+    "react-server-dom-webpack": "19.2.6",
+    "vite": "8.0.13",
+    "wrangler": "4.92.0"
   },
   "dependencies": {
     "@neondatabase/serverless": "1.0.2",
-    "vinext": "1.0.0-beta.5",
+    "better-auth": "1.7.14",
     "next": "16.3.4",
+    "pg": "8.23.1",
     "react": "19.2.6",
-    "react-dom": "19.2.6"
+    "react-dom": "19.2.6",
+    "vinext": "1.0.0-beta.5"
   }
 }

@@ -24,14 +24,31 @@
   ],
   "redirects": [
     {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "zm-exclusiva-admin-guilherme.vercel.app"
+        }
+      ],
+      "destination": "https://zm-exclusiva-tau.vercel.app/admin",
+      "permanent": false
+    },
+    {
       "source": "/admin",
-      "destination": "https://zm-exclusiva-admin-guilherme.vercel.app/#admin",
+      "destination": "/#admin",
       "permanent": false
     },
     {
       "source": "/admin/:path*",
-      "destination": "https://zm-exclusiva-admin-guilherme.vercel.app/#admin",
+      "destination": "/#admin",
       "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/auth/:path*",
+      "destination": "/api/auth?auth_path=:path*"
     }
   ]
 }

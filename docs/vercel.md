@@ -1,19 +1,17 @@
 # Vercel
 
-Destino autorizado pelo usuário: Guilherme Pereira's projects (guilherme-pereiras-projects-5a38e3ba), team_NseDl6bHKTOowzX904mmIj0U. Projeto zm-exclusiva, prj_hYAN6ILZ6N9eE4uQGQqswn0H0AHd. Pasta vinculada por .vercel/project.json, ignorado pelo Git. A integração MCP Vercel está conectada a Diego e não deve ser usada para este destino; usar a CLI autenticada de Guilherme com --scope explícito.
+Destino autorizado: Guilherme Pereira's projects (guilherme-pereiras-projects-5a38e3ba), team_NseDl6bHKTOowzX904mmIj0U. Projeto zm-exclusiva, prj_hYAN6ILZ6N9eE4uQGQqswn0H0AHd. A integração MCP está conectada à conta Diego; operar este destino pela CLI autenticada de Guilherme com --scope explícito. .vercel/project.json é local e ignorado.
 
-O build Vercel é npm run build:vercel: prepara somente a lista de assets e arquivos frontend em public. As funções api/health.js, api/catalog.js, api/state.js e api/actions.js encaminham para server/vercel.js e reutilizam a API do Neon. Node 24, região gru1, mesmo banco de São Paulo. O build existente npm run build continua produzindo Worker para a prévia Sites. A conexão do banco não muda e não há nova migração/seed durante o deploy.
+Loja pública: https://zm-exclusiva-tau.vercel.app. Admin: https://zm-exclusiva-tau.vercel.app/admin, com e-mail/senha próprios via Better Auth. /admin redireciona internamente para /#admin. Não há login Vercel no acesso da loja. Vercel Standard Protection continua protegendo previews para revisão, sem servir como autorização administrativa da aplicação.
 
-DATABASE_URL está configurado como Secret na Vercel para preview e production. Nenhum prefixo público, valor em config ou segredo no código. .vercelignore exclui .env*, Git, arquivos locais, originais, node_modules e outputs. O upload foi inspecionado antes da publicação. Limite de corpo do cadastro: 4 MB, verificado no cliente e servidor, abaixo do limite das Vercel Functions.
+O adaptador server/vercel.js valida sessão Better Auth e vínculo de usuário no Neon para qualquer API administrativa. Sem sessão, /api/state e as mutações administrativas retornam 401. VERCEL_PRIVATE_ADMIN e headers oai-* não concedem acesso em nenhum ambiente.
 
-Vitrine pública: https://zm-exclusiva-tau.vercel.app. Produção não tem autorização administrativa: /api/state e as alterações de produtos, despesas e status retornam 401. O checkout anônimo usa somente order.create; o servidor calcula valores, reserva estoque e responde apenas com o pedido recém-criado. Catálogo não inclui clientes, pedidos, despesas ou chaves de tentativa.
+O endpoint api/auth.js recebe /api/auth/:path* por rewrite com auth_path, normalizado no servidor. Signup público e setup remoto são recusados. O primeiro cadastro é escolhido pelo responsável no servidor local http://localhost:4173/admin/setup. Instruções em docs/admin-auth.md.
 
-Admin privado: https://zm-exclusiva-admin-guilherme.vercel.app/#admin. Alias aponta para um deployment de preview, protegido por Vercel Authentication. A proteção do projeto deve permanecer em prod_deployment_urls_and_all_previews (Standard Protection): libera somente os domínios de produção e mantém todas as previews privadas. Nunca definir ssoProtection=null. VERCEL_PRIVATE_ADMIN=1 continua SOMENTE em preview. Qualquer pessoa que receba acesso à preview poderá administrar; não compartilhar acesso de revisão com clientes.
+Secrets de runtime em production/preview: DATABASE_URL para catálogo, AUTH_DATABASE_URL para autenticação, BETTER_AUTH_SECRET para cookies. BETTER_AUTH_URL em production aponta para a URL pública principal. Nada vai ao frontend. .vercelignore exclui .env*, Git, arquivos locais, originais, dependências e outputs.
 
-O /admin público e o hash #admin encaminham para o alias privado; a autenticação é feita pela Vercel. Esconder a interface não é o controle de acesso: as APIs públicas sempre negam administração, mesmo com headers oai-* forjados. A produção ignora a flag privada ainda que configurada por engano.
+Build Vercel: npm run build:vercel prepara public; funções Node 24 em gru1 reutilizam Neon de São Paulo. O build npm run build permanece Worker para Sites, sem incluir o backend de autenticação Node. Sites antigo continua privado. Não executar seed ou migração durante deploy.
 
-O alias privado mantém o deployment administrativo retido. Quando atualizar código de admin, publicar uma preview e mover esse alias; nunca apontar esse alias para production. Ao atualizar a vitrine, publicar production sem mover o alias do admin. Os dois compartilham o mesmo Neon. A hospedagem Sites antiga permanece privada.
+Publicar production com --skip-domain, validar a versão protegida por vercel curl e só então promover. Verificar também o acesso anônimo ao domínio principal e a recusa do admin sem sessão. Não definir ssoProtection=null: isso exporia previews antigas. Atualizar ou redirecionar o alias administrativo legado ao login novo.
 
-Execução: npm run dev para localhost; npm run gate antes de deploy; vercel project inspect --scope guilherme-pereiras-projects-5a38e3ba --non-interactive para confirmar destino; vercel deploy --target preview --scope guilherme-pereiras-projects-5a38e3ba para publicar. Usar vercel curl nas verificações da prévia protegida; não desligar proteção.
-
-GitHub origin não está sincronizado por esta entrega. Deploy inicial sobe a fonte local revisada pela CLI, sem conectar automaticamente a branch remota antiga.
+GitHub origin ainda não foi sincronizado por este fluxo; deploys sobem a fonte local revisada pela CLI.
