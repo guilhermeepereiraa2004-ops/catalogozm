@@ -1,7 +1,7 @@
 # Aceitação da etapa de front-end
 Gerado por node scripts/report.mjs.
 
-Total: 9 | Verificados: 7
+Total: 9 | Verificados: 6
 
 | ID | Critério | Estado | Evidência |
 |---|---|---|---|
@@ -10,7 +10,7 @@ Total: 9 | Verificados: 7
 | identity | Poppins, hero grande, logo fornecida e paleta branca, rosa e dourada do card | Pendente | assets/logo-zm-exclusiva.jpg; branding.css; docs/branding.md. Implementação e build verificados, revisão visual desta atualização pendente por interrupção do Computer Use. |
 | order-stock | Pedido reserva estoque, esgotados saem da vitrine e cancelamento repõe | Verificado | 6 testes de domínio e fluxo manual no navegador |
 | admin-edit | Cadastro e edição de produtos com fotos, preço e estoque | Verificado | app.js; edição salva e inspecionada no navegador |
-| mobile | Fluxos responsivos inspecionados em celular, tablet e horizontal | Verificado | docs/responsive-qa.md; QA 320/390/430/768/844 px e diálogos em 320 px |
+| mobile | Vitrine, diálogos, menu e admin adaptados para celular e tablet | Pendente | mobile.css e navegação acessível implementados; gate e build verificados. Inspeção visual atual aguarda autorização para login da prévia privada. docs/mobile-refresh.md |
 | publication | Versão privada publicada com sucesso | Verificado | Sites: deployment appgdep_6adaaba5ea248191bdb0122ce4118555 succeeded; versão privada publicada |
 | hero-autoplay | Logo da hero com animação suave sem play/pausa | Pendente | hero-brand, branding.css e hero-motion.js implementados; revisão visual da nova composição pendente. docs/hero-logo.md |
 | cash-flow | Fluxo de caixa com receitas de pedidos confirmados, despesas editáveis e saldo por período | Verificado | tests/cash-flow.test.mjs; docs/cash-flow.md; checkout → confirmação → receita e cancelamento no navegador, QA 320/390/768 px |

@@ -1,5 +1,7 @@
 # Revisão responsiva e animação — 2026-10-22
 
+Atualização 2026-10-29: a revisão descrita abaixo é histórica. A hero atual usa a logo e os layouts foram reorganizados em mobile.css; as verificações antigas não comprovam a composição atual. A nova implementação e a pendência de acesso para QA visual estão em docs/mobile-refresh.md.
+
 Implementação: responsive.css após hero.css; hero-motion.js inicia animação contínua da foto sem controle de play/pausa. O GLB e o link 360 continuam fora da hero, conforme preferência do usuário.
 
 ## Verificações no navegador
