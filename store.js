@@ -1,8 +1,8 @@
-export {getCashFlow,expenseCategories,orderStatuses,localDate,parseAmount} from './domain.js';
-let cached={products:[],orders:[],expenses:[]};
+export {getCashFlow,expenseCategories,incomeCategories,orderStatuses,localDate,parseAmount} from './domain.js';
+let cached={products:[],orders:[],expenses:[],incomes:[]};
 let pendingOrder;
 export function getState(){return cached;}
-export function clearState(){cached={products:[],orders:[],expenses:[]};}
+export function clearState(){cached={products:[],orders:[],expenses:[],incomes:[]};}
 async function call(url,options){
  let response;try{response=await fetch(url,{credentials:'same-origin',cache:'no-store',...options});}catch{throw new Error('Sem conexão com a loja. Verifique sua internet e tente novamente.');}
  let data;try{data=await response.json();}catch{throw new Error('O servidor da loja não respondeu. Tente novamente.');}
@@ -22,7 +22,7 @@ async function run(action,args){
  const body=JSON.stringify({action,args,...(action==='order.create'?{requestKey:pendingOrder.key}:{})});
  if(new TextEncoder().encode(body).length>4000000)throw new Error('As fotos ultrapassam o limite do cadastro. Use imagens menores ou menos fotos.');
  const data=await call('/api/actions',{method:'POST',headers:{'Content-Type':'application/json'},body});
- cached={products:data.products,orders:data.orders,expenses:data.expenses};
+ cached={products:data.products,orders:data.orders,expenses:data.expenses,incomes:data.incomes||[]};
  if(data.order){cached.orders=[data.order,...cached.orders.filter(o=>o.id!==data.order.id)];pendingOrder=undefined;try{sessionStorage.removeItem('zm-order-attempt');}catch{}}
  return cached;
 }
@@ -30,6 +30,7 @@ export const actions={
  'order.create':(cart,customer)=>run('order.create',[cart,customer]),
  'order.status':(id,status)=>run('order.status',[id,status]),
  'expense.save':expense=>run('expense.save',[expense]),
+ 'income.save':income=>run('income.save',[income]),
  'product.save':product=>run('product.save',[product]),
  'product.toggle':id=>run('product.toggle',[id])
 };

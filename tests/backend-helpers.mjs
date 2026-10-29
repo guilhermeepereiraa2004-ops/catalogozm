@@ -17,7 +17,15 @@ export async function exerciseDB(db){
  const first=confirmed.state.orders[0].confirmedAt;assert.equal(getCashFlow(confirmed.state).income,9990);
  const again=await mutate(db,'order.status',[winner.id,'Em separação']);assert.equal(again.state.orders[0].confirmedAt,first);assert.equal(getCashFlow(again.state).income,9990);
  const expense=await mutate(db,'expense.save',[{description:'Embalagens teste',category:'Embalagens',date:'2026-10-29',amount:1900}]);assert.equal(getCashFlow(expense.state).balance,8090);
+ // Concurrent finance writes must preserve both records through CAS retries.
+ await Promise.all([
+  mutate(db,'income.save',[{description:'Venda presencial teste',category:'Venda presencial',date:'2026-10-29',amount:2500}]),
+  mutate(db,'expense.save',[{...expense.state.expenses[0],amount:1900}])
+ ]);
+ const withIncome=(await db.read()).state;assert.equal(getCashFlow(withIncome).income,12490);assert.equal(withIncome.incomes.length,1);
+ const savedIncome=withIncome.incomes[0];await mutate(db,'income.save',[{...savedIncome,amount:3500}]);
+ const edited=(await db.read()).state;assert.equal(edited.incomes.length,1);assert.equal(edited.incomes[0].createdAt,savedIncome.createdAt);
  await Promise.all([mutate(db,'order.status',[winner.id,'Cancelado']),mutate(db,'order.status',[winner.id,'Cancelado'])]);
- const final=(await db.read()).state;assert.equal(final.products[0].stock,1);assert.equal(getCashFlow(final).income,0);assert.equal(getCashFlow(final).expense,1900);
+ const final=(await db.read()).state;assert.equal(final.products[0].stock,1);assert.equal(getCashFlow(final).income,3500);assert.equal(getCashFlow(final).expense,1900);assert.equal(getCashFlow(final).balance,1600);
  await assert.rejects(()=>mutate(db,'order.status',[winner.id,'Novo']),/reabertos/);
 }

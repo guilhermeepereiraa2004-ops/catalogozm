@@ -35,9 +35,9 @@
 .cash-note{display:flex;align-items:flex-start;gap:12px;padding:8px 2px;margin-top:18px;color:var(--muted)}
 .cash-note svg{color:#667954;margin-top:3px}
 .cash-note p{font-size:11px;line-height:1.9;margin:0;max-width:750px}
-#expense-dialog{width:530px}
-#expense-dialog>p{font-size:12px}
-#expense-form .full.text-button{min-height:44px;margin-top:9px}
+#expense-dialog,#income-dialog{width:530px}
+#expense-dialog>p,#income-dialog>p{font-size:12px}
+#expense-form .full.text-button,#income-form .full.text-button{min-height:44px;margin-top:9px}
 .admin-sidebar nav button[aria-current=page]{background:#f0e6dc;color:var(--rust)}
 @media(max-width:1100px){.cash-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.cash-stat{padding:20px}.cash-stat>span{font-size:11px}}
 @media(max-width:600px){

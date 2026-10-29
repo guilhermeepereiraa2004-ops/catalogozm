@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {initialProducts} from '../catalog.js';
-import {placeOrder,changeOrderStatus,saveExpense,getCashFlow,parseAmount,localDate} from '../domain.js';
+import {placeOrder,changeOrderStatus,saveExpense,saveIncome,getCashFlow,parseAmount,localDate} from '../domain.js';
 import {getState,refreshState,actions} from '../store.js';
 import {handleApi} from '../server/api.js';
 import {memoryDB} from './backend-helpers.mjs';
@@ -9,6 +9,36 @@ import {memoryDB} from './backend-helpers.mjs';
 const seed=()=>({products:structuredClone(initialProducts),orders:[],expenses:[]});
 const order=state=>placeOrder(state,[{id:'zm-1',size:'A confirmar',qty:1}],{name:'Cliente Teste',phone:'71999999999'});
 const expense=(extra={})=>({description:'Embalagens',amount:2590,date:'2026-10-22',category:'Embalagens',...extra});
+const income=(extra={})=>({description:'Venda no balcão',amount:5000,date:'2026-10-22',category:'Venda presencial',...extra});
+
+test('receita avulsa soma às vendas, edita sem duplicar e permanece ao cancelar pedido',()=>{
+ const original=seed();let s=saveIncome(original,income());const first=s.incomes[0];
+ assert.equal(original.incomes,undefined);assert.equal(s.products[0].stock,1);
+ s=saveIncome(s,{...first,amount:7500});assert.equal(s.incomes.length,1);assert.equal(s.incomes[0].createdAt,first.createdAt);
+ s=order(saveExpense(s,expense()));s=changeOrderStatus(s,s.orders[0].id,'Confirmado');
+ const report=getCashFlow(s,{from:'2026-10-01',to:'2026-10-31',type:'income',query:'BALCAO'});
+ assert.equal(report.income,17490);assert.equal(report.balance,14900);assert.equal(report.entries.length,1);assert.equal(report.entries[0].orderId,undefined);
+ assert.equal(getCashFlow(s,{to:'2026-10-21',query:'balcão'}).entries.length,0);
+ s=changeOrderStatus(s,s.orders[0].id,'Cancelado');
+ assert.equal(getCashFlow(s).income,7500);assert.equal(getCashFlow(s).balance,4910);assert.equal(s.products[0].stock,1);
+ for(const patch of [{amount:0},{amount:1.5},{date:'2026-02-30'},{category:'Vendas'},{description:' '},{id:'order-inexistente'}])assert.throws(()=>saveIncome(s,income(patch)));
+});
+
+test('receita avulsa persiste pela API e cliente; visitante não lê nem grava financeiro',async()=>{
+ const previousFetch=globalThis.fetch,db=memoryDB();
+ const request=body=>new Request('https://loja.test/api/actions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+ assert.equal((await handleApi(request({action:'income.save',args:[income()]}),{},{db})).status,401);
+ assert.equal((await handleApi(request({action:'income.save',args:[income({date:'inválida'})]}),{},{admin:true,db})).status,422);
+ globalThis.fetch=(url,options)=>handleApi(new Request(new URL(url,'https://loja.test'),options),{},{admin:true,db});
+ try{
+  await refreshState(true);await actions['income.save'](income());const saved=getState().incomes[0];
+  await actions['income.save']({...saved,amount:2500});await refreshState(true);
+  assert.equal(getState().incomes.length,1);assert.equal(getCashFlow(getState()).income,2500);
+  const publicData=await (await handleApi(new Request('https://loja.test/api/catalog'),{},{db})).json();assert.deepEqual(publicData.incomes,[]);
+  globalThis.fetch=async()=>{throw new Error('offline');};await assert.rejects(()=>actions['income.save']({...saved,amount:999}),/Sem conexão/);
+  assert.equal(getCashFlow(getState()).income,2500);
+ }finally{globalThis.fetch=previousFetch;}
+});
 
 test('novo pedido não entra no caixa; confirmação gera uma única receita e data estável',()=>{
  let s=order(seed());const id=s.orders[0].id;

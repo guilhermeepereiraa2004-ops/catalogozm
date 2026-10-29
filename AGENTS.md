@@ -21,7 +21,9 @@ Comece por `plan/STATUS.md`, `plan/execution-plan.md`, `ROADMAP.md` e `log/devlo
 
 Ações estáveis em `store.js`: `order.create(cart, customer)`, `order.status(id,status)`, `product.save(product)`, `product.toggle(id)`. Validação reutilizável em `domain.js`. Permissões: local restrito a loopback; hospedagem privada usa identidade confiável do Sites para admin. Não confiar em headers do cliente fora do dispatch do Sites. Ver docs/database.md e docs/vercel.md.
 
-Fluxo de caixa: `expense.save(expense)` cria/edita despesas. Receitas são derivadas de pedidos Confirmado/Em separação/Concluído, uma vez por pedido, pela primeira confirmação. Cancelados não compõem receita. Preservar expenses nas ações e migrar armazenamento antigo sem perda. UI em cash-flow.js importa store.js; app.js importa cash-flow.js. Gate inclui 14 testes, com regras em tests/cash-flow.test.mjs.
+Fluxo de caixa: `expense.save(expense)` cria/edita despesas; `income.save(income)` cria/edita receitas avulsas em state.incomes, sem alterar estoque. Receitas de pedidos Confirmado/Em separação/Concluído são derivadas uma vez por pedido, pela primeira confirmação. Cancelados não compõem receita; receitas avulsas permanecem. Preservar expenses/incomes nas ações e tratar listas ausentes como vazias. Nenhum financeiro é exposto no catálogo público. UI em cash-flow.js importa store.js; app.js importa cash-flow.js. Gate inclui 22 testes, com regras em tests/cash-flow.test.mjs.
+
+Vitrine: sacola e WhatsApp fixos em uma pilha no canto inferior direito, somente na loja. Contadores do cabeçalho e flutuante compartilham a mesma sacola. Manter safe areas, foco acessível e diálogos acima dos atalhos.
 
 ## Executar e verificar
 `npm run dev`: servidor em http://localhost:4173. `npm run build`: saída dist. `npm run gate`: sintaxe, camadas, testes de domínio e build. Lint e TypeScript não configurados (JavaScript ESM). Testes de comportamento: `npm test`.

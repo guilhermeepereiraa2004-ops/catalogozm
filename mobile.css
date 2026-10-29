@@ -237,3 +237,27 @@
   .drawer{max-height:100dvh}
   #detail-image{height:65svh;min-height:180px}
 }
+
+/* Storefront shortcuts share one stack and respect mobile safe areas. */
+.floating-actions{position:fixed;right:max(24px,env(safe-area-inset-right));bottom:calc(24px + env(safe-area-inset-bottom));z-index:8;display:flex;flex-direction:column;align-items:flex-end;gap:12px}
+.floating-action{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:54px;min-width:142px;padding:14px 20px;border:1px solid rgba(255,255,255,.65);border-radius:32px;color:#fff;font-size:12px;font-weight:500;box-shadow:0 5px 20px #402c2b26}
+.floating-action svg{width:24px;height:24px}
+.floating-bag{background:var(--brand-rose)}
+.floating-bag:hover{background:var(--brand-rose-dark)}
+.floating-whatsapp{background:#176b43}
+.floating-whatsapp:hover{background:#115333}
+.floating-count{position:absolute;top:-5px;right:4px;min-width:22px;height:22px;padding:0 5px;border:2px solid #fff;display:grid;place-items:center;background:var(--brand-blush);color:var(--ink);border-radius:20px;font-size:10px;font-weight:600}
+.floating-action:focus-visible{outline:3px solid var(--ink);outline-offset:4px}
+.cash-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.cash-empty .cash-actions{justify-content:center}
+.admin-title>.cash-actions{flex-shrink:0}
+@media(max-width:760px){
+ .floating-actions{right:calc(16px + env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));gap:12px}
+ .floating-action{width:54px;min-width:54px;height:54px;min-height:54px;padding:14px}
+ .floating-label{display:none}
+ .floating-count{right:-3px}
+ .footer-bottom{padding-bottom:160px}
+ .cash-actions{width:100%;align-items:stretch}
+ .cash-actions>.button{flex:1 1 150px;min-height:50px;font-size:14px;gap:10px;padding-inline:16px}
+ #app:has(.floating-actions)~#toast{bottom:calc(152px + env(safe-area-inset-bottom))}
+}

@@ -1,4 +1,4 @@
-import {placeOrder,changeOrderStatus,validateProduct,saveExpense} from '../domain.js';
+import {placeOrder,changeOrderStatus,validateProduct,saveExpense,saveIncome} from '../domain.js';
 import {categories} from '../catalog.js';
 import {createDatabase} from './database.js';
 export class InputError extends Error{}
@@ -33,6 +33,8 @@ export async function mutate(db,action,args,requestKey){
    else if(action==='order.status')next=changeOrderStatus(current,...args);
    else if(action==='expense.save'){
     const expense=args[0];requireInput(expense&&(!expense.id||text(expense.id,100)),'Despesa inválida.');next=saveExpense(current,expense);
+   }else if(action==='income.save'){
+    const income=args[0];requireInput(income&&(!income.id||text(income.id,100)),'Receita inválida.');next=saveIncome(current,income);
    }else if(action==='product.save'){
     const product=productInput(args[0]);next={...current,products:current.products.some(p=>p.id===product.id)?current.products.map(p=>p.id===product.id?product:p):[product,...current.products]};
    }else if(action==='product.toggle'){
@@ -43,7 +45,7 @@ export async function mutate(db,action,args,requestKey){
  }
  throw new InputError('O estoque está sendo atualizado. Tente novamente.');
 }
-export function visibleState(state,admin){return {products:admin?state.products:state.products.filter(p=>p.active),orders:admin?state.orders:[],expenses:admin?state.expenses:[]};}
+export function visibleState(state,admin){return {products:admin?state.products:state.products.filter(p=>p.active),orders:admin?state.orders:[],expenses:admin?state.expenses:[],incomes:admin?(state.incomes||[]):[]};}
 function json(data,status=200){return Response.json(data,{status,headers:{'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});}
 export async function handleApi(request,env,{admin=false,db}={}){
  try{

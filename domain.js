@@ -1,5 +1,6 @@
 export const orderStatuses=['Novo','Confirmado','Em separação','Concluído','Cancelado'];
 export const expenseCategories=['Fornecedores','Aluguel','Embalagens','Marketing','Transporte','Outras'];
+export const incomeCategories=['Venda presencial','Outras receitas'];
 const confirmedStatuses=['Confirmado','Em separação','Concluído'];
 export function localDate(value=new Date()){
  const d=new Date(value);
@@ -28,10 +29,22 @@ export function saveExpense(state,expense){
  const next={id:previous?.id||`expense-${crypto.randomUUID()}`,description:expense.description.trim(),amount:expense.amount,date:expense.date,category:expense.category,createdAt:previous?.createdAt||new Date().toISOString()};
  return {...state,expenses:previous?expenses.map(e=>e.id===next.id?next:e):[next,...expenses]};
 }
+export function saveIncome(state,income){
+ const incomes=state.incomes||[];
+ if(!income.description?.trim()||income.description.trim().length>120)throw new Error('Informe uma descrição de até 120 caracteres.');
+ if(!Number.isSafeInteger(income.amount)||income.amount<=0)throw new Error('Informe um valor maior que zero em centavos inteiros.');
+ if(!validDate(income.date))throw new Error('Informe uma data válida para a receita.');
+ if(!incomeCategories.includes(income.category))throw new Error('Escolha uma categoria para a receita.');
+ const previous=incomes.find(e=>e.id===income.id);
+ if(income.id&&!previous)throw new Error('Receita não encontrada.');
+ const next={id:previous?.id||`income-${crypto.randomUUID()}`,description:income.description.trim(),amount:income.amount,date:income.date,category:income.category,createdAt:previous?.createdAt||new Date().toISOString()};
+ return {...state,incomes:previous?incomes.map(e=>e.id===next.id?next:e):[next,...incomes]};
+}
 export function getCashFlow(state,{from='',to='',type='all',query=''}={}){
  const revenues=state.orders.filter(o=>confirmedStatuses.includes(o.status)).map(o=>({id:`order-${o.id}`,orderId:o.id,type:'income',description:`Pedido ${o.id}`,detail:o.customer.name,category:'Vendas',date:localDate(o.confirmedAt||o.createdAt),amount:o.total}));
+ const incomes=(state.incomes||[]).map(e=>({...e,type:'income',detail:`Receita avulsa · ${e.category}`}));
  const expenses=(state.expenses||[]).map(e=>({...e,type:'expense',detail:e.category}));
- const inPeriod=[...revenues,...expenses].filter(e=>(!from||e.date>=from)&&(!to||e.date<=to));
+ const inPeriod=[...revenues,...incomes,...expenses].filter(e=>(!from||e.date>=from)&&(!to||e.date<=to));
  const income=inPeriod.filter(e=>e.type==='income').reduce((sum,e)=>sum+e.amount,0);
  const expense=inPeriod.filter(e=>e.type==='expense').reduce((sum,e)=>sum+e.amount,0);
  const normalize=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
