@@ -25,6 +25,8 @@ Fluxo de caixa: `expense.save(expense)` cria/edita despesas; `income.save(income
 
 Vitrine: sacola e WhatsApp fixos em uma pilha no canto inferior direito, somente na loja. Contadores do cabeçalho e flutuante compartilham a mesma sacola. Manter safe areas, foco acessível e diálogos acima dos atalhos.
 
+Checkout: somente Ubaitaba finaliza pelo site; pergunta Sim/Não sem seleção inicial. Não (incluindo Aurelino Leal) direciona ao WhatsApp para combinar frete, sem reserva. Novos pedidos exigem localDelivery=yes, endereço e paymentMethod pix/arrange. Payment permanece Pendente, frete não calculado. QR estático com CPF/titular fornecidos e autorizados pelo dono em pix.js/assets/pix-zm-exclusiva.png, exibido após criar pedido Pix; não marcar pago automaticamente. Ver docs/checkout.md. Gate atual com 25 testes, incluindo Pix.
+
 ## Executar e verificar
 `npm run dev`: servidor em http://localhost:4173. `npm run build`: saída dist. `npm run gate`: sintaxe, camadas, testes de domínio e build. Lint e TypeScript não configurados (JavaScript ESM). Testes de comportamento: `npm test`.
 

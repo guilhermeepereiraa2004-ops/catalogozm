@@ -4,12 +4,13 @@ import {getCashFlow} from '../domain.js';
 export const product={id:'test-dress',name:'Vestido teste',description:'Peça para teste',category:'Vestidos',price:9990,stock:1,images:['/assets/look-01.webp'],sizes:['A confirmar'],color:'Rosa',active:true};
 export function memoryDB(){let revision=0,state={products:[structuredClone(product)],orders:[],expenses:[],requests:[]};return {async read(){return structuredClone({revision,state});},async commit(expected,next){if(expected!==revision)return false;state=structuredClone(next);revision++;return true;}};}
 export async function exerciseDB(db){
- const customer={name:'Teste integração',phone:'71999999999',note:'Dados fictícios para validação'};
+ const customer={name:'Teste integração',phone:'71999999999',localDelivery:'yes',paymentMethod:'pix',address:'Rua de Teste, 1, Centro',note:'Dados fictícios para validação'};
  const cart=[{id:product.id,size:'A confirmar',qty:1,price:1}];
  const attempts=await Promise.allSettled([mutate(db,'order.create',[cart,customer],'test-order-request-0001'),mutate(db,'order.create',[cart,customer],'test-order-request-0002')]);
  assert.equal(attempts.filter(a=>a.status==='fulfilled').length,1,'Somente um pedido pode reservar a última unidade');
  const winner=attempts.find(a=>a.status==='fulfilled').value.order;
  assert.equal(winner.total,9990,'Preço vem do banco, não do navegador');
+ assert.equal(winner.payment.method,'pix');assert.equal(winner.payment.status,'Pendente');assert.equal(winner.delivery.city,'Ubaitaba');assert.equal(winner.delivery.address,customer.address);
  const winnerKey=attempts[0].status==='fulfilled'?'test-order-request-0001':'test-order-request-0002';
  const duplicate=await mutate(db,'order.create',[cart,customer],winnerKey);assert.equal(duplicate.order.id,winner.id);
  assert.equal(duplicate.state.orders.length,1);assert.equal(duplicate.state.products[0].stock,0);

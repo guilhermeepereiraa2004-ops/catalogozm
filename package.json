@@ -22,6 +22,8 @@
     "@vitejs/plugin-react": "6.0.2",
     "@vitejs/plugin-rsc": "0.5.26",
     "gltf-validator": "^2.0.0-dev.3.10",
+    "jsqr": "1.4.0",
+    "qrcode": "1.5.4",
     "react-server-dom-webpack": "19.2.6",
     "vite": "8.0.13",
     "wrangler": "4.92.0"

@@ -253,6 +253,30 @@
 .cash-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .cash-empty .cash-actions{justify-content:center}
 .admin-title>.cash-actions{flex-shrink:0}
+.checkout-choice,.checkout-fields{min-width:0;border:0;margin:24px 0 0;padding:0}
+.checkout-choice>legend,.checkout-section-title{font-size:16px;font-weight:500;margin-bottom:10px}
+.checkout-options{display:grid;gap:10px}
+.checkout-options>label{display:flex;align-items:center;gap:12px;margin:0;padding:15px;border:1px solid var(--line);border-radius:8px;cursor:pointer;min-height:52px;background:var(--paper)}
+.checkout-options input{width:20px;height:20px;margin:0;flex-shrink:0;accent-color:var(--brand-rose)}
+.checkout-options label:has(input:checked){border-color:var(--brand-rose);background:var(--brand-blush-light)}
+.checkout-options label:focus-within{outline:2px solid var(--brand-rose);outline-offset:2px}
+.checkout-outside{margin:20px 0;padding:20px;background:var(--brand-blush-light);border:1px solid var(--line);border-radius:8px}
+.checkout-outside h3{font-size:18px;margin-bottom:10px}
+.checkout-outside p,.pix-card>p{font-size:12px;line-height:1.8}
+.checkout-outside .button{height:auto;min-height:52px;white-space:normal;gap:8px;padding:14px;text-align:center;line-height:1.6}
+.checkout-fields textarea{resize:vertical;min-height:86px}
+.checkout-fields select{min-height:48px}
+.order-delivery{margin-block:20px;padding:16px;background:var(--brand-blush-light);border:1px solid var(--line);border-radius:8px;overflow-wrap:anywhere}
+.order-delivery p{font-size:13px;line-height:1.8;margin:0 0 12px}
+.order-delivery p:last-child{margin-bottom:0}
+.pix-card{padding:24px 18px;margin:24px 0;border:1px solid var(--line);border-radius:10px;text-align:center;background:var(--paper)}
+.pix-card>.eyebrow{justify-content:center}
+.pix-card h3{font-size:20px;margin:12px 0}
+.pix-card>img{width:min(100%,260px);height:auto;object-fit:contain;margin:18px auto;background:white}
+.pix-key{font-variant-numeric:tabular-nums}
+.pix-copy-actions{display:grid;gap:10px;margin-bottom:16px}
+.pix-copy-actions .button{height:auto;min-height:50px;padding:12px;gap:8px;line-height:1.6;white-space:normal}
+#outside-delivery[hidden],#local-checkout[hidden],#checkout-payment-note[hidden]{display:none!important}
 @media(max-width:760px){
  .floating-actions{right:calc(16px + env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));gap:12px}
  .floating-action{width:54px;min-width:54px;height:54px;min-height:54px;padding:14px}

@@ -2,7 +2,7 @@ import http from 'node:http';import {readFile} from 'node:fs/promises';import pa
 try{process.loadEnvFile('.env.local');}catch{}
 const handler=createVercelHandler(process.env,{localSetup:true});
 const root=process.cwd(),port=Number(process.env.PORT||4173);
-const files=new Set(['index.html','vestido-3d.html','viewer-3d.js','viewer-3d.css','styles.css','hero.css','responsive.css','hero-motion.js','cash-flow.js','cash-flow.css','branding.css','mobile.css','app.js','admin-auth.js','admin-auth.css','catalog.js','domain.js','store.js']);
+const files=new Set(['index.html','vestido-3d.html','viewer-3d.js','viewer-3d.css','styles.css','hero.css','responsive.css','hero-motion.js','cash-flow.js','checkout.js','pix.js','cash-flow.css','branding.css','mobile.css','app.js','admin-auth.js','admin-auth.css','catalog.js','domain.js','store.js']);
 const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.glb':'model/gltf-binary','.webp':'image/webp','.jpg':'image/jpeg','.png':'image/png'};
 http.createServer(async(req,res)=>{try{
  const host=req.headers.host;
