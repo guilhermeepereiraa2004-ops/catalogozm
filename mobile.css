@@ -240,7 +240,9 @@
 
 /* Storefront shortcuts share one stack and respect mobile safe areas. */
 .floating-actions{position:fixed;right:max(24px,env(safe-area-inset-right));bottom:calc(24px + env(safe-area-inset-bottom));z-index:8;display:flex;flex-direction:column;align-items:flex-end;gap:12px}
-.floating-action{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:54px;min-width:142px;padding:14px 20px;border:1px solid rgba(255,255,255,.65);border-radius:32px;color:#fff;font-size:12px;font-weight:500;box-shadow:0 5px 20px #402c2b26}
+.floating-action{position:relative;display:inline-flex;align-items:center;justify-content:center;width:54px;height:54px;min-width:54px;min-height:54px;padding:14px;border:1px solid rgba(255,255,255,.65);border-radius:50%;color:#fff;font-size:12px;font-weight:500;box-shadow:0 5px 20px #402c2b26}
+.floating-label{position:absolute;right:calc(100% + 10px);padding:7px 12px;border-radius:6px;background:var(--ink);color:#fff;white-space:nowrap;opacity:0;pointer-events:none}
+.floating-action:hover .floating-label,.floating-action:focus-visible .floating-label{opacity:1}
 .floating-action svg{width:24px;height:24px}
 .floating-bag{background:var(--brand-rose)}
 .floating-bag:hover{background:var(--brand-rose-dark)}
