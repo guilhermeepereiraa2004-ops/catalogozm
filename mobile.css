@@ -253,6 +253,16 @@
 .cash-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .cash-empty .cash-actions{justify-content:center}
 .admin-title>.cash-actions{flex-shrink:0}
+.record-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.record-actions .text-button{min-height:44px;white-space:nowrap}
+.danger-text{color:#a12b35;text-decoration:underline;text-underline-offset:4px}
+.danger-button{background:#a12b35;color:#fff}
+.danger-button:hover{background:#7e2029}
+#delete-dialog{width:520px}
+#delete-dialog>p{font-size:14px;line-height:1.8;overflow-wrap:anywhere}
+.delete-confirm-actions{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+.delete-confirm-actions>.button{flex:1 1 140px;min-height:48px}
+.trash-help{margin:22px 0;line-height:1.8}
 .checkout-choice,.checkout-fields{min-width:0;border:0;margin:24px 0 0;padding:0}
 .checkout-choice>legend,.checkout-section-title{font-size:16px;font-weight:500;margin-bottom:10px}
 .checkout-options{display:grid;gap:10px}

@@ -29,4 +29,10 @@ export async function exerciseDB(db){
  await Promise.all([mutate(db,'order.status',[winner.id,'Cancelado']),mutate(db,'order.status',[winner.id,'Cancelado'])]);
  const final=(await db.read()).state;assert.equal(final.products[0].stock,1);assert.equal(getCashFlow(final).income,3500);assert.equal(getCashFlow(final).expense,1900);assert.equal(getCashFlow(final).balance,1600);
  await assert.rejects(()=>mutate(db,'order.status',[winner.id,'Novo']),/reabertos/);
+ // The same flow also runs against an isolated Neon schema: trash survives reads and CAS retries.
+ const targets=[['product',product.id],['order',winner.id],['income',savedIncome.id],['expense',expense.state.expenses[0].id]];
+ await Promise.all(targets.map(args=>mutate(db,'record.delete',args)));
+ const trashed=(await db.read()).state;assert.ok(trashed.products[0].deletedAt);assert.equal(getCashFlow(trashed).balance,0);
+ await Promise.all(targets.map(args=>mutate(db,'record.restore',args)));
+ const restored=(await db.read()).state;assert.equal(restored.products[0].stock,1);assert.equal(restored.products[0].deletedAt,undefined);assert.equal(getCashFlow(restored).balance,1600);
 }

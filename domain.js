@@ -27,6 +27,7 @@ export function saveExpense(state,expense){
  if(!validDate(expense.date))throw new Error('Informe uma data válida para a despesa.');
  if(!expenseCategories.includes(expense.category))throw new Error('Escolha uma categoria para a despesa.');
  const previous=expenses.find(e=>e.id===expense.id);
+ if(previous?.deletedAt)throw new Error('Restaure a despesa na Lixeira antes de editar.');
  if(expense.id&&!previous)throw new Error('Despesa não encontrada.');
  const next={id:previous?.id||`expense-${crypto.randomUUID()}`,description:expense.description.trim(),amount:expense.amount,date:expense.date,category:expense.category,createdAt:previous?.createdAt||new Date().toISOString()};
  return {...state,expenses:previous?expenses.map(e=>e.id===next.id?next:e):[next,...expenses]};
@@ -38,14 +39,15 @@ export function saveIncome(state,income){
  if(!validDate(income.date))throw new Error('Informe uma data válida para a receita.');
  if(!incomeCategories.includes(income.category))throw new Error('Escolha uma categoria para a receita.');
  const previous=incomes.find(e=>e.id===income.id);
+ if(previous?.deletedAt)throw new Error('Restaure a receita na Lixeira antes de editar.');
  if(income.id&&!previous)throw new Error('Receita não encontrada.');
  const next={id:previous?.id||`income-${crypto.randomUUID()}`,description:income.description.trim(),amount:income.amount,date:income.date,category:income.category,createdAt:previous?.createdAt||new Date().toISOString()};
  return {...state,incomes:previous?incomes.map(e=>e.id===next.id?next:e):[next,...incomes]};
 }
 export function getCashFlow(state,{from='',to='',type='all',query=''}={}){
- const revenues=state.orders.filter(o=>confirmedStatuses.includes(o.status)).map(o=>({id:`order-${o.id}`,orderId:o.id,type:'income',description:`Pedido ${o.id}`,detail:o.customer.name,category:'Vendas',date:localDate(o.confirmedAt||o.createdAt),amount:o.total}));
- const incomes=(state.incomes||[]).map(e=>({...e,type:'income',detail:`Receita avulsa · ${e.category}`}));
- const expenses=(state.expenses||[]).map(e=>({...e,type:'expense',detail:e.category}));
+ const revenues=state.orders.filter(o=>!o.deletedAt&&!o.cashExcludedAt&&confirmedStatuses.includes(o.status)).map(o=>({id:`order-${o.id}`,orderId:o.id,type:'income',description:`Pedido ${o.id}`,detail:o.customer.name,category:'Vendas',date:localDate(o.confirmedAt||o.createdAt),amount:o.total}));
+ const incomes=(state.incomes||[]).filter(e=>!e.deletedAt).map(e=>({...e,type:'income',detail:`Receita avulsa · ${e.category}`}));
+ const expenses=(state.expenses||[]).filter(e=>!e.deletedAt).map(e=>({...e,type:'expense',detail:e.category}));
  const inPeriod=[...revenues,...incomes,...expenses].filter(e=>(!from||e.date>=from)&&(!to||e.date<=to));
  const income=inPeriod.filter(e=>e.type==='income').reduce((sum,e)=>sum+e.amount,0);
  const expense=inPeriod.filter(e=>e.type==='expense').reduce((sum,e)=>sum+e.amount,0);
@@ -69,7 +71,7 @@ export function placeOrder(state, cart, customer){
  const grouped=new Map();
  const items=cart.map(line=>{
   const p=state.products.find(x=>x.id===line.id);
-  if(!p||!p.active||!p.sizes.includes(line.size)) throw new Error('Uma peça mudou. Atualize sua sacola.');
+  if(!p||p.deletedAt||!p.active||!p.sizes.includes(line.size)) throw new Error('Uma peça mudou. Atualize sua sacola.');
   grouped.set(p.id,(grouped.get(p.id)||0)+line.qty);
   return {id:p.id,name:p.name,size:line.size,qty:line.qty,price:p.price,image:p.images[0]};
  });
@@ -80,9 +82,54 @@ export function placeOrder(state, cart, customer){
 export function changeOrderStatus(state,id,status){
  if(!orderStatuses.includes(status)) throw new Error('Status inválido.');
  const order=state.orders.find(x=>x.id===id);if(!order) throw new Error('Pedido não encontrado.');
+ if(order.deletedAt)throw new Error('Restaure o pedido na Lixeira antes de alterar o status.');
  if(order.status==='Cancelado'&&status!=='Cancelado') throw new Error('Pedidos cancelados não podem ser reabertos.');
  if(confirmedStatuses.includes(order.status)&&status==='Novo')throw new Error('Um pedido confirmado não pode voltar para Novo. Para desfazer a venda, cancele o pedido.');
  const restore=order.status!=='Cancelado'&&status==='Cancelado';
  const confirmedAt=order.confirmedAt||(confirmedStatuses.includes(order.status)?order.createdAt:confirmedStatuses.includes(status)?new Date().toISOString():undefined);
  return {...state,products:state.products.map(p=>({...p,stock:p.stock+(restore?order.items.filter(x=>x.id===p.id).reduce((s,x)=>s+x.qty,0):0)})),orders:state.orders.map(o=>o.id===id?{...o,status,...(confirmedAt?{confirmedAt}:{})}:o)};
+}
+
+const recordLists={product:'products',order:'orders',income:'incomes',expense:'expenses','order-income':'orders'};
+function findRecord(state,kind,id){
+ const list=recordLists[kind];if(!Object.hasOwn(recordLists,kind))throw new Error('Tipo de registro inválido.');
+ const record=(state[list]||[]).find(r=>r.id===id);if(!record)throw new Error('Registro não encontrado.');
+ return {list,record};
+}
+function orderQuantities(order){const quantities=new Map();for(const item of order.items)quantities.set(item.id,(quantities.get(item.id)||0)+item.qty);return quantities;}
+export function deleteRecord(state,kind,id){
+ const {list,record}=findRecord(state,kind,id),now=new Date().toISOString();
+ if(kind==='order-income'){
+  if(record.deletedAt||!confirmedStatuses.includes(record.status))throw new Error('Este pedido não possui receita disponível no caixa.');
+  if(record.cashExcludedAt)return state;
+  return {...state,orders:state.orders.map(o=>o.id===id?{...o,cashExcludedAt:now}:o)};
+ }
+ if(record.deletedAt)return state;
+ const restock=kind==='order'&&['Novo','Confirmado','Em separação'].includes(record.status);
+ const quantities=restock?orderQuantities(record):new Map();
+ const next={...record,deletedAt:now,...(kind==='order'?{deletionRestocked:restock}:{})};
+ return {...state,products:restock?state.products.map(p=>({...p,stock:p.stock+(quantities.get(p.id)||0)})):state.products,[list]:state[list].map(r=>r.id===id?next:r)};
+}
+export function restoreRecord(state,kind,id){
+ const {list,record}=findRecord(state,kind,id);
+ if(kind==='order-income'){
+  if(record.deletedAt)throw new Error('Restaure o pedido primeiro na Lixeira.');
+  if(!confirmedStatuses.includes(record.status))throw new Error('A receita só pode voltar ao caixa se o pedido estiver confirmado.');
+  const {cashExcludedAt,...restored}=record;
+  return {...state,orders:state.orders.map(o=>o.id===id?restored:o)};
+ }
+ if(!record.deletedAt)return state;
+ const quantities=kind==='order'&&record.deletionRestocked?orderQuantities(record):new Map();
+ for(const [productId,qty] of quantities){const product=state.products.find(p=>p.id===productId);if(!product||product.stock<qty)throw new Error(`Estoque insuficiente para restaurar ${product?.name||'uma peça do pedido'}.`);}
+ const {deletedAt,deletionRestocked,...restored}=record;
+ return {...state,products:quantities.size?state.products.map(p=>({...p,stock:p.stock-(quantities.get(p.id)||0)})):state.products,[list]:state[list].map(r=>r.id===id?restored:r)};
+}
+export function getTrashEntries(state){
+ const entries=[];
+ for(const [kind,list] of Object.entries(recordLists)){
+  if(kind==='order-income')continue;
+  for(const r of state[list]||[])if(r.deletedAt)entries.push({kind,id:r.id,label:r.name||r.description||`Pedido ${r.id}`,deletedAt:r.deletedAt,detail:kind==='order'?`${r.status} · ${r.customer.name}`:'',canRestore:true});
+ }
+ for(const o of state.orders)if(o.cashExcludedAt&&!o.deletedAt)entries.push({kind:'order-income',id:o.id,label:`Receita do pedido ${o.id}`,deletedAt:o.cashExcludedAt,detail:confirmedStatuses.includes(o.status)?'Restauração afeta somente o caixa.':`Pedido ${o.status}: receita indisponível.`,canRestore:confirmedStatuses.includes(o.status)});
+ return entries.sort((a,b)=>b.deletedAt.localeCompare(a.deletedAt));
 }

@@ -1,4 +1,4 @@
-export {getCashFlow,expenseCategories,incomeCategories,orderStatuses,localDate,parseAmount,paymentMethods,pickupLocation} from './domain.js';
+export {getCashFlow,expenseCategories,incomeCategories,orderStatuses,localDate,parseAmount,paymentMethods,pickupLocation,getTrashEntries} from './domain.js';
 let cached={products:[],orders:[],expenses:[],incomes:[]};
 let pendingOrder;
 export function getState(){return cached;}
@@ -31,6 +31,8 @@ export const actions={
  'order.status':(id,status)=>run('order.status',[id,status]),
  'expense.save':expense=>run('expense.save',[expense]),
  'income.save':income=>run('income.save',[income]),
+ 'record.delete':(kind,id)=>run('record.delete',[kind,id]),
+ 'record.restore':(kind,id)=>run('record.restore',[kind,id]),
  'product.save':product=>run('product.save',[product]),
  'product.toggle':id=>run('product.toggle',[id])
 };
