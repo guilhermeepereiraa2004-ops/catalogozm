@@ -1,4 +1,4 @@
-export {getCashFlow,expenseCategories,incomeCategories,orderStatuses,localDate,parseAmount,paymentMethods} from './domain.js';
+export {getCashFlow,expenseCategories,incomeCategories,orderStatuses,localDate,parseAmount,paymentMethods,pickupLocation} from './domain.js';
 let cached={products:[],orders:[],expenses:[],incomes:[]};
 let pendingOrder;
 export function getState(){return cached;}

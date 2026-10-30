@@ -7,7 +7,7 @@ import {handleApi} from '../server/api.js';
 import {memoryDB} from './backend-helpers.mjs';
 
 const seed=()=>({products:structuredClone(initialProducts),orders:[],expenses:[]});
-const order=state=>placeOrder(state,[{id:'zm-1',size:'A confirmar',qty:1}],{name:'Cliente Teste',phone:'71999999999',localDelivery:'yes',paymentMethod:'pix',address:'Rua de Teste, 1, Centro'});
+const order=state=>placeOrder(state,[{id:'zm-1',size:'A confirmar',qty:1}],{name:'Cliente Teste',phone:'71999999999',localDelivery:'yes',paymentMethod:'pix'});
 const expense=(extra={})=>({description:'Embalagens',amount:2590,date:'2026-10-22',category:'Embalagens',...extra});
 const income=(extra={})=>({description:'Venda no balcão',amount:5000,date:'2026-10-22',category:'Venda presencial',...extra});
 
@@ -108,7 +108,7 @@ test('cliente consulta a API e mantém dados confirmados quando uma gravação f
  try{
   await refreshState(true);assert.equal(getState().products.length,1);
   await actions['expense.save'](expense());
-  const next=await actions['order.create']([{id:'test-dress',size:'A confirmar',qty:1}],{name:'Teste',phone:'71999999999',localDelivery:'yes',paymentMethod:'pix',address:'Rua de Teste, 1, Centro'});
+  const next=await actions['order.create']([{id:'test-dress',size:'A confirmar',qty:1}],{name:'Teste',phone:'71999999999',localDelivery:'yes',paymentMethod:'pix'});
   await actions['order.status'](next.orders[0].id,'Confirmado');
   assert.equal(getCashFlow(getState()).balance,7400);
   await refreshState(true);assert.equal(getState().expenses.length,1);

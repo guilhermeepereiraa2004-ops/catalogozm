@@ -269,6 +269,11 @@
 .order-delivery{margin-block:20px;padding:16px;background:var(--brand-blush-light);border:1px solid var(--line);border-radius:8px;overflow-wrap:anywhere}
 .order-delivery p{font-size:13px;line-height:1.8;margin:0 0 12px}
 .order-delivery p:last-child{margin-bottom:0}
+.pickup-location{padding:18px;margin:8px 0 22px;background:var(--brand-blush-light);border:1px solid var(--line);border-radius:8px;overflow-wrap:anywhere}
+.pickup-location>strong{display:block;font-size:16px;margin:10px 0 8px;font-weight:500}
+.pickup-location address{font-size:14px;font-style:normal;line-height:1.8}
+.pickup-location .text-link{display:inline-flex;align-items:center;min-height:44px;font-size:13px;text-decoration:underline;text-underline-offset:4px}
+.pickup-location p{margin:8px 0 0;line-height:1.7}
 .pix-card{padding:24px 18px;margin:24px 0;border:1px solid var(--line);border-radius:10px;text-align:center;background:var(--paper)}
 .pix-card>.eyebrow{justify-content:center}
 .pix-card h3{font-size:20px;margin:12px 0}

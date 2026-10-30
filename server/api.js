@@ -19,7 +19,7 @@ export async function mutate(db,action,args,requestKey){
  if(action==='order.create'){
   const [cart,customer]=args;
   requireInput(Array.isArray(cart)&&cart.length<=50&&customer&&text(customer.name,100)&&text(customer.phone,20)&&text(customer.note||'',500),'Revise os dados do pedido.');
-  requireInput(text(customer.localDelivery,3)&&text(customer.paymentMethod,20)&&text(customer.address,300),'Revise a entrega e a forma de pagamento.');
+  requireInput(text(customer.localDelivery,3)&&text(customer.paymentMethod,20),'Revise a retirada e a forma de pagamento.');
   requireInput(text(requestKey,100)&&/^[\w-]{16,100}$/.test(requestKey),'Identificador de pedido inválido.');
  }
  const fingerprint=action==='order.create'?Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(args))))).map(x=>x.toString(16).padStart(2,'0')).join(''):'';

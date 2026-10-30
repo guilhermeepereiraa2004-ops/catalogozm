@@ -2,6 +2,7 @@ export const orderStatuses=['Novo','Confirmado','Em separação','Concluído','C
 export const expenseCategories=['Fornecedores','Aluguel','Embalagens','Marketing','Transporte','Outras'];
 export const incomeCategories=['Venda presencial','Outras receitas'];
 export const paymentMethods={pix:'Pix',arrange:'Combinar com a loja'};
+export const pickupLocation={name:'ZM Exclusiva Store',city:'Ubaitaba',address:'Avenida Presidente Vargas, Centro, CEP 45545-000'};
 const confirmedStatuses=['Confirmado','Em separação','Concluído'];
 export function localDate(value=new Date()){
  const d=new Date(value);
@@ -64,7 +65,6 @@ export function placeOrder(state, cart, customer){
  if(!customer.name?.trim() || !/^[\d\s()+-]{10,20}$/.test(customer.phone||'')) throw new Error('Informe seu nome e um telefone válido com DDD.');
  if(customer.localDelivery!=='yes')throw new Error('Para entrega fora de Ubaitaba, combine o frete pelo WhatsApp da loja.');
  if(!Object.hasOwn(paymentMethods,customer.paymentMethod))throw new Error('Escolha a forma de pagamento.');
- if(typeof customer.address!=='string'||customer.address.trim().length<8||customer.address.trim().length>300)throw new Error('Informe rua, número e bairro para a entrega em Ubaitaba.');
  if(cart.some(x=>!Number.isSafeInteger(x.qty)||x.qty<1)) throw new Error('Quantidade inválida.');
  const grouped=new Map();
  const items=cart.map(line=>{
@@ -74,7 +74,7 @@ export function placeOrder(state, cart, customer){
   return {id:p.id,name:p.name,size:line.size,qty:line.qty,price:p.price,image:p.images[0]};
  });
  for(const [id,qty] of grouped){const p=state.products.find(x=>x.id===id);if(qty>p.stock) throw new Error(`Estoque insuficiente para ${p.name}.`);}
- const order={id:`ZM-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2,5).toUpperCase()}`,createdAt:new Date().toISOString(),customer:{name:customer.name.trim(),phone:customer.phone.trim(),note:(customer.note||'').trim()},payment:{method:customer.paymentMethod,status:'Pendente'},delivery:{city:'Ubaitaba',mode:'local',address:customer.address.trim(),fee:null},items,total:items.reduce((s,x)=>s+x.price*x.qty,0),status:'Novo'};
+ const order={id:`ZM-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2,5).toUpperCase()}`,createdAt:new Date().toISOString(),customer:{name:customer.name.trim(),phone:customer.phone.trim(),note:(customer.note||'').trim()},payment:{method:customer.paymentMethod,status:'Pendente'},delivery:{city:pickupLocation.city,mode:'pickup',address:pickupLocation.address,fee:0},items,total:items.reduce((s,x)=>s+x.price*x.qty,0),status:'Novo'};
  return {...state,products:state.products.map(p=>({...p,stock:p.stock-(grouped.get(p.id)||0)})),orders:[order,...state.orders]};
 }
 export function changeOrderStatus(state,id,status){
