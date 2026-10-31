@@ -6,7 +6,7 @@ Repositório oficial definido em 2026-10-29: https://github.com/guilhermeepereir
 
 Identidade atual aprovada pelo usuário: usar a logo fornecida (assets/logo-zm-exclusiva.jpg) e branco com rosa/dourado do card Rodapé.jpeg. Tokens centralizados em branding.css; mobile.css deve ser carregado depois, como última camada responsiva. Preservar cores das roupas; não retornar à paleta verde/creme anterior. Referência em docs/branding.md e docs/mobile-refresh.md.
 
-Hero atual: pedido de 2026-10-31 usa a arte original Rodapé.jpeg, copiada sem edição para assets/hero-rodape.jpg, na seção campaign-hero. Preservar imagem inteira em 16:9, sem recorte, logo original no cabeçalho/rodapé, Poppins e composição responsiva. Substitui o medalhão anterior por pedido da cliente. Ver docs/hero-rodape.md.
+Hero atual: pedido de 2026-10-31 usa a arte original Rodapé.jpeg, copiada sem edição para assets/hero-rodape.jpg, na seção campaign-hero. Após rejeição da primeira composição, usar hero rosé integrada, com enquadramento central da marca no mobile e CTA curto abaixo. Original preservado; recorte apenas visual por CSS. Preservar logo do cabeçalho/rodapé e Poppins. Substitui o medalhão anterior por pedido da cliente. Ver docs/hero-rodape.md.
 
 Comece por `plan/STATUS.md`, `plan/execution-plan.md`, `ROADMAP.md` e `log/devlog.md`. Registre sua frente em `plan/LANES.md` antes de editar. Há uma raia única neste trabalho; não delegue sem solicitação.
 
