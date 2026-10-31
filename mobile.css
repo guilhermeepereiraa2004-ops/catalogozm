@@ -306,18 +306,22 @@
  .cash-actions>.button{flex:1 1 150px;min-height:50px;font-size:14px;gap:10px;padding-inline:16px}
  #app:has(.floating-actions)~#toast{bottom:calc(152px + env(safe-area-inset-bottom))}
 }
-/* Immersive artwork hero: the mobile crop gives the central brand room. */
-.campaign-hero{max-width:1600px;margin:0 auto;background:#fbd8d4;overflow:hidden}
-.campaign-art{position:relative;margin:0;height:clamp(360px,40vw,610px);overflow:hidden}
-.campaign-art img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 44%}
-.campaign-art:after{content:'';position:absolute;inset:70% 0 0;background:linear-gradient(transparent,#fbd8d4);pointer-events:none}
-.campaign-intro{position:relative;display:flex;align-items:center;justify-content:space-between;gap:32px;padding:12px 7% 46px}
-.campaign-intro .eyebrow{font-size:9px;letter-spacing:2px;color:#794149}
-.campaign-intro h1{font-family:Poppins,sans-serif;font-size:clamp(28px,3vw,46px);font-weight:500;line-height:1.2;letter-spacing:-.05em;color:#402c2b;margin:12px 0}
-.campaign-intro h1 br{display:none}.campaign-intro h1 br:after{content:' '}
-.campaign-intro h1 span{color:#99555b}
-.campaign-intro p{font-size:13px;color:#755b58;margin:0;line-height:1.7}
-.campaign-cta{display:inline-flex;align-items:center;justify-content:space-between;gap:30px;flex-shrink:0;min-height:58px;padding:12px 14px 12px 24px;background:#794149;color:#fff;border-radius:50px;font-size:13px;font-weight:500;text-decoration:none;box-shadow:0 8px 24px #7941491a;transition:background .2s}
-.campaign-cta>span{display:grid;place-items:center;width:32px;height:32px;background:#ffffff1a;border-radius:50%}.campaign-cta svg{width:19px;height:19px}.campaign-cta:hover{background:#63323a}
-@media(max-width:700px){.campaign-art{height:auto;aspect-ratio:1.42}.campaign-art img{position:absolute;width:200%;max-width:none;height:auto;left:-50%;top:-18%;object-fit:initial}.campaign-art:after{inset:76% 0 0}.campaign-intro{display:block;text-align:center;padding:8px 24px 34px}.campaign-intro h1{font-size:clamp(32px,9vw,46px);margin:13px 0 12px;line-height:1.15}.campaign-intro h1 br{display:block}.campaign-intro h1 br:after{content:none}.campaign-intro p{font-size:12px}.campaign-intro .eyebrow{font-size:8px;letter-spacing:1.8px}.campaign-cta{display:flex;max-width:350px;margin:23px auto 0;min-height:56px;padding-left:24px;font-size:13px}}
-@media(prefers-reduced-motion:reduce){.campaign-cta{transition:none}}
+/* Original brand artwork: keep the entire composition visible at every size. */
+.campaign-hero{display:grid;grid-template-columns:minmax(260px,.85fr) minmax(0,1.65fr);align-items:center;gap:clamp(30px,4vw,64px);max-width:1600px;margin:auto;padding:72px 5% 64px;background:radial-gradient(ellipse at 80% 40%,#fbd8d44d,transparent 65%),#fff;overflow:hidden}
+.campaign-intro{min-width:0}
+.campaign-intro .eyebrow{color:var(--brand-gold-dark);font-size:10px;letter-spacing:2px}
+.campaign-intro h1{font-family:Poppins,sans-serif;font-weight:600;font-size:clamp(48px,5.6vw,86px);line-height:1.08;letter-spacing:-.065em;margin:23px 0;color:var(--ink)}
+.campaign-intro h1 span{color:var(--brand-rose)}
+.campaign-intro>p{font-size:14px;line-height:1.9;color:var(--muted);max-width:340px;margin:0 0 28px}
+.campaign-cta{display:inline-flex;align-items:center;justify-content:space-between;gap:25px;min-height:56px;padding:11px 12px 11px 22px;background:var(--brand-rose-dark);color:white;border-radius:14px;font-size:13px;font-weight:500;text-decoration:none;transition:background .2s,box-shadow .2s}
+.campaign-cta>span{display:grid;place-items:center;background:#ffffff20;border-radius:9px;width:34px;height:34px}
+.campaign-cta svg{width:20px;height:20px}.campaign-cta:hover{background:#66333b;box-shadow:0 8px 24px #79414920}
+.campaign-note{display:block;color:var(--muted);font-size:10px;line-height:1.7;margin-top:16px}
+.campaign-art{min-width:0;margin:0;position:relative}
+.campaign-frame{padding:8px;border:1px solid #efd8d2;border-radius:23px;background:#fff;box-shadow:0 24px 65px -24px #99555b55;animation:campaign-float 7s ease-in-out infinite}
+.campaign-frame img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;border-radius:16px}
+.campaign-art figcaption{display:flex;justify-content:space-between;gap:12px;margin:22px 10px 0;color:var(--brand-gold-dark);font-size:8px;letter-spacing:1.7px;line-height:1.7}
+@keyframes campaign-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@media(max-width:900px){.campaign-hero{grid-template-columns:1fr;gap:30px;padding:30px 5% 38px}.campaign-art{grid-row:1}.campaign-intro{text-align:center}.campaign-intro h1{font-size:clamp(48px,8vw,72px);margin:15px 0}.campaign-intro h1 br{display:none}.campaign-intro h1 span:before{content:' '}.campaign-intro>p{margin:0 auto 22px;max-width:440px}.campaign-art figcaption{margin-top:16px}.campaign-note{margin-top:12px}}
+@media(max-width:480px){.campaign-hero{padding:22px 16px 32px;gap:25px}.campaign-frame{padding:5px;border-radius:16px}.campaign-frame img{border-radius:11px}.campaign-art figcaption{font-size:6px;letter-spacing:1px;margin:13px 3px 0}.campaign-intro h1{font-size:clamp(42px,11.5vw,55px);line-height:1.1}.campaign-intro h1 br{display:block}.campaign-intro h1 span:before{content:none}.campaign-intro>p{font-size:13px;max-width:310px}.campaign-cta{min-height:54px;min-width:220px}.campaign-intro .eyebrow{font-size:8px}}
+@media(prefers-reduced-motion:reduce){.campaign-frame{animation:none}.campaign-cta{transition:none}}
