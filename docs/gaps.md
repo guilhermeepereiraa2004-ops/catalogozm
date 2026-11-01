@@ -32,3 +32,7 @@ Revisão 2026-10-29: QA visual da nova logo e paleta pendente por indisponibilid
 2026-11-01 — Ajuste por viewport desfeito por solicitação; Hero somente imagem proporcional restaurada. Sem publicação.
 
 2026-11-01 — Publicação autorizada da versão final da Hero somente imagem, largura total e altura proporcional. Experimento por viewport revertido; revisão visual será tentada no domínio público após publicar.
+
+2026-11-01 — Novo enquadramento mobile local até600px. Gate52/build aprovado; QA visual pendente porque navegador de teste não acessa localhost Windows e bloqueou prévia dataURL (somente HTTP/HTTPS). Sem publicação nem contorno do bloqueio.
+
+2026-11-01 — Usuário autorizou publicar enquadramento mobile ampliado; QA visual será feito na URL HTTPS pública após o deploy, sem usar a prévia dataURL bloqueada.
