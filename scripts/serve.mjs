@@ -2,8 +2,8 @@ import http from 'node:http';import {readFile} from 'node:fs/promises';import pa
 try{process.loadEnvFile('.env.local');}catch{}
 const handler=createVercelHandler(process.env,{localSetup:true});
 const root=process.cwd(),port=Number(process.env.PORT||4173);
-const files=new Set(['index.html','vestido-3d.html','viewer-3d.js','viewer-3d.css','styles.css','hero.css','responsive.css','hero-motion.js','cash-flow.js','admin-trash.js','checkout.js','pix.js','cash-flow.css','branding.css','mobile.css','app.js','admin-auth.js','admin-auth.css','catalog.js','domain.js','store.js']);
-const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.glb':'model/gltf-binary','.webp':'image/webp','.jpg':'image/jpeg','.png':'image/png'};
+const files=new Set(['index.html','vestido-3d.html','viewer-3d.js','viewer-3d.css','styles.css','hero.css','responsive.css','hero-motion.js','cash-flow.js','admin-trash.js','catalog-selection.js','catalog-pdf.js','catalog-share.js','retail-domain.js','look-card.js','look-builder.js','panel-lifecycle.js','pickup-agenda.js','todo.js','task-domain.js','todo.css','retail-tools.css','catalog-share.css','checkout.js','pix.js','cash-flow.css','branding.css','mobile.css','app.js','admin-auth.js','admin-auth.css','catalog.js','domain.js','store.js']);
+const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.ttf':'font/ttf','.glb':'model/gltf-binary','.webp':'image/webp','.jpg':'image/jpeg','.png':'image/png'};
 http.createServer(async(req,res)=>{try{
  const host=req.headers.host;
  if(![`localhost:${port}`,`127.0.0.1:${port}`].includes(host)){res.writeHead(403);res.end();return;}
@@ -16,7 +16,7 @@ http.createServer(async(req,res)=>{try{
  }
  if(url.pathname==='/admin'||url.pathname==='/admin/setup'){res.writeHead(302,{Location:url.pathname.endsWith('/setup')?'/#admin/setup':'/#admin'});res.end();return;}
  const name=decodeURIComponent(url.pathname).replace(/^\//,'')||'index.html';
- if(!['GET','HEAD'].includes(req.method)||(!files.has(name)&&!/^assets\/(?:models\/)?[\w.-]+\.(webp|png|jpg|glb)$/.test(name)&&!/^vendor\/[\w.-]+\.js$/.test(name))){res.writeHead(404);res.end('Não encontrado');return;}
+ if(!['GET','HEAD'].includes(req.method)||(!files.has(name)&&!/^assets\/(?:models\/)?[\w.-]+\.(webp|png|jpg|glb|ttf)$/.test(name)&&!/^vendor\/[\w.-]+\.js$/.test(name))){res.writeHead(404);res.end('Não encontrado');return;}
  const data=await readFile(path.join(root,name));res.writeHead(200,{'Content-Type':types[path.extname(name)]||'application/octet-stream','Cache-Control':'no-cache','X-Content-Type-Options':'nosniff'});res.end(req.method==='HEAD'?undefined:data);
  }catch{res.writeHead(404);res.end('Não encontrado');}
 }).listen(port,'127.0.0.1',()=>console.log(`Local: http://localhost:${port}`));

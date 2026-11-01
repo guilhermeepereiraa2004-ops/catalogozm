@@ -35,4 +35,13 @@ export async function exerciseDB(db){
  const trashed=(await db.read()).state;assert.ok(trashed.products[0].deletedAt);assert.equal(getCashFlow(trashed).balance,0);
  await Promise.all(targets.map(args=>mutate(db,'record.restore',args)));
  const restored=(await db.read()).state;assert.equal(restored.products[0].stock,1);assert.equal(restored.products[0].deletedAt,undefined);assert.equal(getCashFlow(restored).balance,1600);
+ const pickupOrder=await mutate(db,'order.create',[cart,customer],'pickup-real-schema-request');
+ const pickupId=pickupOrder.order.id;await mutate(db,'order.status',[pickupId,'Confirmado']);
+ const schedule={date:'2026-11-04',time:'14:30',status:'Agendada',note:'Teste isolado'};await mutate(db,'pickup.save',[pickupId,schedule]);
+ await mutate(db,'pickup.save',[pickupId,{...schedule,status:'Pronta'}]);await mutate(db,'pickup.save',[pickupId,{...schedule,status:'Retirada'}]);
+ const collected=(await db.read()).state;assert.equal(collected.orders.find(o=>o.id===pickupId).pickup.status,'Retirada');assert.equal(collected.products[0].stock,0);assert.equal(getCashFlow(collected).balance,11590);
+ await mutate(db,'pickup.save',[pickupId,{...schedule,status:'Retirada'}]);await mutate(db,'order.status',[pickupId,'Cancelado']);const pickupFinal=(await db.read()).state;assert.equal(pickupFinal.products[0].stock,1);assert.equal(getCashFlow(pickupFinal).balance,1600);
+
+ const task={id:'task-isolated-qa',title:'Tarefa de teste',priority:'Normal',dueDate:'2026-11-05',note:''};await mutate(db,'task.save',[task]);await mutate(db,'task.complete',[task.id,true]);let withTask=(await db.read()).state;assert.ok(withTask.tasks[0].completedAt);assert.equal(getCashFlow(withTask).balance,1600);await mutate(db,'record.delete',['task',task.id]);assert.ok((await db.read()).state.tasks[0].deletedAt);await mutate(db,'record.restore',['task',task.id]);withTask=(await db.read()).state;assert.ok(!withTask.tasks[0].deletedAt&&withTask.tasks[0].completedAt);assert.equal(withTask.products[0].stock,1);
+
 }

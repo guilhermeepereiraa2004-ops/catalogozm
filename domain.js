@@ -84,13 +84,14 @@ export function changeOrderStatus(state,id,status){
  const order=state.orders.find(x=>x.id===id);if(!order) throw new Error('Pedido não encontrado.');
  if(order.deletedAt)throw new Error('Restaure o pedido na Lixeira antes de alterar o status.');
  if(order.status==='Cancelado'&&status!=='Cancelado') throw new Error('Pedidos cancelados não podem ser reabertos.');
+ if(order.pickup?.status==='Retirada'&&!['Concluído','Cancelado'].includes(status))throw new Error('Um pedido retirado não pode voltar para preparação.');
  if(confirmedStatuses.includes(order.status)&&status==='Novo')throw new Error('Um pedido confirmado não pode voltar para Novo. Para desfazer a venda, cancele o pedido.');
  const restore=order.status!=='Cancelado'&&status==='Cancelado';
  const confirmedAt=order.confirmedAt||(confirmedStatuses.includes(order.status)?order.createdAt:confirmedStatuses.includes(status)?new Date().toISOString():undefined);
- return {...state,products:state.products.map(p=>({...p,stock:p.stock+(restore?order.items.filter(x=>x.id===p.id).reduce((s,x)=>s+x.qty,0):0)})),orders:state.orders.map(o=>o.id===id?{...o,status,...(confirmedAt?{confirmedAt}:{})}:o)};
+ return {...state,products:state.products.map(p=>({...p,stock:p.stock+(restore?order.items.filter(x=>x.id===p.id).reduce((s,x)=>s+x.qty,0):0)})),orders:state.orders.map(o=>o.id===id?{...o,status,...(confirmedAt?{confirmedAt}:{}),...(status==='Concluído'&&o.pickup?{pickup:{...o.pickup,status:'Retirada',collectedAt:o.pickup.collectedAt||new Date().toISOString()}}:{})}:o)};
 }
 
-const recordLists={product:'products',order:'orders',income:'incomes',expense:'expenses','order-income':'orders'};
+const recordLists={task:'tasks',product:'products',order:'orders',income:'incomes',expense:'expenses','order-income':'orders'};
 function findRecord(state,kind,id){
  const list=recordLists[kind];if(!Object.hasOwn(recordLists,kind))throw new Error('Tipo de registro inválido.');
  const record=(state[list]||[]).find(r=>r.id===id);if(!record)throw new Error('Registro não encontrado.');
@@ -128,7 +129,7 @@ export function getTrashEntries(state){
  const entries=[];
  for(const [kind,list] of Object.entries(recordLists)){
   if(kind==='order-income')continue;
-  for(const r of state[list]||[])if(r.deletedAt)entries.push({kind,id:r.id,label:r.name||r.description||`Pedido ${r.id}`,deletedAt:r.deletedAt,detail:kind==='order'?`${r.status} · ${r.customer.name}`:'',canRestore:true});
+  for(const r of state[list]||[])if(r.deletedAt)entries.push({kind,id:r.id,label:r.title||r.name||r.description||`Pedido ${r.id}`,deletedAt:r.deletedAt,detail:kind==='order'?`${r.status} · ${r.customer.name}`:'',canRestore:true});
  }
  for(const o of state.orders)if(o.cashExcludedAt&&!o.deletedAt)entries.push({kind:'order-income',id:o.id,label:`Receita do pedido ${o.id}`,deletedAt:o.cashExcludedAt,detail:confirmedStatuses.includes(o.status)?'Restauração afeta somente o caixa.':`Pedido ${o.status}: receita indisponível.`,canRestore:confirmedStatuses.includes(o.status)});
  return entries.sort((a,b)=>b.deletedAt.localeCompare(a.deletedAt));

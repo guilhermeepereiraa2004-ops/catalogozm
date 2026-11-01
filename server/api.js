@@ -1,3 +1,5 @@
+import {saveTask,completeTask} from '../task-domain.js';
+import {savePickup} from '../retail-domain.js';
 import {placeOrder,changeOrderStatus,validateProduct,saveExpense,saveIncome,deleteRecord,restoreRecord} from '../domain.js';
 import {categories} from '../catalog.js';
 import {createDatabase} from './database.js';
@@ -34,10 +36,16 @@ export async function mutate(db,action,args,requestKey){
    else if(action==='order.status')next=changeOrderStatus(current,...args);
    else if(action==='expense.save'){
     const expense=args[0];requireInput(expense&&(!expense.id||text(expense.id,100)),'Despesa inválida.');next=saveExpense(current,expense);
+   }else if(action==='task.save'){
+    requireInput(args.length===1,'Tarefa inválida.');next=saveTask(current,args[0]);
+   }else if(action==='task.complete'){
+    requireInput(args.length===2&&text(args[0],100),'Tarefa inválida.');next=completeTask(current,...args);
+   }else if(action==='pickup.save'){
+    requireInput(args.length===2&&text(args[0],100),'Pedido inválido.');next=savePickup(current,args[0],args[1]);
    }else if(action==='income.save'){
     const income=args[0];requireInput(income&&(!income.id||text(income.id,100)),'Receita inválida.');next=saveIncome(current,income);
    }else if(action==='product.save'){
-    const product=productInput(args[0]);requireInput(!current.products.find(p=>p.id===product.id)?.deletedAt,'Restaure o produto na Lixeira antes de editar.');next={...current,products:current.products.some(p=>p.id===product.id)?current.products.map(p=>p.id===product.id?product:p):[product,...current.products]};
+    const product=productInput(args[0]),previous=current.products.find(p=>p.id===product.id);product.createdAt=previous?previous.createdAt:new Date().toISOString();requireInput(!previous?.deletedAt,'Restaure o produto na Lixeira antes de editar.');next={...current,products:current.products.some(p=>p.id===product.id)?current.products.map(p=>p.id===product.id?product:p):[product,...current.products]};
    }else if(action==='product.toggle'){
     requireInput(current.products.some(p=>p.id===args[0]&&!p.deletedAt),'Produto não encontrado ou na Lixeira.');next={...current,products:current.products.map(p=>p.id===args[0]?{...p,active:!p.active}:p)};
    }else if(action==='record.delete'||action==='record.restore'){
@@ -48,7 +56,7 @@ export async function mutate(db,action,args,requestKey){
  }
  throw new InputError('O estoque está sendo atualizado. Tente novamente.');
 }
-export function visibleState(state,admin){return {products:admin?state.products:state.products.filter(p=>p.active&&!p.deletedAt),orders:admin?state.orders:[],expenses:admin?state.expenses:[],incomes:admin?(state.incomes||[]):[]};}
+export function visibleState(state,admin){return {products:admin?state.products:state.products.filter(p=>p.active&&!p.deletedAt),orders:admin?state.orders:[],expenses:admin?state.expenses:[],incomes:admin?(state.incomes||[]):[],tasks:admin?(state.tasks||[]):[]};}
 function json(data,status=200){return Response.json(data,{status,headers:{'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});}
 export async function handleApi(request,env,{admin=false,db}={}){
  try{
