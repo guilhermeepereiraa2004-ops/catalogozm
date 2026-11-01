@@ -36,3 +36,5 @@ Revisão 2026-10-29: QA visual da nova logo e paleta pendente por indisponibilid
 2026-11-01 — Novo enquadramento mobile local até600px. Gate52/build aprovado; QA visual pendente porque navegador de teste não acessa localhost Windows e bloqueou prévia dataURL (somente HTTP/HTTPS). Sem publicação nem contorno do bloqueio.
 
 2026-11-01 — Usuário autorizou publicar enquadramento mobile ampliado; QA visual será feito na URL HTTPS pública após o deploy, sem usar a prévia dataURL bloqueada.
+
+2026-11-01 — Ampliação mobile revertida por esclarecimento do usuário; Hero volta à arte inteira e proporcional em todas as telas (CSS15aec15). Publicação do rollback em andamento.

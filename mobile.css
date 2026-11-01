@@ -306,11 +306,6 @@
  .cash-actions>.button{flex:1 1 150px;min-height:50px;font-size:14px;gap:10px;padding-inline:16px}
  #app:has(.floating-actions)~#toast{bottom:calc(152px + env(safe-area-inset-bottom))}
 }
-/* Hero uses only the supplied artwork; desktop keeps its natural proportions. */
+/* Hero uses only the supplied artwork, fully visible at every viewport. */
 .campaign-hero{margin:0;padding:0;width:100%;background:var(--brand-blush-light)}
 .campaign-hero>img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain}
-/* Taller mobile framing makes the brand readable without affecting desktop. */
-@media(max-width:600px){
- .campaign-hero{height:clamp(340px,104vw,480px);overflow:hidden}
- .campaign-hero>img{height:100%;aspect-ratio:auto;object-fit:cover;object-position:center}
-}
