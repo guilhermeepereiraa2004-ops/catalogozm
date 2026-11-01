@@ -306,36 +306,6 @@
  .cash-actions>.button{flex:1 1 150px;min-height:50px;font-size:14px;gap:10px;padding-inline:16px}
  #app:has(.floating-actions)~#toast{bottom:calc(152px + env(safe-area-inset-bottom))}
 }
-/* Original brand artwork: keep the entire composition visible at every size. */
-.campaign-hero{display:grid;grid-template-columns:minmax(260px,.85fr) minmax(0,1.65fr);align-items:center;gap:clamp(30px,4vw,64px);max-width:1600px;margin:auto;padding:72px 5% 64px;background:radial-gradient(ellipse at 80% 40%,#fbd8d44d,transparent 65%),#fff;overflow:hidden}
-.campaign-intro{min-width:0}
-.campaign-intro .eyebrow{color:var(--brand-gold-dark);font-size:10px;letter-spacing:2px}
-.campaign-intro h1{font-family:Poppins,sans-serif;font-weight:600;font-size:clamp(48px,5.6vw,86px);line-height:1.08;letter-spacing:-.065em;margin:23px 0;color:var(--ink)}
-.campaign-intro h1 span{color:var(--brand-rose)}
-.campaign-intro>p{font-size:14px;line-height:1.9;color:var(--muted);max-width:340px;margin:0 0 28px}
-.campaign-cta{display:inline-flex;align-items:center;justify-content:space-between;gap:25px;min-height:56px;padding:11px 12px 11px 22px;background:var(--brand-rose-dark);color:white;border-radius:14px;font-size:13px;font-weight:500;text-decoration:none;transition:background .2s,box-shadow .2s}
-.campaign-cta>span{display:grid;place-items:center;background:#ffffff20;border-radius:9px;width:34px;height:34px}
-.campaign-cta svg{width:20px;height:20px}.campaign-cta:hover{background:#66333b;box-shadow:0 8px 24px #79414920}
-.campaign-note{display:block;color:var(--muted);font-size:10px;line-height:1.7;margin-top:16px}
-.campaign-art{min-width:0;margin:0;position:relative}
-.campaign-frame{padding:8px;border:1px solid #efd8d2;border-radius:23px;background:#fff;box-shadow:0 24px 65px -24px #99555b55;animation:campaign-float 7s ease-in-out infinite}
-.campaign-frame img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;border-radius:16px}
-.campaign-art figcaption{display:flex;justify-content:space-between;gap:12px;margin:22px 10px 0;color:var(--brand-gold-dark);font-size:8px;letter-spacing:1.7px;line-height:1.7}
-@keyframes campaign-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-@media(max-width:900px){.campaign-hero{grid-template-columns:1fr;gap:30px;padding:30px 5% 38px}.campaign-art{grid-row:1}.campaign-intro{text-align:center}.campaign-intro h1{font-size:clamp(48px,8vw,72px);margin:15px 0}.campaign-intro h1 br{display:none}.campaign-intro h1 span:before{content:' '}.campaign-intro>p{margin:0 auto 22px;max-width:440px}.campaign-art figcaption{margin-top:16px}.campaign-note{margin-top:12px}}
-@media(max-width:480px){.campaign-hero{padding:22px 16px 32px;gap:25px}.campaign-frame{padding:5px;border-radius:16px}.campaign-frame img{border-radius:11px}.campaign-art figcaption{font-size:6px;letter-spacing:1px;margin:13px 3px 0}.campaign-intro h1{font-size:clamp(42px,11.5vw,55px);line-height:1.1}.campaign-intro h1 br{display:block}.campaign-intro h1 span:before{content:none}.campaign-intro>p{font-size:13px;max-width:310px}.campaign-cta{min-height:54px;min-width:220px}.campaign-intro .eyebrow{font-size:8px}}
-@media(prefers-reduced-motion:reduce){.campaign-frame{animation:none}.campaign-cta{transition:none}}
-.campaign-mobile-description{display:none}
-@media(max-width:700px){
- .campaign-hero{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:'title' 'description' 'art' 'cta';gap:0;padding:27px 20px 28px;background:linear-gradient(180deg,#fff 15%,#fff4f2 100%)}
- .campaign-intro{display:contents}
- .campaign-intro .eyebrow,.campaign-note,.campaign-art figcaption{display:none}
- .campaign-intro h1{grid-area:title;text-align:left;font-size:clamp(43px,11.5vw,67px);line-height:1.04;letter-spacing:-.065em;margin:0 0 12px}
- .campaign-intro h1 br{display:block}.campaign-intro h1 span:before{content:none}
- .campaign-intro>p{grid-area:description;text-align:left;margin:0 0 23px;max-width:none;font-size:13px;line-height:1.6}
- .campaign-desktop-description{display:none}.campaign-mobile-description{display:inline}
- .campaign-art{grid-area:art;grid-row:auto;margin:0 -6px 23px}
- .campaign-frame{padding:5px;border-radius:17px;animation:none;box-shadow:0 12px 32px -16px #99555b44}
- .campaign-frame img{border-radius:12px}
- .campaign-cta{grid-area:cta;display:flex;justify-content:space-between;width:100%;min-width:0;min-height:56px;font-size:14px;padding:11px 13px 11px 22px;border-radius:12px}
-}
+/* Hero uses only the supplied artwork, fully visible at every viewport. */
+.campaign-hero{margin:0;padding:0;width:100%;background:var(--brand-blush-light)}
+.campaign-hero>img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain}

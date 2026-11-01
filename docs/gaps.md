@@ -22,3 +22,13 @@ Revisão 2026-10-29: QA visual da nova logo e paleta pendente por indisponibilid
 2026-10-31 — Ferramentas de looks/retiradas/reposição somente locais. Cards e lógica/DOM/banco temporário verificados; falta revisão visual final da interface no Chrome/Edge do computador (IAB4173 resolve outro projeto). Na agenda, exemplos locais são seguros para demonstração; modo normal usa os pedidos reais do Neon. Ver docs/retail-tools.md.
 
 2026-10-31 — Módulo de reposição retirado por pedido. To-do #admin/todo disponível somente no localhost, com gravação administrativa e Lixeira;52testes/build/Neon temporário aprovados. Revisão visual nativa continua limitada pela ferramenta, sem publicação para contornar isso.
+
+2026-11-01 — Hero exclusivamente com arte, alteração local sem deploy. Gate52/build aprovado; inspeção visual pendente: localhost do IAB resolve outro projeto e Computer Use encerrou porque não identificou URL do Chrome com segurança.
+
+2026-11-01 — Acesso local corrigido iniciando servidor fora do isolamento, restrito a loopback. HTTP200/arte atualizada e API administrativa401 conferidos. Revisão visual da Hero ainda não executada pela ferramenta.
+
+2026-11-01 — Ajuste desktop por viewport concluído; gate52/build aprovado. Inspeção visual continua pendente porque Computer Use não identificou URL do Chrome com segurança.
+
+2026-11-01 — Ajuste por viewport desfeito por solicitação; Hero somente imagem proporcional restaurada. Sem publicação.
+
+2026-11-01 — Publicação autorizada da versão final da Hero somente imagem, largura total e altura proporcional. Experimento por viewport revertido; revisão visual será tentada no domínio público após publicar.

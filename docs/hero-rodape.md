@@ -1,9 +1,9 @@
 # Hero com a arte fornecida
 
-Pedido da cliente em 2026-10-31: usar Rodapé.jpeg na hero. Arquivo original copiado sem edição para assets/hero-rodape.jpg (1600 × 900). Imagem inteira, sem corte ou deformação, moldura branca, sombra rosé e flutuação suave desativada por prefers-reduced-motion.
+Versão solicitada em 2026-11-01: a Hero contém exclusivamente a arte original Rodapé.jpeg, preservada em assets/hero-rodape.jpg (1600 × 900). Imagem em largura total, altura automática e proporção16:9, sem recorte ou distorção em computador e celular. Texto alternativo descreve a marca e a mensagem da arte; dimensões explícitas e fetchpriority=high priorizam o carregamento.
 
-Desktop: título grande em Poppins e CTA ao lado da arte. Até 900px: arte acima do texto, CTA acessível e layout em uma coluna. Texto alternativo descreve a marca e mensagem da imagem. Cores usam os tokens existentes. Catálogo, checkout e administração preservados.
+Sem título, descrição, botão, legenda, moldura, sombra ou animação extras na Hero. Cabeçalho, catálogo, checkout e administração mantidos.
 
-Rollback solicitado e confirmado em 2026-10-31: restaurada exatamente a hero e seu CSS do commit 1e45d33, primeira versão com Rodapé.jpeg em card. A composição imersiva posterior foi retirada. Funcionalidades da loja/admin preservadas.
+O experimento de limitar a altura ao viewport descontando o cabeçalho foi desfeito por pedido do usuário. A versão final não usa ResizeObserver, cálculo de altura por viewport ou faixas laterais adicionadas.
 
-Refinamento mobile posterior aprovado para publicação em 2026-10-31: até 700px, ordem título, frase curta, card com arte inteira e CTA de largura total. Removidos textos secundários e flutuação apenas nessa faixa. Desktop mantém a composição aprovada. Alterações inicialmente locais, agora autorizadas para GitHub e Vercel.
+Publicação desta versão autorizada pelo usuário em 2026-11-01. Validação de sintaxe, camadas,52 testes e build no gate local. Revisão visual anterior foi limitada pela ferramenta do Chrome; conferir a versão pública após o deploy.

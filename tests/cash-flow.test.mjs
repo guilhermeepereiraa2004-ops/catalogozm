@@ -11,7 +11,8 @@ const order=state=>placeOrder(state,[{id:'zm-1',size:'A confirmar',qty:1}],{name
 const expense=(extra={})=>({description:'Embalagens',amount:2590,date:'2026-10-22',category:'Embalagens',...extra});
 const income=(extra={})=>({description:'Venda no balcão',amount:5000,date:'2026-10-22',category:'Venda presencial',...extra});
 
-test('receita avulsa soma às vendas, edita sem duplicar e permanece ao cancelar pedido',()=>{
+test('receita avulsa soma às vendas, edita sem duplicar e permanece ao cancelar pedido',t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date('2026-10-22T15:00:00Z')});
  const original=seed();let s=saveIncome(original,income());const first=s.incomes[0];
  assert.equal(original.incomes,undefined);assert.equal(s.products[0].stock,1);
  s=saveIncome(s,{...first,amount:7500});assert.equal(s.incomes.length,1);assert.equal(s.incomes[0].createdAt,first.createdAt);
