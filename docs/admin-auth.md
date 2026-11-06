@@ -4,6 +4,12 @@ O painel usa credenciais próprias, com Better Auth 1.7.14 e PostgreSQL Neon. A 
 
 A conta indicada por ZM_ADMIN_LOGIN_EMAIL usa o identificador admin no formulário. O e-mail interno, a senha e as permissões da conta são preservados; o e-mail antigo deixa de servir para entrar nessa conta. As demais contas continuam usando seu e-mail no campo Usuário. Configure a variável apenas no servidor.
 
+## Acessos da equipe
+
+O acesso principal (usuário admin) pode abrir Usuários no cabeçalho do painel e cadastrar o nome da pessoa, um usuário único e uma senha inicial. A equipe entra com o próprio usuário e pode trocar a senha no painel. Os acessos da equipe têm as permissões operacionais do painel. O cadastro de usuários exige a sessão da conta principal e é validado no servidor.
+
+As contas da equipe usam um identificador interno no domínio reservado equipe.zm.invalid para reaproveitar a autenticação existente sem pedir e-mail. A conta, a credencial protegida pelo Better Auth e o vínculo administrativo são gravados em uma única operação.
+
 ## Primeiro acesso
 
 O proprietário recebe uma ativação HTTPS temporária no domínio real da loja. Rodar npm run auth:activation no computador do projeto gera um token aleatório de 256 bits; só o hash SHA-256 fica no Neon, com validade de 30 minutos e uso único. O link fica no arquivo local ignorado artifacts/admin-setup-link.json, não em logs/chat/código. Abrir diretamente na aba da loja para o proprietário escolher nome, e-mail e senha >=12 caracteres.
