@@ -76,14 +76,22 @@ test('app integrado: agendar → pronta → retirada → tarefas → catálogo �
   const stockField=productForm.querySelector('[name=stock]');
   assert.equal(stockField.value,'1');
   stockField.value='12';
+  productForm.querySelector('[name=price]').value='129,50';
   productForm.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
-  await wait(()=>!document.querySelector('#edit-dialog[open]'),'produto salvo');
+  const productError=productForm.querySelector('.form-error');
+  await wait(()=>!document.querySelector('#edit-dialog[open]')||productError.textContent,'resultado da edição');
+  assert.equal(productError.textContent,'');
   assert.equal((await db.read()).state.products.find(p=>p.id==='flow-0').stock,12);
+  const catalogResponse=await handleApi(new Request(location.origin+'/api/catalog'),{},{db});
+  const catalog=await catalogResponse.json();
+  assert.equal(catalog.products.find(p=>p.id==='flow-0').price,12950);
+  assert.match(document.querySelector(editStock).closest('tr').querySelector('[data-label=Preço]').textContent,/129,50/);
   assert.equal(document.querySelector(editStock).closest('tr').querySelector('[data-label=Estoque]').textContent,'12 un.');
   document.querySelector(editStock).click();
   const reopened=document.querySelector('#product-form');
   const quantity=reopened.querySelector('[name=stock]');
   assert.equal(quantity.value,'12');
+  assert.equal(reopened.querySelector('[name=price]').value,'129,50');
   assert.equal(quantity.type,'text');
   assert.equal(quantity.getAttribute('inputmode'),'numeric');
   for(const invalid of ['','-1','1.5']){
