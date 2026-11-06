@@ -1,10 +1,10 @@
 import {getTrashEntries} from './store.js';
-const labels={task:'Tarefa',product:'Produto',order:'Pedido',income:'Receita avulsa',expense:'Despesa','order-income':'Receita de pedido'};
+const labels={task:'Tarefa',product:'Produto',order:'Pedido',sale:'Ficha de venda',income:'Receita avulsa',expense:'Despesa','order-income':'Receita de pedido'};
 export function deleteButton(kind,id,label,{esc}){
  return `<button type="button" class="text-button danger-text" data-delete-kind="${kind}" data-delete-id="${esc(id)}" aria-label="Apagar ${esc(label)}">Apagar</button>`;
 }
 export function deletionPrompt(state,kind,id,{esc,icon,money}){
- const list={task:'tasks',product:'products',order:'orders',income:'incomes',expense:'expenses','order-income':'orders'}[kind];
+ const list={task:'tasks',product:'products',order:'orders',sale:'sales',income:'incomes',expense:'expenses','order-income':'orders'}[kind];
  const record=(state[list]||[]).find(r=>r.id===id);if(!record)throw new Error('Registro não encontrado.');
  const label=record.title||record.name||record.description||`Pedido ${record.id}`;
  const details=kind==='task'?`${record.priority} · ${record.dueDate?'Prazo: '+new Date(record.dueDate+'T12:00:00').toLocaleDateString('pt-BR'):'Sem prazo'}`:kind==='product'?`${money(record.price)} · ${record.stock} un. em estoque`:`${money(record.amount??record.total)} · ${record.date?new Date(record.date+'T12:00:00').toLocaleDateString('pt-BR'):new Date(record.createdAt).toLocaleDateString('pt-BR')}`;

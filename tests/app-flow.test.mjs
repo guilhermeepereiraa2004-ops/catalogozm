@@ -21,6 +21,51 @@ test('app integrado: agendar → pronta → retirada → tarefas → catálogo �
   let form=document.querySelector('#pickup-form');form.querySelector('[name=orderId]').value=id;form.querySelector('[name=orderId]').dispatchEvent(new window.Event('change',{bubbles:true}));form=document.querySelector('#pickup-form');form.querySelector('[name=date]').value=bahiaDate();form.querySelector('[name=time]').value='14:30';form.querySelector('[name=note]').value='Teste isolado';form.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
   await wait(()=>state.orders[0].pickup?.status==='Agendada','agendamento salvo');await wait(()=>document.querySelector('[data-pickup-ready]'),'ação pronta');document.querySelector('[data-pickup-ready]').click();await wait(()=>state.orders[0].pickup.status==='Pronta','pedido pronto');await wait(()=>document.querySelector('[data-pickup-collect]'),'ação retirada');document.querySelector('[data-pickup-collect]').click();document.querySelector('[data-pickup-collect]').click();await wait(()=>state.orders[0].status==='Concluído','retirada concluída');assert.equal(state.products[0].stock,1);assert.equal(getCashFlow(state).income,9990);
   assert.equal(document.querySelector('[data-tab=stock]'),null);await route('#admin/todo',()=>document.querySelector('#todo-form'));let taskForm=document.querySelector('#todo-form');taskForm.querySelector('[name=title]').value='Separar embalagens';taskForm.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));await wait(()=>state.tasks?.length===1,'tarefa salva');await wait(()=>document.querySelector('[data-todo-complete]'),'tarefa na lista');const taskId=state.tasks[0].id;const check=document.querySelector('[data-todo-complete]');check.checked=true;check.dispatchEvent(new window.Event('change',{bubbles:true}));await wait(()=>state.tasks[0].completedAt,'tarefa concluída');document.querySelector('[data-todo-filter=done]').click();document.querySelector('[data-delete-kind=task]').click();document.querySelector('#delete-record-form').dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));await wait(()=>state.tasks[0].deletedAt,'tarefa na lixeira');await route('#admin/trash',()=>document.querySelector('[data-restore-id]'));document.querySelector('[data-restore-id="'+taskId+'"]').click();await wait(()=>!state.tasks[0].deletedAt,'tarefa restaurada');
+  document.querySelector('[data-tab="cash-flow"]').click();
+  window.dispatchEvent(new window.Event('hashchange'));
+  assert.equal(location.hash,'#admin/cash-flow');
+  assert.ok(document.querySelector('[data-action="new-sale"]'),'o módulo abre no mesmo evento de navegação');
+  assert.doesNotMatch(document.body.textContent,/Preparando sua loja/);
+  document.querySelector('[data-action="new-sale"]').click();
+  const saleForm=document.querySelector('#sale-form');
+  for(const [name,value] of Object.entries({customer:'Cliente teste caixa',description:'Venda de teste',total:'150,00',mode:'split',credit:'70,00',debit:'30,00'}))saleForm.querySelector(`[name="${name}"]`).value=value;
+  saleForm.querySelector('[name=mode]').dispatchEvent(new window.Event('change',{bubbles:true}));
+  assert.ok(saleForm.querySelector('[data-sale-summary]').textContent.includes('50,00'));
+  assert.equal(saleForm.querySelector('[data-sale-split]').hidden,false);
+  saleForm.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
+  await wait(()=>document.querySelector('#sale-receipt-form'),'recebimento da venda');
+  assert.equal(getCashFlow(state).income,19990);
+  const receiptForm=document.querySelector('#sale-receipt-form');
+  receiptForm.querySelector('[name=method]').value='pix';
+  receiptForm.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
+  await wait(()=>!document.querySelector('#sale-receipt-form'),'ficha quitada');
+  assert.equal(getCashFlow(state).income,24990);
+  document.querySelector('#info-dialog [data-action=close]').click();
+  const onlineOrderResponse=await handleApi(new Request(location.origin+'/api/actions',{
+   method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({action:'order.create',requestKey:'flow-checkout-payment-01',args:[
+    [{id:'flow-1',size:'A confirmar',qty:1}],{name:'Cliente do site',phone:'71999999999',localDelivery:'yes',paymentMethod:'arrange'}
+   ]})
+  }),{},{db,admin:false});
+  assert.equal(onlineOrderResponse.status,200);
+  const {order:onlineOrder}=await onlineOrderResponse.json();
+  const paymentButton=`[data-sale-order="${onlineOrder.id}"]`;
+  await route('#',()=>document.querySelector('#product-grid'));
+  await route('#admin/cash-flow',()=>document.querySelector(paymentButton));
+  document.querySelector(paymentButton).click();
+  const onlineSale=document.querySelector('#sale-form');
+  assert.equal(onlineSale.querySelector('[name=orderId]').value,onlineOrder.id);
+  assert.equal(onlineSale.querySelector('[name=customer]').value,'Cliente do site');
+  assert.equal(onlineSale.querySelector('[name=total]').value,'99,90');
+  for(const [name,value] of Object.entries({mode:'split',credit:'40,00',debit:'20,00'}))onlineSale.querySelector(`[name="${name}"]`).value=value;
+  onlineSale.querySelector('[name=mode]').dispatchEvent(new window.Event('change',{bubbles:true}));
+  onlineSale.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
+  await wait(()=>!document.querySelector(paymentButton)&&document.querySelector('#sale-receipt-form'),'pedido do site vinculado à ficha');
+  assert.equal(state.orders.find(order=>order.id===onlineOrder.id).status,'Novo');
+  assert.equal(getCashFlow(state).income,30990);
+  assert.equal(state.sales.find(s=>s.orderId===onlineOrder.id).payments.credit,4000);
+  assert.equal(getCashFlow(changeOrderStatus(state,onlineOrder.id,'Confirmado')).income,30990);
+  document.querySelector('#info-dialog [data-action=close]').click();
   await route('#admin/share',()=>document.querySelector('#share-copy'));const skip=document.querySelector('[data-share-id="flow-0"]');skip.checked=false;skip.dispatchEvent(new window.Event('change',{bubbles:true}));assert.equal(document.querySelector('#share-count').textContent,'2 selecionadas de 3 resultados');
   document.querySelector('#share-copy').click();await wait(()=>copied.includes('#colecao?'),'link copiado');await route(new URL(copied).hash,()=>document.querySelector('.shared-catalog'));assert.equal(document.querySelectorAll('.shared-products .share-piece').length,2);assert.equal(document.querySelector('.admin-sidebar'),null);assert.ok(!document.body.textContent.includes('Cliente fictícia'));assert.ok(!document.body.textContent.includes('Separar embalagens'));
   await route('#admin/looks',()=>document.querySelector('#look-products'));assert.equal(document.querySelector('.admin-title h1').textContent,'Montador de looks');assert.equal(document.querySelectorAll('[data-look-id]').length,3);

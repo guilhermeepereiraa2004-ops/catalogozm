@@ -38,3 +38,11 @@ Revisão 2026-10-29: QA visual da nova logo e paleta pendente por indisponibilid
 2026-11-01 — Usuário autorizou publicar enquadramento mobile ampliado; QA visual será feito na URL HTTPS pública após o deploy, sem usar a prévia dataURL bloqueada.
 
 2026-11-01 — Ampliação mobile revertida por esclarecimento do usuário; Hero volta à arte inteira e proporcional em todas as telas (CSS15aec15). Publicação do rollback em andamento.
+
+2026-11-05 — Fichas de venda disponíveis localmente; gate56 e fluxo DOM/API isolado aprovados. Conferência visual autenticada pendente, pois localhost no navegador integrado aponta para outro projeto.
+
+2026-11-05 — Navegação direta entre módulos validada por DOM/API isolados. Conferência visual autenticada disponível no Chrome local da loja.
+
+2026-11-05 — Checkout com cartão dividido e fiado validado via DOM/API. Prévia local atualizada para conferência no Chrome.
+
+2026-11-05 — Escopo final: checkout original e pagamento de pedidos disponível apenas no Fluxo de caixa autenticado. Gate56/build aprovados.

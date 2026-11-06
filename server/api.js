@@ -1,6 +1,6 @@
 import {saveTask,completeTask} from '../task-domain.js';
 import {savePickup} from '../retail-domain.js';
-import {placeOrder,changeOrderStatus,validateProduct,saveExpense,saveIncome,deleteRecord,restoreRecord} from '../domain.js';
+import {placeOrder,changeOrderStatus,validateProduct,saveExpense,saveIncome,saveSale,receiveSale,deleteRecord,restoreRecord} from '../domain.js';
 import {categories} from '../catalog.js';
 import {createDatabase} from './database.js';
 export class InputError extends Error{}
@@ -44,6 +44,10 @@ export async function mutate(db,action,args,requestKey){
     requireInput(args.length===2&&text(args[0],100),'Pedido inválido.');next=savePickup(current,args[0],args[1]);
    }else if(action==='income.save'){
     const income=args[0];requireInput(income&&(!income.id||text(income.id,100)),'Receita inválida.');next=saveIncome(current,income);
+   }else if(action==='sale.save'){
+    requireInput(args.length===1,'Venda inválida.');next=saveSale(current,args[0]);
+   }else if(action==='sale.receive'){
+    requireInput(args.length===2&&text(args[0],80),'Venda inválida.');next=receiveSale(current,...args);
    }else if(action==='product.save'){
     const product=productInput(args[0]),previous=current.products.find(p=>p.id===product.id);product.createdAt=previous?previous.createdAt:new Date().toISOString();requireInput(!previous?.deletedAt,'Restaure o produto na Lixeira antes de editar.');next={...current,products:current.products.some(p=>p.id===product.id)?current.products.map(p=>p.id===product.id?product:p):[product,...current.products]};
    }else if(action==='product.toggle'){
@@ -54,9 +58,9 @@ export async function mutate(db,action,args,requestKey){
   }catch(error){if(error instanceof InputError)throw error;throw new InputError(error.message);}
   if(await db.commit(snapshot.revision,next))return {state:next,order};
  }
- throw new InputError('O estoque está sendo atualizado. Tente novamente.');
+ throw new InputError('Os dados da loja estão sendo atualizados. Tente novamente.');
 }
-export function visibleState(state,admin){return {products:admin?state.products:state.products.filter(p=>p.active&&!p.deletedAt),orders:admin?state.orders:[],expenses:admin?state.expenses:[],incomes:admin?(state.incomes||[]):[],tasks:admin?(state.tasks||[]):[]};}
+export function visibleState(state,admin){return {products:admin?state.products:state.products.filter(p=>p.active&&!p.deletedAt),orders:admin?state.orders:[],expenses:admin?state.expenses:[],incomes:admin?(state.incomes||[]):[],tasks:admin?(state.tasks||[]):[],...(admin?{sales:state.sales||[]}: {})};}
 function json(data,status=200){return Response.json(data,{status,headers:{'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});}
 export async function handleApi(request,env,{admin=false,db}={}){
  try{

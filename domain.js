@@ -20,6 +20,10 @@ export function parseAmount(value){
  if(!Number.isSafeInteger(amount)||amount<=0)throw new Error('Informe um valor maior que zero.');
  return amount;
 }
+export function parseOptionalAmount(value){
+ const text=String(value??'').trim();
+ return !text||/^0+(?:[.,]0{1,2})?$/.test(text)?0:parseAmount(text);
+}
 export function saveExpense(state,expense){
  const expenses=state.expenses||[];
  if(!expense.description?.trim()||expense.description.trim().length>120)throw new Error('Informe uma descrição de até 120 caracteres.');
@@ -44,11 +48,77 @@ export function saveIncome(state,income){
  const next={id:previous?.id||`income-${crypto.randomUUID()}`,description:income.description.trim(),amount:income.amount,date:income.date,category:income.category,createdAt:previous?.createdAt||new Date().toISOString()};
  return {...state,incomes:previous?incomes.map(e=>e.id===next.id?next:e):[next,...incomes]};
 }
+export const saleMethods={credit:'Crédito',debit:'Débito',pix:'Pix',cash:'Dinheiro'};
+const orderInCash=o=>o&&!o.deletedAt&&!o.cashExcludedAt&&confirmedStatuses.includes(o.status);
+const orderAllowsSale=order=>orderInCash(order)||Boolean(order?.status==='Novo'&&!order.deletedAt&&!order.cashExcludedAt);
+const saleKey=id=>typeof id==='string'&&/^[a-z0-9-]{16,80}$/i.test(id);
+const moneyValue=n=>Number.isSafeInteger(n)&&n>=0&&n<=1000000000;
+export function getSaleTotals(sale){
+ const byMethod={...sale.payments};
+ for(const receipt of sale.receipts||[])byMethod[receipt.method]+=receipt.amount;
+ const received=Object.values(byMethod).reduce((sum,n)=>sum+n,0);
+ return {byMethod,received,due:sale.total-received};
+}
+export function getActiveSales(state){
+ const orders=new Map(state.orders.map(o=>[o.id,o]));
+ return (state.sales||[]).filter(s=>!s.deletedAt&&(!s.orderId||orderAllowsSale(orders.get(s.orderId))));
+}
+export function getSaleOrderOptions(state){
+ const linked=new Set((state.sales||[]).map(s=>s.orderId));
+ return state.orders.filter(o=>orderAllowsSale(o)&&!linked.has(o.id));
+}
+export function saveSale(state,input){
+ if(!input||!saleKey(input.id)||!validDate(input.date))throw new Error('Informe uma data válida para a venda.');
+ const orderId=input.orderId||'';
+ if(typeof orderId!=='string'||orderId.length>100)throw new Error('Pedido inválido.');
+ const order=orderId?state.orders.find(o=>o.id===orderId):null;
+ if(orderId&&!orderAllowsSale(order))throw new Error('Escolha um pedido disponível para registrar o pagamento.');
+ const customer=order?.customer.name??input.customer;
+ const description=order?order.items.map(i=>`${i.qty}× ${i.name}`).join(', ').slice(0,500):input.description;
+ if(typeof customer!=='string'||!customer.trim()||customer.trim().length>100)throw new Error('Informe o nome da cliente (até 100 caracteres).');
+ if(typeof description!=='string'||!description.trim()||description.trim().length>500)throw new Error('Descreva a compra (até 500 caracteres).');
+ const total=order?.total??input.total;
+ if(!moneyValue(total)||total===0)throw new Error('Informe um total de venda válido, maior que zero.');
+ const raw=input.payments;
+ if(!raw||typeof raw!=='object'||Array.isArray(raw)||Object.keys(raw).some(k=>!Object.hasOwn(saleMethods,k)))throw new Error('Revise as formas de pagamento.');
+ const payments=Object.fromEntries(Object.keys(saleMethods).map(method=>[method,Object.hasOwn(raw,method)?raw[method]:0]));
+ if(Object.values(payments).some(n=>!moneyValue(n)))throw new Error('Informe valores de pagamento válidos.');
+ if(Object.values(payments).reduce((sum,n)=>sum+n,0)>total)throw new Error('O valor recebido não pode passar do total da venda.');
+ const sales=state.sales||[];
+ const fields={id:input.id,orderId,date:input.date,customer:customer.trim(),description:description.trim(),total,payments};
+ const previous=sales.find(s=>s.id===input.id);
+ if(previous){
+  if(!previous.deletedAt&&['orderId','date','customer','description','total'].every(k=>previous[k]===fields[k])&&Object.keys(saleMethods).every(k=>previous.payments[k]===payments[k]))return state;
+  throw new Error('Esta tentativa já foi registrada. Confira a ficha antes de lançar novamente.');
+ }
+ if(orderId&&sales.some(s=>s.orderId===orderId))throw new Error('Este pedido já tem uma ficha de venda. Confira também a Lixeira.');
+ return {...state,sales:[{...fields,receipts:[],createdAt:new Date().toISOString()},...sales]};
+}
+export function receiveSale(state,id,receipt){
+ const sale=getActiveSales(state).find(s=>s.id===id);
+ if(!sale)throw new Error('Venda indisponível. Confira a ficha e o pedido vinculado.');
+ if(!receipt||!saleKey(receipt.id)||!Object.hasOwn(saleMethods,receipt.method)||!moneyValue(receipt.amount)||receipt.amount===0)throw new Error('Informe a forma e um valor válido para o recebimento.');
+ if(!validDate(receipt.date)||receipt.date<sale.date)throw new Error('O recebimento precisa ter uma data válida, igual ou posterior à venda.');
+ const {method,date,amount}=receipt,previous=sale.receipts.find(r=>r.id===receipt.id);
+ if(previous){
+  if(previous.method===method&&previous.date===date&&previous.amount===amount)return state;
+  throw new Error('Esta tentativa já foi registrada. Confira os recebimentos da venda.');
+ }
+ if(amount>getSaleTotals(sale).due)throw new Error('O recebimento não pode passar do saldo em aberto.');
+ const next={...sale,receipts:[...sale.receipts,{id:receipt.id,method,date,amount}]};
+ return {...state,sales:state.sales.map(s=>s.id===id?next:s)};
+}
 export function getCashFlow(state,{from='',to='',type='all',query=''}={}){
- const revenues=state.orders.filter(o=>!o.deletedAt&&!o.cashExcludedAt&&confirmedStatuses.includes(o.status)).map(o=>({id:`order-${o.id}`,orderId:o.id,type:'income',description:`Pedido ${o.id}`,detail:o.customer.name,category:'Vendas',date:localDate(o.confirmedAt||o.createdAt),amount:o.total}));
+ const linked=new Set((state.sales||[]).map(s=>s.orderId));
+ const revenues=state.orders.filter(o=>orderInCash(o)&&!linked.has(o.id)).map(o=>({id:`order-${o.id}`,orderId:o.id,type:'income',description:`Pedido ${o.id}`,detail:o.customer.name,category:'Vendas',date:localDate(o.confirmedAt||o.createdAt),amount:o.total}));
+ const receipts=getActiveSales(state).flatMap(s=>{
+  const entry={saleId:s.id,type:'income',category:'Vendas'};
+  return [...Object.entries(s.payments).filter(([,amount])=>amount>0).map(([method,amount])=>({...entry,id:`sale-${s.id}-${method}`,description:s.description,detail:`${s.customer} · ${saleMethods[method]}`,date:s.date,amount})),
+   ...s.receipts.map(r=>({...entry,id:`sale-${s.id}-${r.id}`,description:`Recebimento de fiado · ${s.description}`,detail:`${s.customer} · ${saleMethods[r.method]}`,date:r.date,amount:r.amount}))];
+ });
  const incomes=(state.incomes||[]).filter(e=>!e.deletedAt).map(e=>({...e,type:'income',detail:`Receita avulsa · ${e.category}`}));
  const expenses=(state.expenses||[]).filter(e=>!e.deletedAt).map(e=>({...e,type:'expense',detail:e.category}));
- const inPeriod=[...revenues,...incomes,...expenses].filter(e=>(!from||e.date>=from)&&(!to||e.date<=to));
+ const inPeriod=[...revenues,...receipts,...incomes,...expenses].filter(e=>(!from||e.date>=from)&&(!to||e.date<=to));
  const income=inPeriod.filter(e=>e.type==='income').reduce((sum,e)=>sum+e.amount,0);
  const expense=inPeriod.filter(e=>e.type==='expense').reduce((sum,e)=>sum+e.amount,0);
  const normalize=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
@@ -91,7 +161,7 @@ export function changeOrderStatus(state,id,status){
  return {...state,products:state.products.map(p=>({...p,stock:p.stock+(restore?order.items.filter(x=>x.id===p.id).reduce((s,x)=>s+x.qty,0):0)})),orders:state.orders.map(o=>o.id===id?{...o,status,...(confirmedAt?{confirmedAt}:{}),...(status==='Concluído'&&o.pickup?{pickup:{...o.pickup,status:'Retirada',collectedAt:o.pickup.collectedAt||new Date().toISOString()}}:{})}:o)};
 }
 
-const recordLists={task:'tasks',product:'products',order:'orders',income:'incomes',expense:'expenses','order-income':'orders'};
+const recordLists={task:'tasks',product:'products',order:'orders',sale:'sales',income:'incomes',expense:'expenses','order-income':'orders'};
 function findRecord(state,kind,id){
  const list=recordLists[kind];if(!Object.hasOwn(recordLists,kind))throw new Error('Tipo de registro inválido.');
  const record=(state[list]||[]).find(r=>r.id===id);if(!record)throw new Error('Registro não encontrado.');

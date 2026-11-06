@@ -66,3 +66,20 @@
  .cash-note svg{width:17px;height:17px}
 }
 @media(max-width:320px){.cash-filters{grid-template-columns:minmax(0,1fr)}.cash-stats{grid-template-columns:minmax(0,1fr)}.cash-filters label:nth-child(n+3),.cash-balance{grid-column:auto}}
+.sales-card{margin:24px 0}
+.sales-card td small,.cash-card td:first-child{white-space:normal;overflow-wrap:anywhere}
+.sales-card td small{max-width:30ch}
+.sales-card td .text-button{min-height:44px}
+.sales-empty{padding:24px;color:var(--muted);font-size:13px;line-height:1.7}
+.sale-totals{padding:14px;background:var(--brand-blush-light);border:1px solid var(--line);border-radius:8px;line-height:1.7;overflow-wrap:anywhere}
+.sale-split{min-width:0;margin:0 0 12px;padding:12px;border:1px solid var(--line);border-radius:8px}
+.sale-split legend{padding:0 5px;font-size:12px}
+#sale-form [hidden]{display:none!important}
+#sale-form input,#sale-form textarea,#sale-form select,#sale-receipt-form input,#sale-receipt-form select{min-width:0;width:100%;min-height:44px}
+#sale-form .form-columns,#sale-receipt-form .form-columns{grid-template-columns:repeat(2,minmax(0,1fr))}
+.sale-receipts{padding-left:20px;font-size:13px;line-height:1.8}
+@media(max-width:480px){
+ .sales-empty{padding:16px}
+ #sale-form .form-columns,#sale-receipt-form .form-columns{grid-template-columns:minmax(0,1fr);gap:0}
+ #sale-form input,#sale-form textarea,#sale-form select,#sale-receipt-form input,#sale-receipt-form select{font-size:16px}
+}

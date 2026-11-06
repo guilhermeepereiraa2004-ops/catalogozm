@@ -1,8 +1,8 @@
-export {getCashFlow,expenseCategories,incomeCategories,orderStatuses,localDate,parseAmount,paymentMethods,pickupLocation,getTrashEntries} from './domain.js';
-let cached={products:[],orders:[],expenses:[],incomes:[],tasks:[]};
+export {getCashFlow,expenseCategories,incomeCategories,orderStatuses,localDate,parseAmount,parseOptionalAmount,paymentMethods,pickupLocation,getTrashEntries,saleMethods,getSaleTotals,getActiveSales,getSaleOrderOptions} from './domain.js';
+let cached={products:[],orders:[],expenses:[],incomes:[],tasks:[],sales:[]};
 let pendingOrder;
 export function getState(){return cached;}
-export function clearState(){cached={products:[],orders:[],expenses:[],incomes:[],tasks:[]};}
+export function clearState(){cached={products:[],orders:[],expenses:[],incomes:[],tasks:[],sales:[]};}
 async function call(url,options){
  let response;try{response=await fetch(url,{credentials:'same-origin',cache:'no-store',...options});}catch{throw new Error('Sem conexão com a loja. Verifique sua internet e tente novamente.');}
  let data;try{data=await response.json();}catch{throw new Error('O servidor da loja não respondeu. Tente novamente.');}
@@ -22,7 +22,7 @@ async function run(action,args){
  const body=JSON.stringify({action,args,...(action==='order.create'?{requestKey:pendingOrder.key}:{})});
  if(new TextEncoder().encode(body).length>4000000)throw new Error('As fotos ultrapassam o limite do cadastro. Use imagens menores ou menos fotos.');
  const data=await call('/api/actions',{method:'POST',headers:{'Content-Type':'application/json'},body});
- cached={products:data.products,orders:data.orders,expenses:data.expenses,incomes:data.incomes||[],tasks:data.tasks||[]};
+ cached={products:data.products,orders:data.orders,expenses:data.expenses,incomes:data.incomes||[],tasks:data.tasks||[],sales:data.sales||[]};
  if(data.order){cached.orders=[data.order,...cached.orders.filter(o=>o.id!==data.order.id)];pendingOrder=undefined;try{sessionStorage.removeItem('zm-order-attempt');}catch{}}
  return cached;
 }
@@ -34,6 +34,8 @@ export const actions={
  'pickup.save':(id,pickup)=>run('pickup.save',[id,pickup]),
  'expense.save':expense=>run('expense.save',[expense]),
  'income.save':income=>run('income.save',[income]),
+ 'sale.save':sale=>run('sale.save',[sale]),
+ 'sale.receive':(id,receipt)=>run('sale.receive',[id,receipt]),
  'record.delete':(kind,id)=>run('record.delete',[kind,id]),
  'record.restore':(kind,id)=>run('record.restore',[kind,id]),
  'product.save':product=>run('product.save',[product]),
