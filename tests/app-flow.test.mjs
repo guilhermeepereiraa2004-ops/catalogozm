@@ -9,7 +9,7 @@ test('app integrado: agendar → pronta → retirada → tarefas → catálogo �
  const previous={};for(const key of ['document','window','location','navigator','history','localStorage','sessionStorage','matchMedia','fetch','FormData','requestAnimationFrame','cancelAnimationFrame','setTimeout'])previous[key]=Object.getOwnPropertyDescriptor(globalThis,key);
  window.scrollTo=()=>{};window.HTMLElement.prototype.scrollIntoView=()=>{};
  const location={hash:'#admin/pickups',hostname:'localhost',origin:'http://localhost:4173',pathname:'/',href:'http://localhost:4173/#admin/pickups'},storage=()=>{const data=new Map();return{getItem:key=>data.get(key)||null,setItem:(key,value)=>data.set(key,value),removeItem:key=>data.delete(key)};};let copied='';
- const values={document,window,location,history:{replaceState(){}},navigator:{clipboard:{writeText:async text=>{copied=text;}}},localStorage:storage(),sessionStorage:storage(),matchMedia:()=>({matches:false,addEventListener(){},removeEventListener(){}}),requestAnimationFrame:fn=>setTimeout(fn,0),cancelAnimationFrame:clearTimeout,fetch:async(url,options={})=>{const request=new Request(new URL(url,location.origin),{...options,headers:{Origin:location.origin,...options.headers}});return handleApi(request,{},{db,admin:true});},FormData:class{constructor(form){this.form=form;}get(name){return this.form.querySelector(`[name="${name}"]`)?.value||'';}*entries(){for(const field of this.form.querySelectorAll('[name]'))yield[field.name,field.value];}[Symbol.iterator](){return this.entries();}}};
+ const values={document,window,location,history:{replaceState(){}},navigator:{clipboard:{writeText:async text=>{copied=text;}}},localStorage:storage(),sessionStorage:storage(),matchMedia:()=>({matches:false,addEventListener(){},removeEventListener(){}}),requestAnimationFrame:fn=>setTimeout(fn,0),cancelAnimationFrame:clearTimeout,fetch:async(url,options={})=>{const request=new Request(new URL(url,location.origin),{...options,headers:{Origin:location.origin,...options.headers}});return handleApi(request,{},{db,admin:true});},FormData:class{constructor(form){this.form=form;}get(name){return this.form.querySelector(`[name="${name}"]`)?.value||'';}has(name){const field=this.form.querySelector('[name="'+name+'"]');return !!field&&(field.type!=='checkbox'||field.hasAttribute('checked'));}*entries(){for(const field of this.form.querySelectorAll('[name]'))yield[field.name,field.value];}[Symbol.iterator](){return this.entries();}}};
  const timers=new Set(),nativeSetTimeout=globalThis.setTimeout;values.setTimeout=(callback,ms,...args)=>{const timer=nativeSetTimeout(()=>{timers.delete(timer);callback(...args);},ms);timers.add(timer);return timer;};
  for(const [key,value]of Object.entries(values))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
  Object.defineProperty(window.HTMLSelectElement.prototype,'value',{configurable:true,get(){const option=this.querySelector('option[selected]')||this.querySelector('option');return option?.getAttribute('value')??option?.textContent??'';},set(value){for(const option of this.querySelectorAll('option')){const optionValue=option.getAttribute('value')??option.textContent;optionValue===String(value)?option.setAttribute('selected',''):option.removeAttribute('selected');}}});
@@ -69,5 +69,33 @@ test('app integrado: agendar → pronta → retirada → tarefas → catálogo �
   await route('#admin/share',()=>document.querySelector('#share-copy'));const skip=document.querySelector('[data-share-id="flow-0"]');skip.checked=false;skip.dispatchEvent(new window.Event('change',{bubbles:true}));assert.equal(document.querySelector('#share-count').textContent,'2 selecionadas de 3 resultados');
   document.querySelector('#share-copy').click();await wait(()=>copied.includes('#colecao?'),'link copiado');await route(new URL(copied).hash,()=>document.querySelector('.shared-catalog'));assert.equal(document.querySelectorAll('.shared-products .share-piece').length,2);assert.equal(document.querySelector('.admin-sidebar'),null);assert.ok(!document.body.textContent.includes('Cliente fictícia'));assert.ok(!document.body.textContent.includes('Separar embalagens'));
   await route('#admin/looks',()=>document.querySelector('#look-products'));assert.equal(document.querySelector('.admin-title h1').textContent,'Montador de looks');assert.equal(document.querySelectorAll('[data-look-id]').length,3);
+  const editStock='[data-edit="flow-0"]';
+  await route('#admin/products',()=>document.querySelector(editStock));
+  document.querySelector(editStock).click();
+  const productForm=document.querySelector('#product-form');
+  const stockField=productForm.querySelector('[name=stock]');
+  assert.equal(stockField.value,'1');
+  stockField.value='12';
+  productForm.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
+  await wait(()=>!document.querySelector('#edit-dialog[open]'),'produto salvo');
+  assert.equal((await db.read()).state.products.find(p=>p.id==='flow-0').stock,12);
+  assert.equal(document.querySelector(editStock).closest('tr').querySelector('[data-label=Estoque]').textContent,'12 un.');
+  document.querySelector(editStock).click();
+  const reopened=document.querySelector('#product-form');
+  const quantity=reopened.querySelector('[name=stock]');
+  assert.equal(quantity.value,'12');
+  assert.equal(quantity.type,'text');
+  assert.equal(quantity.getAttribute('inputmode'),'numeric');
+  for(const invalid of ['','-1','1.5']){
+   const beforeRevision=revision;
+   quantity.value=invalid;
+   reopened.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
+   assert.match(reopened.querySelector('.form-error').textContent,/quantidade/);
+   assert.equal(revision,beforeRevision);
+  }
+  quantity.value='0';
+  reopened.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
+  await wait(()=>!document.querySelector('#edit-dialog[open]'),'estoque zerado intencionalmente');
+  assert.equal((await db.read()).state.products.find(p=>p.id==='flow-0').stock,0);
  }finally{for(const timer of timers)clearTimeout(timer);for(const key of Object.keys(previous))previous[key]?Object.defineProperty(globalThis,key,previous[key]):delete globalThis[key];}
 });
