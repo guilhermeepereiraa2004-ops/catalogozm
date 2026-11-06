@@ -1,6 +1,8 @@
 # Login administrativo da loja
 
-O admin usa e-mail e senha próprios, com Better Auth 1.7.14 e PostgreSQL Neon. A vitrine continua pública. A URL principal do painel é https://zm-exclusiva-tau.vercel.app/admin (redireciona para /#admin). Não há OAuth nem login Vercel neste fluxo.
+O painel usa credenciais próprias, com Better Auth 1.7.14 e PostgreSQL Neon. A vitrine continua pública. A URL principal do painel é https://zm-exclusiva-tau.vercel.app/admin (redireciona para /#admin). Não há OAuth nem login Vercel neste fluxo.
+
+A conta indicada por ZM_ADMIN_LOGIN_EMAIL usa o identificador admin no formulário. O e-mail interno, a senha e as permissões da conta são preservados; o e-mail antigo deixa de servir para entrar nessa conta. As demais contas continuam usando seu e-mail no campo Usuário. Configure a variável apenas no servidor.
 
 ## Primeiro acesso
 

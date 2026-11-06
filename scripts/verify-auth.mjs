@@ -17,7 +17,7 @@ try{
  await pool.query(`CREATE TABLE "${prefix}bootstrap" (id integer PRIMARY KEY CHECK(id=1),token_hash text NOT NULL,expires_at timestamptz NOT NULL,consumed_at timestamptz)`);
  service=createAuthService(env,{pool,prefix,localSetup:true});
  const email='qa-'+randomBytes(6).toString('hex')+'@example.test',password=randomBytes(24).toString('base64url');
- const req=(path,body,cookie)=>new Request('http://localhost:4173/api/auth/'+path,{method:body?'POST':'GET',headers:{Origin:'http://localhost:4173','x-real-ip':'127.0.0.1',...(body?{'Content-Type':'application/json'}:{}),...(cookie?{cookie}:{})},...(body?{body:JSON.stringify(body)}:{})});
+ const req=(path,body,cookie,ip='127.0.0.1')=>new Request('http://localhost:4173/api/auth/'+path,{method:body?'POST':'GET',headers:{Origin:'http://localhost:4173','x-real-ip':ip,...(body?{'Content-Type':'application/json'}:{}),...(cookie?{cookie}:{})},...(body?{body:JSON.stringify(body)}:{})});
  const bootstrap=await service.handle(req('setup',{name:'Administrador QA',email,password}));assert.equal(bootstrap.status,200,await bootstrap.clone().text());
  const stored=await pool.query(`SELECT password FROM "${prefix}account" WHERE password IS NOT NULL`);assert.equal(stored.rowCount,1);assert.notEqual(stored.rows[0].password,password);
  assert.equal((await service.handle(req('setup',{name:'Outro QA',email:'outro@example.test',password}))).status,409);
@@ -29,6 +29,15 @@ try{
  const adminReq=new Request('http://localhost:4173/api/state',{headers:{cookie}});assert.equal(await service.isAdmin(adminReq),true);
  assert.equal(await service.isAdmin(new Request('http://localhost:4173/api/state',{headers:{cookie:'zm.session_token=forjado'}})),false);
  const adapter=createVercelHandler(env,{authService:service,db:memoryDB()});assert.equal((await adapter.fetch(adminReq)).status,200);
+ const aliasService=createAuthService({...env,ZM_ADMIN_LOGIN_EMAIL:email},{pool,prefix,localSetup:true});
+ const aliasReq=(login,secret)=>req('sign-in/email',{email:login,password:secret},null,'127.0.0.2');
+ assert.equal((await aliasService.handle(aliasReq(email.toUpperCase(),password))).status,401);
+ assert.equal((await aliasService.handle(aliasReq('admin','senha-incorreta'))).status,401);
+ const aliasLogin=await aliasService.handle(aliasReq(' admin ',password));
+ assert.equal(aliasLogin.status,200,await aliasLogin.clone().text());
+ const aliasCookie=aliasLogin.headers.getSetCookie().map(c=>c.split(';')[0]).join('; ');
+ assert.equal(await aliasService.isAdmin(new Request('http://localhost:4173/api/state',{headers:{cookie:aliasCookie}})),true);
+ assert.equal((await pool.query(`SELECT password FROM "${prefix}account" WHERE password IS NOT NULL`)).rows[0].password,stored.rows[0].password);
  const changed=await service.handle(req('change-password',{currentPassword:password,newPassword:password+'a',revokeOtherSessions:true},cookie));assert.equal(changed.status,200,await changed.clone().text());
  assert.equal((await service.handle(new Request('http://localhost:4173/api/auth/sign-out',{method:'POST',headers:{Origin:'https://externo.test','Content-Type':'application/json',cookie},body:'{}'}))).status,403);
  const logout=await service.handle(req('sign-out',{},cookie));assert.equal(logout.status,200);assert.equal(await service.isAdmin(adminReq),false);
@@ -38,6 +47,9 @@ try{
  await pool.query(`DELETE FROM "${prefix}admin"`);assert.equal(await service.isAdmin(new Request('http://localhost:4173/api/state',{headers:{cookie:secondCookie}})),false);
  // Rate limit persiste no banco e vale entre instâncias do servidor.
  let limited=false;for(let i=0;i<8;i++){const response=await service.handle(req('sign-in/email',{email,password:'incorreta'}));if(response.status===429){limited=true;break;}}assert.equal(limited,true);
+ let aliasLimited=false;
+ for(let i=0;i<6;i++){if((await aliasService.handle(aliasReq('admin','incorreta'))).status===429){aliasLimited=true;break;}}
+ assert.equal(aliasLimited,true);
  const remote=createAuthService(env,{pool,prefix,localSetup:false});
  const setupRequest=(path,token,body)=>{const r=req(path,body);if(token)r.headers.set('X-ZM-Setup-Token',token);return r;};
  assert.equal((await remote.handle(setupRequest('setup',undefined,{}))).status,403);
@@ -54,6 +66,10 @@ try{
  assert.equal((await remote.handle(setupRequest('setup',activation,body))).status,403);
  assert.equal((await (await remote.handle(setupRequest('status',activation))).json()).setupAvailable,false);
  assert.equal((await pool.query(`SELECT 1 FROM "${prefix}admin"`)).rowCount,1);
+ const otherLogin=await aliasService.handle(req('sign-in/email',{email:body.email,password:body.password},null,'127.0.0.3'));
+ assert.equal(otherLogin.status,200);
+ assert.equal(await aliasService.isAdmin(new Request('http://localhost:4173/api/state',{headers:{cookie:otherLogin.headers.getSetCookie().map(c=>c.split(';')[0]).join('; ')}})),true);
+ console.log('Usuário admin: mesma senha e vínculo, e-mail anterior recusado, outros acessos e limite de tentativas preservados.');
  console.log('Ativação HTTPS: token obrigatório, expiração, uso único e concorrência aprovados no Neon real.');
  console.log('Better Auth + Neon real: cadastro local único, signup público bloqueado, hash de senha, login, sessão HttpOnly, autorização por usuário, troca de senha, logout revogado, CSRF e rate limit aprovados.');
 }catch(error){console.error('Falha na verificação auth:',error.code||error.name,String(error.message).replace(/postgres(?:ql)?:\/\/\S+/g,'[protegido]').slice(0,450));process.exitCode=1;}

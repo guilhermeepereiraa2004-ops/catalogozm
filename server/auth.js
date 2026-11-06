@@ -24,6 +24,7 @@ export function createAuthService(env,{pool:providedPool,prefix=PREFIX,localSetu
  if(!providedPool&&!env.AUTH_DATABASE_URL)throw new Error('Banco de autenticação não configurado');
  const pool=providedPool||new Pool({connectionString:env.AUTH_DATABASE_URL,max:4,idleTimeoutMillis:10000,connectionTimeoutMillis:10000});
  const options=authOptions(env,pool,{prefix}),auth=betterAuth(options);
+ const adminLoginEmail=env.ZM_ADMIN_LOGIN_EMAIL?.trim().toLowerCase();
  const adminTable=`"${prefix}admin"`;
  const bootstrapTable=`"${prefix}bootstrap"`;
  function setupHash(request){const token=request.headers.get('x-zm-setup-token')||'';return /^[A-Za-z0-9_-]{43}$/.test(token)?createHash('sha256').update(token).digest('hex'):null;}
@@ -67,7 +68,8 @@ export function createAuthService(env,{pool:providedPool,prefix=PREFIX,localSetu
   try{
    const url=new URL(input.url);const routed=url.searchParams.get('auth_path');
    if(routed!==null){url.pathname='/api/auth/'+routed;url.searchParams.delete('auth_path');}
-   const request=new Request(url,input),path=url.pathname.slice('/api/auth'.length);
+   let request=new Request(url,input);
+   const path=url.pathname.slice('/api/auth'.length);
    if(!sameOrigin(request))return json({error:'Origem não autorizada.'},403);
    if(Number(request.headers.get('content-length')||0)>20000)return json({error:'Requisição muito grande.'},413);
    if(path==='/setup')return await setup(request);
@@ -76,6 +78,16 @@ export function createAuthService(env,{pool:providedPool,prefix=PREFIX,localSetu
     return json({setupAvailable});
    }
    if(!['/sign-in/email','/sign-out','/get-session','/change-password','/ok'].includes(path))return json({error:'Cadastro público indisponível.'},403);
+   if(adminLoginEmail&&path==='/sign-in/email'&&request.method==='POST'){
+    if(request.headers.get('content-type')?.split(';')[0].trim().toLowerCase()!=='application/json')return json({error:'Envie JSON.'},415);
+    const body=await request.json().catch(()=>null);
+    const login=typeof body?.email==='string'?body.email.trim().toLowerCase():'';
+    // A conta vinculada entra somente pelo novo usuário; as demais mantêm o e-mail.
+    if(login===adminLoginEmail)return json({code:'INVALID_EMAIL_OR_PASSWORD',message:'Invalid email or password'},401);
+    if(!login)return json({error:'Informe o usuário.'},400);
+    const headers=new Headers(request.headers);headers.delete('content-length');
+    request=new Request(request,{headers,body:JSON.stringify({...body,email:login==='admin'?adminLoginEmail:login})});
+   }
    const response=await auth.handler(request);
    const headers=new Headers(response.headers);headers.set('Cache-Control','private, no-store');
    return new Response(response.body,{status:response.status,headers});
