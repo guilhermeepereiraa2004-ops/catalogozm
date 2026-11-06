@@ -248,3 +248,13 @@
   .quick-view{font-size:12px}
   .hero-bottomline{font-size:6px}
 }
+
+.admin-sidebar {
+  max-height: 100vh;
+  max-height: 100dvh;
+  overflow-y: auto;
+}
+
+@media (min-width: 901px) {
+  .admin-sidebar > * { flex-shrink: 0; }
+}
