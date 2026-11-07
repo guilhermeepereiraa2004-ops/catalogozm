@@ -38,6 +38,25 @@ try{
  const aliasCookie=aliasLogin.headers.getSetCookie().map(c=>c.split(';')[0]).join('; ');
  assert.equal(await aliasService.isAdmin(new Request('http://localhost:4173/api/state',{headers:{cookie:aliasCookie}})),true);
  assert.equal((await pool.query(`SELECT password FROM "${prefix}account" WHERE password IS NOT NULL`)).rows[0].password,stored.rows[0].password);
+ // Domínios próprios da loja aceitam login com a mesma conta e preservam a proteção de origem.
+ const domainService=createAuthService({...env,BETTER_AUTH_URL:'https://zm-exclusiva-tau.vercel.app',ZM_ADMIN_LOGIN_EMAIL:email},{pool,prefix});
+ let domainIndex=10;
+ for(const origin of ['https://www.zmexclusiva.com.br','https://zmexclusiva.com.br']){
+  const domainLogin=await domainService.handle(new Request(origin+'/api/auth/sign-in/email',{
+   method:'POST',headers:{Origin:origin,'Content-Type':'application/json','x-real-ip':'198.51.100.'+domainIndex++},
+   body:JSON.stringify({email:'admin',password,rememberMe:false})
+  }));
+  assert.equal(domainLogin.status,200,await domainLogin.clone().text());
+  const domainCookie=domainLogin.headers.getSetCookie().map(c=>c.split(';')[0]).join('; ');
+  assert.equal(await domainService.isAdmin(new Request(origin+'/api/state',{headers:{cookie:domainCookie}})),true);
+  assert.ok(domainLogin.headers.getSetCookie().some(c=>/secure/i.test(c)));
+ }
+ const unknownOrigin='https://dominio-nao-autorizado.example';
+ const unknownLogin=await domainService.handle(new Request(unknownOrigin+'/api/auth/sign-in/email',{
+  method:'POST',headers:{Origin:unknownOrigin,'Content-Type':'application/json','x-real-ip':'198.51.100.20'},body:JSON.stringify({email:'admin',password})
+ }));
+ assert.equal(unknownLogin.status,403);
+ console.log('Domínios próprios: login e sessão aprovados, origem externa recusada.');
  const teamPassword=randomBytes(24).toString('base64url');
  const team={name:'Pessoa da equipe QA',username:' Vendas_QA ',password:teamPassword};
  assert.equal((await (await aliasService.handle(req('status'))).json()).canManageUsers,false);

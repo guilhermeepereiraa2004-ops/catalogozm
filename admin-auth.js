@@ -2,7 +2,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 export async function authRequest(path,body,setupToken){
  let response;try{response=await fetch('/api/auth/'+path,{method:body?'POST':'GET',credentials:'same-origin',cache:'no-store',headers:{...(body?{'Content-Type':'application/json'}:{}),...(setupToken?{'X-ZM-Setup-Token':setupToken}:{})},...(body?{body:JSON.stringify(body)}:{})});}catch{throw new Error('Não foi possível conectar. Verifique sua internet.');}
  const data=await response.json();
- if(!response.ok){if(response.status===429)throw new Error('Muitas tentativas. Aguarde um minuto para tentar novamente.');if(path==='sign-in/email')throw new Error('Usuário ou senha incorretos. Confira e tente novamente.');throw new Error(data.error||'Não foi possível concluir. Confira os dados e tente novamente.');}
+ if(!response.ok){if(response.status===429)throw new Error('Muitas tentativas. Aguarde um minuto para tentar novamente.');if(path==='sign-in/email'&&response.status===401)throw new Error('Usuário ou senha incorretos. Confira e tente novamente.');if(path==='sign-in/email'&&response.status===403)throw new Error('Não foi possível autorizar o acesso por este endereço. Entre pelo site oficial da loja.');throw new Error(data.error||'Não foi possível concluir. Confira os dados e tente novamente.');}
  return data;
 }
 export const getAuthStatus=token=>authRequest('status',undefined,token);

@@ -11,7 +11,7 @@ export function authOptions(env,pool,{prefix=PREFIX,signup=false}={}){
  const baseURL=env.BETTER_AUTH_URL||(env.VERCEL_URL?`https://${env.VERCEL_URL}`:'http://localhost:4173');
  return {
   appName:'ZM Exclusiva',baseURL,basePath:'/api/auth',secret:env.BETTER_AUTH_SECRET,database:pool,
-  trustedOrigins:[baseURL,PUBLIC_ORIGIN,...(env.VERCEL_URL?[`https://${env.VERCEL_URL}`]:[]),...(baseURL==='http://localhost:4173'?['http://127.0.0.1:4173']:[])],
+  trustedOrigins:[baseURL,PUBLIC_ORIGIN,'https://www.zmexclusiva.com.br','https://zmexclusiva.com.br',...(env.VERCEL_URL?[`https://${env.VERCEL_URL}`]:[]),...(baseURL==='http://localhost:4173'?['http://127.0.0.1:4173']:[])],
   emailAndPassword:{enabled:true,disableSignUp:!signup,autoSignIn:false,minPasswordLength:12,maxPasswordLength:128},
   user:{modelName:prefix+'user'},account:{modelName:prefix+'account'},verification:{modelName:prefix+'verification'},
   session:{modelName:prefix+'session',expiresIn:8*60*60,updateAge:60*60,cookieCache:{enabled:false}},
