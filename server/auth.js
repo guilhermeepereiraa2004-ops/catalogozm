@@ -27,6 +27,7 @@ export function createAuthService(env,{pool:providedPool,prefix=PREFIX,localSetu
  const pool=providedPool||new Pool({connectionString:env.AUTH_DATABASE_URL,max:4,idleTimeoutMillis:10000,connectionTimeoutMillis:10000});
  const options=authOptions(env,pool,{prefix}),auth=betterAuth(options);
  const adminLoginEmail=env.ZM_ADMIN_LOGIN_EMAIL?.trim().toLowerCase();
+ const managerEmails=new Set([adminLoginEmail,...(env.ZM_ADMIN_MANAGER_EMAILS||'').split(',')].map(email=>email?.trim().toLowerCase()).filter(Boolean));
  const userTable=`"${prefix}user"`;
  const accountTable=`"${prefix}account"`;
  const adminTable=`"${prefix}admin"`;
@@ -45,15 +46,15 @@ export function createAuthService(env,{pool:providedPool,prefix=PREFIX,localSetu
   const row=await pool.query(`SELECT 1 FROM ${adminTable} WHERE user_id=$1`,[session.user.id]);return row.rowCount===1;
  }
  async function canManageUsers(request){
-  if(!adminLoginEmail||!request.headers.get('cookie'))return false;
+  if(!managerEmails.size||!request.headers.get('cookie'))return false;
   const session=await auth.api.getSession({headers:request.headers});
-  if(!session?.user?.id||session.user.email.toLowerCase()!==adminLoginEmail)return false;
+  if(!session?.user?.id||!managerEmails.has(session.user.email.toLowerCase()))return false;
   const member=await pool.query(`SELECT 1 FROM ${adminTable} WHERE user_id=$1`,[session.user.id]);
   return member.rowCount===1;
  }
  async function createTeamUser(request){
   if(request.method!=='POST')return json({error:'Método inválido.'},405);
-  if(request.headers.get('origin')!==new URL(request.url).origin||!await canManageUsers(request))return json({error:'Somente o acesso principal pode cadastrar usuários.'},403);
+  if(request.headers.get('origin')!==new URL(request.url).origin||!await canManageUsers(request))return json({error:'Sua conta não tem permissão para cadastrar usuários.'},403);
   if(!request.headers.get('content-type')?.startsWith('application/json'))return json({error:'Envie JSON.'},415);
   const body=await request.json().catch(()=>null);
   const username=typeof body?.username==='string'?body.username.trim().toLowerCase():'';

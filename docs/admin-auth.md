@@ -6,7 +6,7 @@ A conta indicada por ZM_ADMIN_LOGIN_EMAIL usa o identificador admin no formulár
 
 ## Acessos da equipe
 
-O acesso principal (usuário admin) pode abrir Usuários no cabeçalho do painel e cadastrar o nome da pessoa, um usuário único e uma senha inicial. A equipe entra com o próprio usuário e pode trocar a senha no painel. Os acessos da equipe têm as permissões operacionais do painel. O cadastro de usuários exige a sessão da conta principal e é validado no servidor.
+O acesso principal (usuário admin) e as contas explicitamente autorizadas em ZM_ADMIN_MANAGER_EMAILS podem abrir Usuários no cabeçalho do painel e cadastrar o nome da pessoa, um usuário único e uma senha inicial. A equipe entra com o próprio usuário e pode trocar a senha no painel. Os acessos da equipe têm as permissões operacionais do painel. O cadastro de usuários exige uma sessão com essa permissão e é validado no servidor.
 
 As contas da equipe usam um identificador interno no domínio reservado equipe.zm.invalid para reaproveitar a autenticação existente sem pedir e-mail. A conta, a credencial protegida pelo Better Auth e o vínculo administrativo são gravados em uma única operação.
 

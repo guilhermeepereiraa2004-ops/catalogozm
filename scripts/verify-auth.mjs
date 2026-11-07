@@ -98,6 +98,13 @@ try{
  assert.equal((await aliasService.handle(req('sign-in/email',{email:'vendas_qa@equipe.zm.invalid',password:teamPassword},null,'127.0.0.4'))).status,401);
  assert.equal(await aliasService.isAdmin(new Request('http://localhost:4173/api/state',{headers:{cookie:aliasCookie}})),true);
  console.log('Equipe: cadastro exclusivo do acesso principal, concorrência, login individual e autorização verificados.');
+ const managerService=createAuthService({...env,ZM_ADMIN_LOGIN_EMAIL:email,ZM_ADMIN_MANAGER_EMAILS:'vendas_qa@equipe.zm.invalid'},{pool,prefix});
+ assert.equal((await (await managerService.handle(req('status',null,teamCookie))).json()).canManageUsers,true);
+ const managedUser=await managerService.handle(req('users',{name:'Pessoa QA delegada',username:'equipe_delegada',password:teamPassword},teamCookie));
+ assert.equal(managedUser.status,201,await managedUser.clone().text());
+ assert.equal((await (await aliasService.handle(req('status',null,teamCookie))).json()).canManageUsers,false);
+ assert.equal((await (await managerService.handle(req('status',null,aliasCookie))).json()).canManageUsers,true);
+ console.log('Cadastro de usuários: somente as contas explicitamente autorizadas podem criar novos acessos.');
  const changed=await service.handle(req('change-password',{currentPassword:password,newPassword:password+'a',revokeOtherSessions:true},cookie));assert.equal(changed.status,200,await changed.clone().text());
  assert.equal((await service.handle(new Request('http://localhost:4173/api/auth/sign-out',{method:'POST',headers:{Origin:'https://externo.test','Content-Type':'application/json',cookie},body:'{}'}))).status,403);
  const logout=await service.handle(req('sign-out',{},cookie));assert.equal(logout.status,200);assert.equal(await service.isAdmin(adminReq),false);
