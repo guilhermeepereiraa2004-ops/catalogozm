@@ -16,6 +16,14 @@ Inspeção visual em navegador com dados fictícios isolados: os nove módulos a
 
 Gate completo aprovado com 57 testes, sintaxe, camadas, GLB e build. O teste integrado cobre abertura do menu, navegação para outro módulo, fechamento e abertura de ação da conta. Nenhum dado real da loja foi alterado.
 
+### Ajustes após a revisão dos formulários
+
+Campos de texto, data, horário e seleção do conteúdo administrativo usam 16 px até 900 px. O botão de remover foto tem alvo de 44 × 44 px. O To-do mantém a caixa visual pequena dentro de um label clicável de 44 × 44 px, com ações abaixo do conteúdo em telas móveis.
+
+Em 390 × 844 px, foram conferidos cadastro com foto, preço/estoque, busca e confirmação de pedido, venda dividida e quitação de fiado, receitas/despesas, exclusão/restauração, filtros e PDF do catálogo, agenda até retirada e tarefas até reabertura/exclusão. As 20 mutações fictícias responderam HTTP 200 e os valores finais foram conferidos no estado isolado. Fontes e alvos ampliados foram medidos e acionados no navegador. O PDF filtrado foi baixado e renderizado para inspeção.
+
+A rodada complementar em 320 px, o download de PNG do look e os formulários da conta não foram concluídos: o navegador embutido ficou indisponível e a ferramenta interrompeu a alternativa no Chrome por não conseguir confirmar sua URL. A publicação desses ajustes foi solicitada explicitamente após informar essa limitação.
+
 ## Histórico da revisão inicial
 
 Gate aprovado: sintaxe ESM, camadas, 14 testes de domínio/caixa, GLB e build. mobile.css distribuído em dist e servido com HTTP 200; index carrega a folha depois de branding.css. Delimitadores CSS conferidos. Nenhum teste de navegador desta revisão foi concluído.

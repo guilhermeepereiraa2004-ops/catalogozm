@@ -358,6 +358,13 @@ body:has(#admin-navigation-dialog[open]) { overflow: hidden; }
   .stat { padding: 18px 14px; border-radius: 12px; }
   .stat strong { font-size: 25px; }
   .admin-card { border-radius: 12px; overflow: hidden; }
+  .edit-photos button[data-delete-photo] { width: 44px; height: 44px; font-size: 22px; }
+  .admin-shell .admin-content input:not([type=checkbox]):not([type=radio]):not([type=file]),
+  .admin-shell .admin-content select,
+  .admin-shell .admin-content textarea { font-size: 16px; }
+  .admin-shell .todo-item { grid-template-columns: 44px minmax(0, 1fr); }
+  .admin-shell .todo-check { min-width: 44px; min-height: 44px; cursor: pointer; }
+  .admin-shell .todo-item-actions { grid-column: 2; flex-direction: row; gap: 18px; }
 }
 @media (prefers-reduced-motion: no-preference) {
   #admin-navigation-dialog[open] { animation: admin-drawer-in 160ms ease-out; }
