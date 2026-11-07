@@ -25,7 +25,7 @@ export function usersView(){
  <form id="admin-user-form" aria-labelledby="admin-users-title">
   <label>Nome da pessoa<input name="name" required maxlength="100" autocomplete="off"></label>
   <label>Nome de usuário<input name="username" required minlength="3" maxlength="32" autocapitalize="none" spellcheck="false" aria-describedby="team-username-help"></label>
-  <p id="team-username-help" class="small muted">Use letras sem acento, números, hífen ou sublinhado. O usuário admin já existe; escolha outro nome, como zeide.</p>
+  <p id="team-username-help" class="small muted">Use letras sem acento, números, hífen ou sublinhado. Escolha um nome que ainda não esteja cadastrado.</p>
   ${passwordField('password','Senha inicial','new-password')}
   <p class="small muted">Preencha a senha desejada. Cada pessoa pode trocar sua senha pelo painel.</p>
   <p class="form-error" role="alert"></p><p role="status"></p>

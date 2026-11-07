@@ -60,10 +60,11 @@ export function createAuthService(env,{pool:providedPool,prefix=PREFIX,localSetu
   const username=typeof body?.username==='string'?body.username.trim().toLowerCase():'';
   const name=typeof body?.name==='string'?body.name.trim():'';
   const password=body?.password;
-  if(username==='admin')return json({error:'O usuário admin já existe. Escolha outro nome, como zeide.'},409);
+  if(username==='admin'&&!adminLoginEmail)return json({error:'O acesso principal não está configurado.'},503);
   if(!USERNAME.test(username))return json({error:'Use um nome de usuário de 3 a 32 caracteres, com letras sem acento, números, hífen ou sublinhado.'},422);
   if(!name||name.length>100)return json({error:'Informe o nome da pessoa (até 100 caracteres).'},422);
   if(typeof password!=='string'||password.length<1||password.length>128)return json({error:'Preencha a senha (até 128 caracteres).'},422);
+  const email=username==='admin'?adminLoginEmail:username+TEAM_EMAIL_SUFFIX;
   const hash=await (await auth.$context).password.hash(password);
   try{
    // Conta, credencial e vínculo são gravados juntos, inclusive em cadastros simultâneos.
@@ -74,7 +75,7 @@ export function createAuthService(env,{pool:providedPool,prefix=PREFIX,localSetu
     INSERT INTO ${accountTable} (id,"userId","providerId","accountId",password,"createdAt","updatedAt")
     SELECT $4,id,'credential',id,$5,now(),now() FROM new_user RETURNING "userId"
    ) INSERT INTO ${adminTable} (user_id) SELECT "userId" FROM new_credential`,
-   [randomUUID(),name,username+TEAM_EMAIL_SUFFIX,randomUUID(),hash]);
+   [randomUUID(),name,email,randomUUID(),hash]);
   }catch(error){
    if(error.code==='23505')return json({error:'Este nome de usuário já está em uso.'},409);
    throw error;

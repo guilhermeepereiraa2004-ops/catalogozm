@@ -10,6 +10,8 @@ O acesso principal (usuário admin) e as contas explicitamente autorizadas em ZM
 
 As contas da equipe usam um identificador interno no domínio reservado equipe.zm.invalid para reaproveitar a autenticação existente sem pedir e-mail. A conta, a credencial protegida pelo Better Auth e o vínculo administrativo são gravados em uma única operação.
 
+O usuário admin pode ser recriado por outra conta com permissão de cadastro quando a conta principal anterior tiver sido removida. O novo cadastro usa a identificação interna já configurada para admin e uma nova senha escolhida no formulário.
+
 ## Primeiro acesso
 
 O proprietário recebe uma ativação HTTPS temporária no domínio real da loja. Rodar npm run auth:activation no computador do projeto gera um token aleatório de 256 bits; só o hash SHA-256 fica no Neon, com validade de 30 minutos e uso único. O link fica no arquivo local ignorado artifacts/admin-setup-link.json, não em logs/chat/código. Abrir diretamente na aba da loja para o proprietário escolher nome, e-mail e uma senha preenchida (até 128 caracteres).
