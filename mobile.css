@@ -309,3 +309,57 @@
 /* Hero uses only the supplied artwork, fully visible at every viewport. */
 .campaign-hero{margin:0;padding:0;width:100%;background:var(--brand-blush-light)}
 .campaign-hero>img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain}
+
+/* Compact mobile admin navigation. The desktop sidebar keeps its existing layout. */
+.admin-menu-toggle { display: none; }
+#admin-navigation-dialog {
+  width: min(340px, 90vw);
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0 auto 0 0;
+  padding: 20px 20px max(24px, env(safe-area-inset-bottom));
+  border-radius: 0 20px 20px 0;
+  background: var(--paper);
+}
+#admin-navigation-dialog::backdrop { background: #30212566; }
+body:has(#admin-navigation-dialog[open]) { overflow: hidden; }
+.admin-drawer-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.admin-drawer-top .brand { transform: none; width: auto; }
+.admin-drawer-top .brand-logo { width: 48px; height: 48px; flex-basis: 48px; }
+.admin-drawer-top .brand-name { font-size: 8px; padding-left: 8px; letter-spacing: 1px; }
+.admin-drawer-top .brand-name > span { font-size: 6px; letter-spacing: 3px; }
+.admin-drawer-top .icon-btn { width: 44px; height: 44px; flex-shrink: 0; }
+#admin-menu-title { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 1.8px; color: var(--muted); margin: 28px 12px 12px; }
+.admin-mobile-nav { display: grid; gap: 5px; }
+.admin-mobile-nav button { display: flex; align-items: center; gap: 12px; min-height: 50px; padding: 12px; text-align: left; border-radius: 10px; font-size: 14px; }
+.admin-mobile-nav button svg { width: 20px; height: 20px; }
+.admin-mobile-nav button.active { background: var(--brand-blush-light); color: var(--brand-rose-dark); font-weight: 500; }
+.admin-mobile-nav button > span { margin-left: auto; background: var(--brand-rose-dark); color: white; border-radius: 50%; min-width: 22px; height: 22px; display: grid; place-items: center; font-size: 10px; }
+.admin-drawer-account { margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--line); }
+.admin-drawer-account h3 { margin: 0 12px 8px; font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.admin-drawer-account .admin-account-actions { display: grid; gap: 0; }
+.admin-drawer-account .admin-account-actions > * { display: flex; align-items: center; justify-content: flex-start; min-height: 46px; padding: 10px 12px; font-size: 13px; text-align: left; }
+@media (max-width: 900px) {
+  .admin-shell > .admin-sidebar { display: none; }
+  .admin-header { position: sticky; top: 0; z-index: 40; min-height: 72px; padding: 12px 16px; flex-wrap: nowrap; gap: 14px; }
+  .admin-header > .admin-account-actions { display: none; }
+  .admin-menu-toggle { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; gap: 8px; min-height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--brand-blush-light); color: var(--brand-rose-dark); font-size: 12px; }
+  .admin-header > .admin-breadcrumb { display: flex; flex-direction: column; gap: 2px; min-width: 0; font-size: 10px; color: var(--muted); line-height: 1.5; }
+  .admin-breadcrumb > .muted { color: var(--ink); font-size: 13px; font-weight: 500; }
+  .admin-content { padding: 0 16px 28px; }
+  .admin-content > .demo-note { display: none; }
+  .admin-title { margin: 24px 0 20px; gap: 14px; }
+  .admin-title h1 { font-size: 27px; line-height: 1.25; letter-spacing: -0.8px; }
+  .admin-title h1[tabindex="-1"]:focus { outline: none; }
+  .admin-title .eyebrow { font-size: 9px; letter-spacing: 1.5px; }
+  .admin-title p { margin-bottom: 0; font-size: 13px; line-height: 1.65; }
+  .stats-grid { gap: 12px; }
+  .stat { padding: 18px 14px; border-radius: 12px; }
+  .stat strong { font-size: 25px; }
+  .admin-card { border-radius: 12px; overflow: hidden; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  #admin-navigation-dialog[open] { animation: admin-drawer-in 160ms ease-out; }
+}
+@keyframes admin-drawer-in { from { transform: translateX(-24px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }

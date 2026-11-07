@@ -7,10 +7,16 @@ mobile.css é a última camada de estilos, após branding.css. Aplica a vitrine,
 - Até 900 px: cabeçalho compacto e fixo durante a rolagem, menu recolhido com alvos de toque de 44/48 px; hero em uma coluna, imagem quadrada fluida, título proporcional, texto legível e CTA largo. Card e frases decorativas recolhem nas telas pequenas para priorizar logo e ação.
 - Catálogo: três colunas em tablet e duas até 600 px, filtros em linhas, busca e ordenação sem largura mínima excedente. Produtos com botões visíveis sem depender de hover, nomes com quebra de linha e favoritos de 44 px. Coleções e rodapé com duas colunas, uma abaixo de 360/280 px conforme conteúdo.
 - Diálogos: largura limitada pela tela, rolagem própria, botão de fechar fixo dentro da área rolável (sticky), campos de pelo menos 16 px e botões de 48/50 px. Sacola ocupa a tela nos celulares; formulários passam a uma coluna até 480 px. Espaço inferior considera safe-area.
-- Admin: navegação em quatro colunas de tablet e duas no celular; tabelas de pedidos, produtos e caixa passam a cartões até 900 px, com rótulos das células. Resumos e filtros usam uma ou duas colunas conforme a largura; valores e textos longos podem quebrar linha.
+- Admin (atualizado em 2026-11-07): até 900 px, cabeçalho compacto com botão Menu e módulo atual. Os nove módulos e as ações da conta ficam em um diálogo lateral com rolagem própria e item ativo identificado. Trocar de módulo fecha o menu; Escape e toque fora também fecham, com retorno do foco ao botão. Tabelas de pedidos, produtos e caixa passam a cartões, com rótulos das células. Resumos e filtros usam uma ou duas colunas conforme a largura; valores e textos longos podem quebrar linha. A sidebar e o cabeçalho de desktop são preservados.
 - Menu: foco entra nos links ao abrir, Escape fecha e devolve foco ao botão; toque fora fecha. Recolhe ao abrir sacola/busca ou mudar de breakpoint. Navegação do admin leva foco ao título da seção.
 
-## Verificação e pendência
+## Verificação de 2026-11-07
+
+Inspeção visual em navegador com dados fictícios isolados: os nove módulos abriram pelo menu, o formulário de produto e o cadastro de usuários continuaram acessíveis, Escape devolveu o foco ao botão e as ações da conta ficaram acessíveis pela rolagem do diálogo. Conferidos viewports de 320, 390, 768 e 1280 px, sem transbordamento horizontal nas telas revisadas. No mobile, a mensagem técnica demonstrativa deixa de ocupar o início da página e o foco programático no título não desenha uma borda em volta do texto. Os controles interativos preservam seus indicadores de foco.
+
+Gate completo aprovado com 57 testes, sintaxe, camadas, GLB e build. O teste integrado cobre abertura do menu, navegação para outro módulo, fechamento e abertura de ação da conta. Nenhum dado real da loja foi alterado.
+
+## Histórico da revisão inicial
 
 Gate aprovado: sintaxe ESM, camadas, 14 testes de domínio/caixa, GLB e build. mobile.css distribuído em dist e servido com HTTP 200; index carrega a folha depois de branding.css. Delimitadores CSS conferidos. Nenhum teste de navegador desta revisão foi concluído.
 

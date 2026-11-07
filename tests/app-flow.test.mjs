@@ -18,6 +18,22 @@ test('app integrado: agendar → pronta → retirada → tarefas → catálogo �
  const route=async(hash,condition)=>{location.hash=hash;window.dispatchEvent(new window.Event('hashchange'));await wait(condition,hash);};
  try{
   await import('../app.js?integrated-retail-flow');await wait(()=>document.querySelector('#pickup-form'),'agenda');assert.equal(document.querySelector('.admin-title h1').textContent,'Agenda de retiradas');
+  const navigation=document.querySelector('#admin-navigation-dialog');
+  document.querySelector('[data-action=admin-menu]').click();
+  assert.equal(navigation.hasAttribute('open'),true);
+  assert.equal(document.querySelector('[data-action=admin-menu]').getAttribute('aria-expanded'),'true');
+  assert.equal(navigation.querySelectorAll('[data-tab]').length,9);
+  navigation.querySelector('[data-tab=todo]').click();
+  window.dispatchEvent(new window.Event('hashchange'));
+  await wait(()=>document.querySelector('#todo-form'),'To-do pelo menu mobile');
+  assert.equal(navigation.hasAttribute('open'),false);
+  assert.equal(document.querySelector('[data-action=admin-menu]').getAttribute('aria-expanded'),'false');
+  document.querySelector('[data-action=admin-menu]').click();
+  navigation.querySelector('[data-action=change-password]').click();
+  assert.equal(navigation.hasAttribute('open'),false);
+  assert.ok(document.querySelector('#admin-password-form'));
+  document.querySelector('#info-dialog').close();
+  await route('#admin/pickups',()=>document.querySelector('#pickup-form'));
   let form=document.querySelector('#pickup-form');form.querySelector('[name=orderId]').value=id;form.querySelector('[name=orderId]').dispatchEvent(new window.Event('change',{bubbles:true}));form=document.querySelector('#pickup-form');form.querySelector('[name=date]').value=bahiaDate();form.querySelector('[name=time]').value='14:30';form.querySelector('[name=note]').value='Teste isolado';form.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
   await wait(()=>state.orders[0].pickup?.status==='Agendada','agendamento salvo');await wait(()=>document.querySelector('[data-pickup-ready]'),'ação pronta');document.querySelector('[data-pickup-ready]').click();await wait(()=>state.orders[0].pickup.status==='Pronta','pedido pronto');await wait(()=>document.querySelector('[data-pickup-collect]'),'ação retirada');document.querySelector('[data-pickup-collect]').click();document.querySelector('[data-pickup-collect]').click();await wait(()=>state.orders[0].status==='Concluído','retirada concluída');assert.equal(state.products[0].stock,1);assert.equal(getCashFlow(state).income,9990);
   assert.equal(document.querySelector('[data-tab=stock]'),null);await route('#admin/todo',()=>document.querySelector('#todo-form'));let taskForm=document.querySelector('#todo-form');taskForm.querySelector('[name=title]').value='Separar embalagens';taskForm.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));await wait(()=>state.tasks?.length===1,'tarefa salva');await wait(()=>document.querySelector('[data-todo-complete]'),'tarefa na lista');const taskId=state.tasks[0].id;const check=document.querySelector('[data-todo-complete]');check.checked=true;check.dispatchEvent(new window.Event('change',{bubbles:true}));await wait(()=>state.tasks[0].completedAt,'tarefa concluída');document.querySelector('[data-todo-filter=done]').click();document.querySelector('[data-delete-kind=task]').click();document.querySelector('#delete-record-form').dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));await wait(()=>state.tasks[0].deletedAt,'tarefa na lixeira');await route('#admin/trash',()=>document.querySelector('[data-restore-id]'));document.querySelector('[data-restore-id="'+taskId+'"]').click();await wait(()=>!state.tasks[0].deletedAt,'tarefa restaurada');
