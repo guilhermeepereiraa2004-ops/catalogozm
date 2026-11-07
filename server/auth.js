@@ -12,7 +12,7 @@ export function authOptions(env,pool,{prefix=PREFIX,signup=false}={}){
  return {
   appName:'ZM Exclusiva',baseURL,basePath:'/api/auth',secret:env.BETTER_AUTH_SECRET,database:pool,
   trustedOrigins:[baseURL,PUBLIC_ORIGIN,'https://www.zmexclusiva.com.br','https://zmexclusiva.com.br',...(env.VERCEL_URL?[`https://${env.VERCEL_URL}`]:[]),...(baseURL==='http://localhost:4173'?['http://127.0.0.1:4173']:[])],
-  emailAndPassword:{enabled:true,disableSignUp:!signup,autoSignIn:false,minPasswordLength:8,maxPasswordLength:128},
+  emailAndPassword:{enabled:true,disableSignUp:!signup,autoSignIn:false,minPasswordLength:1,maxPasswordLength:128},
   user:{modelName:prefix+'user'},account:{modelName:prefix+'account'},verification:{modelName:prefix+'verification'},
   session:{modelName:prefix+'session',expiresIn:8*60*60,updateAge:60*60,cookieCache:{enabled:false}},
   rateLimit:{enabled:true,storage:'database',modelName:prefix+'rate_limit',window:60,max:60,customRules:{'/sign-in/email':{window:60,max:5}}},
@@ -60,9 +60,10 @@ export function createAuthService(env,{pool:providedPool,prefix=PREFIX,localSetu
   const username=typeof body?.username==='string'?body.username.trim().toLowerCase():'';
   const name=typeof body?.name==='string'?body.name.trim():'';
   const password=body?.password;
-  if(!USERNAME.test(username)||username==='admin')return json({error:'Use um nome de usuário de 3 a 32 caracteres, com letras sem acento, números, hífen ou sublinhado. O usuário admin é reservado.'},422);
+  if(username==='admin')return json({error:'O usuário admin já existe. Escolha outro nome, como zeide.'},409);
+  if(!USERNAME.test(username))return json({error:'Use um nome de usuário de 3 a 32 caracteres, com letras sem acento, números, hífen ou sublinhado.'},422);
   if(!name||name.length>100)return json({error:'Informe o nome da pessoa (até 100 caracteres).'},422);
-  if(typeof password!=='string'||password.length<8||password.length>128||!password.trim())return json({error:'A senha deve ter de 8 a 128 caracteres.'},422);
+  if(typeof password!=='string'||password.length<1||password.length>128)return json({error:'Preencha a senha (até 128 caracteres).'},422);
   const hash=await (await auth.$context).password.hash(password);
   try{
    // Conta, credencial e vínculo são gravados juntos, inclusive em cadastros simultâneos.
@@ -85,7 +86,7 @@ export function createAuthService(env,{pool:providedPool,prefix=PREFIX,localSetu
   if(request.method!=='POST')return json({error:'Método inválido.'},405);
   if(!request.headers.get('content-type')?.startsWith('application/json'))return json({error:'Envie JSON.'},415);
   const body=await request.json();
-  if(typeof body.name!=='string'||!body.name.trim()||body.name.length>100||typeof body.email!=='string'||body.email.length>254||typeof body.password!=='string'||body.password.length<8||body.password.length>128)return json({error:'Informe nome, e-mail válido e senha de 8 a 128 caracteres.'},422);
+  if(typeof body.name!=='string'||!body.name.trim()||body.name.length>100||typeof body.email!=='string'||body.email.length>254||typeof body.password!=='string'||body.password.length<1||body.password.length>128)return json({error:'Informe nome, e-mail válido e preencha a senha (até 128 caracteres).'},422);
   if(body.email.trim().toLowerCase().endsWith(TEAM_EMAIL_SUFFIX))return json({error:'Informe um e-mail válido.'},422);
   const client=await pool.connect();
   try{

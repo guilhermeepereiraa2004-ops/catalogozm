@@ -72,16 +72,16 @@ try{
  }));
  assert.equal(unknownLogin.status,403);
  console.log('Domínios próprios: cadastro da equipe, login individual e sessão aprovados, origem externa recusada.');
- const teamPassword=randomBytes(6).toString('base64url');
- assert.equal(teamPassword.length,8);
+ const teamPassword=randomBytes(1).toString('hex').slice(0,1);
+ assert.equal(teamPassword.length,1);
  const team={name:'Pessoa da equipe QA',username:' Vendas_QA ',password:teamPassword};
  assert.equal((await (await aliasService.handle(req('status'))).json()).canManageUsers,false);
  assert.equal((await (await aliasService.handle(req('status',null,aliasCookie))).json()).canManageUsers,true);
  assert.equal((await aliasService.handle(req('users',team))).status,403);
  const externalCreate=req('users',team,aliasCookie);externalCreate.headers.set('Origin','https://externo.test');
  assert.equal((await aliasService.handle(externalCreate)).status,403);
- assert.equal((await aliasService.handle(req('users',{...team,username:'admin'},aliasCookie))).status,422);
- assert.equal((await aliasService.handle(req('users',{...team,password:'1234567'},aliasCookie))).status,422);
+ assert.equal((await aliasService.handle(req('users',{...team,username:'admin'},aliasCookie))).status,409);
+ assert.equal((await aliasService.handle(req('users',{...team,password:''},aliasCookie))).status,422);
  const creates=await Promise.all([aliasService.handle(req('users',team,aliasCookie)),aliasService.handle(req('users',team,aliasCookie))]);
  assert.deepEqual(creates.map(res=>res.status).sort(),[201,409]);
  const created=creates.find(res=>res.status===201);
@@ -105,11 +105,11 @@ try{
  assert.equal((await (await aliasService.handle(req('status',null,teamCookie))).json()).canManageUsers,false);
  assert.equal((await (await managerService.handle(req('status',null,aliasCookie))).json()).canManageUsers,true);
  console.log('Cadastro de usuários: somente as contas explicitamente autorizadas podem criar novos acessos.');
- const changed=await service.handle(req('change-password',{currentPassword:password,newPassword:password+'a',revokeOtherSessions:true},cookie));assert.equal(changed.status,200,await changed.clone().text());
+ const changed=await service.handle(req('change-password',{currentPassword:password,newPassword:teamPassword,revokeOtherSessions:true},cookie));assert.equal(changed.status,200,await changed.clone().text());
  assert.equal((await service.handle(new Request('http://localhost:4173/api/auth/sign-out',{method:'POST',headers:{Origin:'https://externo.test','Content-Type':'application/json',cookie},body:'{}'}))).status,403);
  const logout=await service.handle(req('sign-out',{},cookie));assert.equal(logout.status,200);assert.equal(await service.isAdmin(adminReq),false);
  // Sem vínculo administrativo, uma sessão autenticada também é recusada.
- const secondLogin=await service.handle(req('sign-in/email',{email,password:password+'a'}));assert.equal(secondLogin.status,200);
+ const secondLogin=await service.handle(req('sign-in/email',{email,password:teamPassword}));assert.equal(secondLogin.status,200);
  const secondCookie=secondLogin.headers.getSetCookie().map(c=>c.split(';')[0]).join('; ');
  await pool.query(`DELETE FROM "${prefix}admin"`);assert.equal(await service.isAdmin(new Request('http://localhost:4173/api/state',{headers:{cookie:secondCookie}})),false);
  // Rate limit persiste no banco e vale entre instâncias do servidor.
