@@ -12,7 +12,7 @@ As contas da equipe usam um identificador interno no domínio reservado equipe.z
 
 ## Primeiro acesso
 
-O proprietário recebe uma ativação HTTPS temporária no domínio real da loja. Rodar npm run auth:activation no computador do projeto gera um token aleatório de 256 bits; só o hash SHA-256 fica no Neon, com validade de 30 minutos e uso único. O link fica no arquivo local ignorado artifacts/admin-setup-link.json, não em logs/chat/código. Abrir diretamente na aba da loja para o proprietário escolher nome, e-mail e senha >=12 caracteres.
+O proprietário recebe uma ativação HTTPS temporária no domínio real da loja. Rodar npm run auth:activation no computador do projeto gera um token aleatório de 256 bits; só o hash SHA-256 fica no Neon, com validade de 30 minutos e uso único. O link fica no arquivo local ignorado artifacts/admin-setup-link.json, não em logs/chat/código. Abrir diretamente na aba da loja para o proprietário escolher nome, e-mail e senha >=8 caracteres.
 
 O token chega por fragmento, é retirado do endereço pelo frontend e fica só na memória até o envio. As APIs o recebem em header de mesma origem, com Cache-Control no-store e Referrer-Policy no-referrer. Sem token válido, não há cadastro remoto. Signup genérico continua bloqueado. O token não é uma sessão administrativa e não permite ler pedidos ou despesas.
 

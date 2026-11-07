@@ -50,14 +50,30 @@ try{
   const domainCookie=domainLogin.headers.getSetCookie().map(c=>c.split(';')[0]).join('; ');
   assert.equal(await domainService.isAdmin(new Request(origin+'/api/state',{headers:{cookie:domainCookie}})),true);
   assert.ok(domainLogin.headers.getSetCookie().some(c=>/secure/i.test(c)));
+  const newUsername='domain_qa_'+domainIndex,newPassword=randomBytes(6).toString('base64url');
+  const domainCreate=await domainService.handle(new Request(origin+'/api/auth/users',{
+   method:'POST',headers:{Origin:origin,'Content-Type':'application/json',cookie:domainCookie},
+   body:JSON.stringify({name:'Equipe QA domínio',username:newUsername,password:newPassword})
+  }));
+  assert.equal(domainCreate.status,201,await domainCreate.clone().text());
+  const domainMemberLogin=await domainService.handle(new Request(origin+'/api/auth/sign-in/email',{
+   method:'POST',headers:{Origin:origin,'Content-Type':'application/json','x-real-ip':'198.51.100.'+domainIndex++},
+   body:JSON.stringify({email:newUsername,password:newPassword})
+  }));
+  assert.equal(domainMemberLogin.status,200,await domainMemberLogin.clone().text());
+  const memberCookie=domainMemberLogin.headers.getSetCookie().map(c=>c.split(';')[0]).join('; ');
+  assert.equal(await domainService.isAdmin(new Request(origin+'/api/state',{headers:{cookie:memberCookie}})),true);
+  const memberStatus=await domainService.handle(new Request(origin+'/api/auth/status',{headers:{Origin:origin,cookie:memberCookie}}));
+  assert.equal((await memberStatus.json()).canManageUsers,false);
  }
  const unknownOrigin='https://dominio-nao-autorizado.example';
  const unknownLogin=await domainService.handle(new Request(unknownOrigin+'/api/auth/sign-in/email',{
   method:'POST',headers:{Origin:unknownOrigin,'Content-Type':'application/json','x-real-ip':'198.51.100.20'},body:JSON.stringify({email:'admin',password})
  }));
  assert.equal(unknownLogin.status,403);
- console.log('Domínios próprios: login e sessão aprovados, origem externa recusada.');
- const teamPassword=randomBytes(24).toString('base64url');
+ console.log('Domínios próprios: cadastro da equipe, login individual e sessão aprovados, origem externa recusada.');
+ const teamPassword=randomBytes(6).toString('base64url');
+ assert.equal(teamPassword.length,8);
  const team={name:'Pessoa da equipe QA',username:' Vendas_QA ',password:teamPassword};
  assert.equal((await (await aliasService.handle(req('status'))).json()).canManageUsers,false);
  assert.equal((await (await aliasService.handle(req('status',null,aliasCookie))).json()).canManageUsers,true);
@@ -65,7 +81,7 @@ try{
  const externalCreate=req('users',team,aliasCookie);externalCreate.headers.set('Origin','https://externo.test');
  assert.equal((await aliasService.handle(externalCreate)).status,403);
  assert.equal((await aliasService.handle(req('users',{...team,username:'admin'},aliasCookie))).status,422);
- assert.equal((await aliasService.handle(req('users',{...team,password:'curta'},aliasCookie))).status,422);
+ assert.equal((await aliasService.handle(req('users',{...team,password:'1234567'},aliasCookie))).status,422);
  const creates=await Promise.all([aliasService.handle(req('users',team,aliasCookie)),aliasService.handle(req('users',team,aliasCookie))]);
  assert.deepEqual(creates.map(res=>res.status).sort(),[201,409]);
  const created=creates.find(res=>res.status===201);
