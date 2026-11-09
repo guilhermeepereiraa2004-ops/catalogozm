@@ -1,5 +1,8 @@
 import {createECDH, createHash, ECDH} from 'node:crypto';
+import {setTimeout as wait} from 'node:timers/promises';
 import webPush from 'web-push';
+
+const TEST_DELAY_SECONDS = 10;
 
 function response(data, status = 200) {
   return Response.json(data, {status, headers: {'Cache-Control': 'private, no-store'}});
@@ -77,6 +80,22 @@ export function createPushStore(pool) {
       );
       return rows.map(({endpoint, p256dh, auth}) => ({endpoint, keys: {p256dh, auth}}));
     },
+    async claimTest(userId, endpoint) {
+      const result = await pool.query(
+        `UPDATE public.zm_auth_push_subscription SET last_test_at = now()
+         WHERE user_id = $1 AND endpoint = $2
+         AND (last_test_at IS NULL OR last_test_at <= now() - interval '1 minute')`,
+        [userId, endpoint]
+      );
+      return result.rowCount === 1;
+    },
+    async get(userId, endpoint) {
+      const {rows: [record]} = await pool.query(
+        'SELECT p256dh, auth_secret AS auth FROM public.zm_auth_push_subscription WHERE user_id = $1 AND endpoint = $2',
+        [userId, endpoint]
+      );
+      return record && {endpoint, keys: record};
+    },
     async removeExpired({endpoint, keys}) {
       await pool.query(
         'DELETE FROM public.zm_auth_push_subscription WHERE endpoint = $1 AND p256dh = $2 AND auth_secret = $3',
@@ -86,7 +105,7 @@ export function createPushStore(pool) {
   };
 }
 
-export function createOrderPush(env, {store, send = webPush.sendNotification} = {}) {
+export function createOrderPush(env, {store, send = webPush.sendNotification, defer, delay = wait} = {}) {
   const vapid = vapidDetails(env.ZM_PUSH_PRIVATE_KEY);
 
   async function handle(request, userId) {
@@ -117,6 +136,7 @@ export function createOrderPush(env, {store, send = webPush.sendNotification} = 
       await store.remove(userId, endpoint);
       return response({enabled: false});
     }
+    if (input.action === 'test') return await scheduleTest(userId, endpoint);
     if (input.action !== 'enable') return response({error: 'Ação inválida.'}, 422);
     if (!vapid) return response({error: 'Os avisos ainda não estão disponíveis.'}, 503);
     const keys = browserKeys(input.subscription?.keys);
@@ -126,19 +146,42 @@ export function createOrderPush(env, {store, send = webPush.sendNotification} = 
   }
 
   async function deliver(subscription, payload, options) {
-    if (!pushEndpoint(subscription.endpoint)) return;
+    if (!pushEndpoint(subscription.endpoint)) return false;
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
         await send(subscription, payload, options);
-        return;
+        return true;
       } catch (error) {
         if (error.statusCode === 404 || error.statusCode === 410) {
           await store.removeExpired(subscription);
-          return;
+          return false;
         }
         if (attempt === 1 || (error.statusCode && error.statusCode < 500)) throw error;
       }
     }
+  }
+
+  async function scheduleTest(userId, endpoint) {
+    if (!vapid || !defer) return response({error: 'O teste está disponível no painel publicado.'}, 503);
+    if (!await store.claimTest(userId, endpoint)) {
+      if (!await store.has(userId, endpoint)) {
+        return response({error: 'Ative os avisos neste aparelho antes de testar.'}, 404);
+      }
+      return response({error: 'Aguarde um minuto para testar novamente.'}, 429);
+    }
+
+    const delivery = (async () => {
+      await delay(TEST_DELAY_SECONDS * 1000);
+      const subscription = await store.get(userId, endpoint);
+      if (!subscription) return;
+      const accepted = await deliver(subscription, JSON.stringify({test: true}), {
+        TTL: 120, urgency: 'high', timeout: 4000, topic: 'zm-order-test', vapidDetails: vapid
+      });
+      if (accepted) console.info('Web Push: aviso de teste aceito pelo provedor.');
+      else console.warn('Web Push: inscrição de teste indisponível.');
+    })().catch(() => console.warn('Web Push: falha no aviso de teste.'));
+    defer(delivery);
+    return response({seconds: TEST_DELAY_SECONDS}, 202);
   }
 
   async function notify(orderId) {

@@ -1,3 +1,5 @@
+const PUSH_WORKER = '/push-worker.js?v=2';
+
 export function syncAdminInstall(enabled) {
   const existing = document.querySelector('#admin-install-manifest');
   if (!enabled) {
@@ -18,6 +20,7 @@ export function orderPushView(closeButton) {
     <p>Receba um aviso neste aparelho quando chegar um pedido, mesmo com o painel fechado.</p>
     <p data-push-status class="muted" role="status">Verificando este aparelho…</p>
     <button type="button" class="button primary full" data-push-toggle disabled hidden>Ativar avisos</button>
+    <button type="button" class="button outline full" data-push-test disabled hidden>Testar notificação</button>
     <p class="small muted">No iPhone ou iPad com iOS 16.4 ou posterior, abra no Safari e toque em Compartilhar → Adicionar à Tela de Início. Depois, abra o ícone instalado, entre no painel e ative os avisos.</p>`;
 }
 
@@ -35,6 +38,7 @@ async function pushRequest(body) {
 export async function mountOrderPush(dialog) {
   const status = dialog.querySelector('[data-push-status]');
   const button = dialog.querySelector('[data-push-toggle]');
+  const testButton = dialog.querySelector('[data-push-test]');
   if (!window.isSecureContext || !navigator.serviceWorker || !window.PushManager || !window.Notification) {
     status.textContent = 'Os avisos não estão disponíveis neste modo ou navegador.';
     return;
@@ -51,7 +55,7 @@ export async function mountOrderPush(dialog) {
       atob(publicKey.replace(/-/g, '+').replace(/_/g, '/')),
       character => character.charCodeAt(0)
     );
-    await navigator.serviceWorker.register('/push-worker.js');
+    await navigator.serviceWorker.register(PUSH_WORKER);
     const registration = await navigator.serviceWorker.ready;
     let subscription = await registration.pushManager.getSubscription();
     let enabled = subscription
@@ -66,10 +70,13 @@ export async function mountOrderPush(dialog) {
       button.hidden = blocked && !enabled;
       button.disabled = false;
       button.textContent = enabled ? 'Desativar avisos' : 'Ativar avisos';
+      testButton.hidden = !enabled || blocked || !registration.active?.scriptURL?.endsWith(PUSH_WORKER);
+      testButton.disabled = testButton.hidden;
     }
 
     button.addEventListener('click', async () => {
       button.disabled = true;
+      testButton.disabled = true;
       try {
         if (enabled) {
           await pushRequest({action: 'disable', endpoint: subscription.endpoint});
@@ -98,7 +105,21 @@ export async function mountOrderPush(dialog) {
           : error.message || 'Não foi possível atualizar os avisos. Tente novamente.');
       }
     });
+    testButton.addEventListener('click', async () => {
+      button.disabled = true;
+      testButton.disabled = true;
+      try {
+        const {seconds} = await pushRequest({action: 'test', endpoint: subscription.endpoint});
+        render(`Teste agendado para daqui a ${seconds} segundos. Feche o painel agora e toque no aviso quando chegar.`);
+      } catch (error) {
+        render(error.message || 'Não foi possível agendar o teste. Tente novamente.');
+      }
+    });
     render();
+    const pending = registration.installing ?? registration.waiting;
+    pending?.addEventListener('statechange', () => {
+      if (pending.state === 'activated') render();
+    });
   } catch {
     status.textContent = 'Não foi possível verificar os avisos. Feche e abra esta tela para tentar novamente.';
   }

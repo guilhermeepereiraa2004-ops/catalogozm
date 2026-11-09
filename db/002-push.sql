@@ -8,5 +8,8 @@ CREATE TABLE IF NOT EXISTS public.zm_auth_push_subscription (
 CREATE INDEX IF NOT EXISTS zm_auth_push_subscription_user_idx
   ON public.zm_auth_push_subscription (user_id);
 
+ALTER TABLE public.zm_auth_push_subscription
+  ADD COLUMN IF NOT EXISTS last_test_at timestamptz;
+
 REVOKE ALL ON public.zm_auth_push_subscription FROM PUBLIC;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.zm_auth_push_subscription TO zm_auth_app;

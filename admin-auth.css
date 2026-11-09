@@ -16,5 +16,6 @@
 .auth-card .form-error:empty{display:none}.auth-card button:disabled{opacity:.6;cursor:wait}
 .admin-account-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:11px}.admin-account-actions button{min-height:36px;font:inherit}
 @media(max-width:480px){.auth-page{padding:20px 16px}.auth-card{padding:28px 22px;border-radius:20px}.auth-logo{margin-bottom:24px}.admin-account-actions{gap:8px}}
-.button[data-push-toggle][hidden] { display: none; }
-[data-push-toggle] + p { margin: 16px 0 0; }
+.button[data-push-toggle][hidden], .button[data-push-test][hidden] { display: none; }
+.button[data-push-test] { margin-top: 10px; }
+[data-push-test] + p { margin: 16px 0 0; }

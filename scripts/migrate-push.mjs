@@ -19,8 +19,8 @@ try {
   appPool = new Pool({connectionString: app.href, max: 1, connectionTimeoutMillis: 10000});
   const migration = await readFile(new URL('../db/002-push.sql', import.meta.url), 'utf8');
   await pool.query('BEGIN;\n' + migration + '\nCOMMIT;');
-  await appPool.query('SELECT 1 FROM public.zm_auth_push_subscription LIMIT 0');
-  console.log('Tabela de inscrições criada e acesso da aplicação verificado.');
+  await appPool.query('SELECT last_test_at FROM public.zm_auth_push_subscription LIMIT 0');
+  console.log('Tabela de inscrições atualizada e acesso da aplicação verificado.');
 } catch (error) {
   console.error('Migração de avisos falhou:', error.code || error.name);
   process.exitCode = 1;

@@ -119,6 +119,58 @@ test('entrega criptografada retenta indisponibilidade e remove aparelho expirado
   assert.deepEqual(removed, [expired]);
 });
 
+test('teste de entrega aguarda o fechamento e envia apenas ao aparelho da conta', async () => {
+  const device = subscription('celular');
+  const jobs = [];
+  const sent = [];
+  let owner = 'ana';
+  let claimed = false;
+  let release;
+  const waitForClose = new Promise(resolve => {release = resolve;});
+  const service = createOrderPush(env, {
+    store: {
+      async has(userId, endpoint) {return userId === owner && endpoint === device.endpoint;},
+      async claimTest(userId, endpoint) {
+        if (claimed || !await this.has(userId, endpoint)) return false;
+        claimed = true;
+        return true;
+      },
+      async get(userId, endpoint) {return await this.has(userId, endpoint) ? device : null;}
+    },
+    defer: job => jobs.push(job),
+    delay(milliseconds) {assert.equal(milliseconds, 10000);return waitForClose;},
+    async send(target, payload) {sent.push([target, JSON.parse(payload)]);}
+  });
+  const action = {action: 'test', endpoint: device.endpoint};
+  assert.equal((await service.handle(request('/api/push', action), 'bia')).status, 404);
+  const scheduled = await service.handle(request('/api/push', action), 'ana');
+  assert.equal(scheduled.status, 202);
+  assert.deepEqual(await scheduled.json(), {seconds: 10});
+  assert.equal((await service.handle(request('/api/push', action), 'ana')).status, 429);
+  assert.deepEqual(sent, []);
+  release();
+  await Promise.all(jobs);
+  assert.deepEqual(sent, [[device, {test: true}]]);
+
+  claimed = false;
+  let releaseSecond;
+  const waiting = new Promise(resolve => {releaseSecond = resolve;});
+  const revoked = createOrderPush(env, {
+    store: {
+      async claimTest() {return true;},
+      async get(userId) {return userId === owner ? device : null;}
+    },
+    defer: job => jobs.push(job),
+    delay: () => waiting,
+    async send() {sent.push('enviado após revogação');}
+  });
+  assert.equal((await revoked.handle(request('/api/push', action), 'ana')).status, 202);
+  owner = null;
+  releaseSecond();
+  await jobs.at(-1);
+  assert.equal(sent.length, 1);
+});
+
 test('configuração no aparelho espera o clique, salva e desativa a inscrição', async () => {
   const {document} = parseHTML(`<dialog>${orderPushView('')}</dialog>`);
   const events = [];
@@ -128,6 +180,7 @@ test('configuração no aparelho espera o clique, salva e desativa a inscrição
     async unsubscribe() {events.push('unsubscribe');return true;}
   };
   const registration = {
+    active: {scriptURL: origin + '/push-worker.js?v=2'},
     pushManager: {
       async getSubscription() {return null;},
       async subscribe({userVisibleOnly, applicationServerKey}) {
@@ -147,6 +200,7 @@ test('configuração no aparelho espera o clique, salva e desativa a inscrição
       if (!options.body) return Response.json({publicKey: vapid.publicKey});
       const body = JSON.parse(options.body);
       events.push(body.action);
+      if (body.action === 'test') return Response.json({seconds: 10}, {status: 202});
       return Response.json({enabled: body.action === 'enable'});
     }
   };
@@ -157,15 +211,22 @@ test('configuração no aparelho espera o clique, salva e desativa a inscrição
   try {
     await mountOrderPush(document.querySelector('dialog'));
     const button = document.querySelector('[data-push-toggle]');
+    const testButton = document.querySelector('[data-push-test]');
     assert.equal(button.hidden, false);
+    assert.equal(testButton.hidden, true);
     assert.deepEqual(events, []);
     button.click();
     assert.deepEqual(events, ['subscribe']);
     await new Promise(setImmediate);
     assert.match(document.querySelector('[data-push-status]').textContent, /ativos neste aparelho/);
+    assert.equal(testButton.hidden, false);
+    testButton.click();
+    await new Promise(setImmediate);
+    assert.match(document.querySelector('[data-push-status]').textContent, /Feche o painel agora/);
     button.click();
     await new Promise(setImmediate);
-    assert.deepEqual(events, ['subscribe', 'enable', 'disable', 'unsubscribe']);
+    assert.deepEqual(events, ['subscribe', 'enable', 'test', 'disable', 'unsubscribe']);
+    assert.equal(testButton.hidden, true);
     assert.match(document.querySelector('[data-push-status]').textContent, /Avisos desativados/);
   } finally {
     for (const [name, descriptor] of saved) {
@@ -192,6 +253,10 @@ test('service worker mostra o aviso em segundo plano e abre a área de pedidos',
   assert.equal(shown[0][0], 'Novo pedido na ZM Exclusiva');
   assert.equal(shown[0][1].tag, 'ZM-EXEMPLO-001');
   assert.doesNotMatch(JSON.stringify(shown), /Dado que deve ficar oculto/);
+  handlers.push({data: {json: () => ({test: true})}, waitUntil});
+  await work;
+  assert.equal(shown[1][0], 'Teste de aviso da ZM Exclusiva');
+  assert.equal(shown[1][1].tag, 'zm-order-test');
   let closed = false;
   handlers.notificationclick({notification: {close() {closed = true;}}, waitUntil});
   await work;

@@ -5,7 +5,7 @@ export function createVercelHandler(env,options={}){
  let authService=options.authService;
  function auth(){return authService??=createAuthService(env,{localSetup:Boolean(options.localSetup)});}
  let pushService=options.pushService;
- function push(){return pushService??=createOrderPush(env,{store:createPushStore(auth().pool)});}
+ function push(){return pushService??=createOrderPush(env,{store:createPushStore(auth().pool),defer:options.defer});}
  function orderCreated(orderId){
   const delivery=Promise.resolve().then(()=>push().notify(orderId)).catch(()=>{
    console.warn('Web Push: não foi possível disparar o aviso de pedido.');
