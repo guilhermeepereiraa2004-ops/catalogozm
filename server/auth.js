@@ -39,12 +39,14 @@ export function createAuthService(env,{pool:providedPool,prefix=PREFIX,localSetu
   const result=await connection.query(`SELECT 1 FROM ${bootstrapTable} WHERE id=1 AND token_hash=$1 AND consumed_at IS NULL AND expires_at>now()`,[hash]);
   return result.rowCount===1;
  }
- async function isAdmin(request){
-  if(!request.headers.get('cookie'))return false;
+ async function getAdminUserId(request){
+  if(!request.headers.get('cookie'))return null;
   const session=await auth.api.getSession({headers:request.headers});
-  if(!session?.user?.id)return false;
-  const row=await pool.query(`SELECT 1 FROM ${adminTable} WHERE user_id=$1`,[session.user.id]);return row.rowCount===1;
+  if(!session?.user?.id)return null;
+  const row=await pool.query(`SELECT 1 FROM ${adminTable} WHERE user_id=$1`,[session.user.id]);
+  return row.rowCount===1?session.user.id:null;
  }
+ async function isAdmin(request){return Boolean(await getAdminUserId(request));}
  async function canManageUsers(request){
   if(!managerEmails.size||!request.headers.get('cookie'))return false;
   const session=await auth.api.getSession({headers:request.headers});
@@ -138,5 +140,5 @@ export function createAuthService(env,{pool:providedPool,prefix=PREFIX,localSetu
    return new Response(response.body,{status:response.status,headers});
   }catch{console.error('Autenticação: operação indisponível; detalhes sensíveis omitidos.');return json({error:'Não foi possível acessar sua conta agora. Tente novamente.'},503);}
  }
- return {auth,pool,options,isAdmin,handle,async close(){await pool.end();}};
+ return {auth,pool,options,isAdmin,getAdminUserId,handle,async close(){await pool.end();}};
 }

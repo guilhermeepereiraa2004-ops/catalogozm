@@ -56,13 +56,13 @@ export async function mutate(db,action,args,requestKey){
     requireInput(args.length===2&&text(args[0],20)&&text(args[1],100),'Registro inválido.');next=(action==='record.delete'?deleteRecord:restoreRecord)(current,...args);
    }else throw new InputError('Ação inválida.');
   }catch(error){if(error instanceof InputError)throw error;throw new InputError(error.message);}
-  if(await db.commit(snapshot.revision,next))return {state:next,order};
+  if(await db.commit(snapshot.revision,next))return {state:next,order,createdOrder:Boolean(order)};
  }
  throw new InputError('Os dados da loja estão sendo atualizados. Tente novamente.');
 }
 export function visibleState(state,admin){return {products:admin?state.products:state.products.filter(p=>p.active&&!p.deletedAt),orders:admin?state.orders:[],expenses:admin?state.expenses:[],incomes:admin?(state.incomes||[]):[],tasks:admin?(state.tasks||[]):[],...(admin?{sales:state.sales||[]}: {})};}
 function json(data,status=200){return Response.json(data,{status,headers:{'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});}
-export async function handleApi(request,env,{admin=false,db}={}){
+export async function handleApi(request,env,{admin=false,db,onOrderCreated}={}){
  try{
   const path=new URL(request.url).pathname;
   if(request.headers.get('sec-fetch-site')==='cross-site')return json({error:'Origem não autorizada.'},403);
@@ -87,6 +87,10 @@ export async function handleApi(request,env,{admin=false,db}={}){
    let body;try{const data=new Uint8Array(bytes);let offset=0;for(const c of chunks){data.set(c,offset);offset+=c.length;}body=JSON.parse(new TextDecoder().decode(data));}catch{return json({error:'JSON inválido.'},400);}
    if(!admin&&body.action!=='order.create')return json({error:'Acesso administrativo restrito.'},401);
    const result=await mutate(db||createDatabase(env.DATABASE_URL),body.action,body.args,body.requestKey);
+   if(result.createdOrder&&onOrderCreated){
+    try{await onOrderCreated(result.order.id);}
+    catch{console.warn('Web Push: o pedido foi salvo, mas o aviso falhou.');}
+   }
    return json({...visibleState(result.state,admin),...(result.order?{order:result.order}:{})});
   }
   return json({error:'Rota não encontrada.'},404);

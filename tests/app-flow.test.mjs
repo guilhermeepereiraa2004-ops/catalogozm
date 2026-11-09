@@ -23,6 +23,12 @@ test('app integrado: agendar → pronta → retirada → tarefas → catálogo �
   assert.equal(navigation.hasAttribute('open'),true);
   assert.equal(document.querySelector('[data-action=admin-menu]').getAttribute('aria-expanded'),'true');
   assert.equal(navigation.querySelectorAll('[data-tab]').length,9);
+  assert.equal(document.querySelector('#admin-install-manifest')?.getAttribute('href'),'/admin.webmanifest');
+  navigation.querySelector('[data-action=order-push]').click();
+  assert.equal(navigation.hasAttribute('open'),false);
+  assert.match(document.querySelector('#info-dialog h2').textContent,/Avisos de novos pedidos/);
+  document.querySelector('#info-dialog').close();
+  document.querySelector('[data-action=admin-menu]').click();
   navigation.querySelector('[data-tab=todo]').click();
   window.dispatchEvent(new window.Event('hashchange'));
   await wait(()=>document.querySelector('#todo-form'),'To-do pelo menu mobile');
